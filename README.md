@@ -63,17 +63,17 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 <p align="center"><img src="resources/images/wireframe_usuarios.png" alt="Wireframe usuario" width="800"/></p>
 
-<p align="center"><img src="resources/images/mockups_usuario.png" alt="Mockup usuario" width="800"/></p>
+<p align="center"><img src="resources/images/mockup_usuarios.png" alt="Mockup usuario" width="800"/></p>
 
 <p align="center"><img src="resources/images/wireframe_roles.png" alt="Wireframe roles" width="800"/></p>
 
-<p align="center"><img src="resources/images/mockups_roles.png" alt="Mockup roles" width="800"/></p>
+<p align="center"><img src="resources/images/mockup_roles.png" alt="Mockup roles" width="800"/></p>
 
 Coloca los archivos con los siguientes nombres en `resources/images/`:
 
 - `wireframe_usuarios.png`
-- `mockups_usuario.png`
+- `mockup_usuarios.png`
 - `wireframe_roles.png`
-- `mockups_roles.png`
+- `mockup_roles.png`
 
 Cuando los subas, puedes hacer `git add`, `commit` y `push` para incluirlos en el repositorio.
