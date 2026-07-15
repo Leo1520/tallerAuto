@@ -57,9 +57,8 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-## Leonardo Peña Añez- Administracion .- Usuarios,Roles, Dashboard
+## Leonardo Peña Añez- Administracion .- Usuarios, Roles
 
-**Orden de imágenes (colocar en `resources/images/`):**
 
 <p align="center"><img src="resources/images/wireframe_usuarios.png" alt="Wireframe usuario" width="800"/></p>
 
@@ -69,11 +68,4 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 <p align="center"><img src="resources/images/mockup_roles.png" alt="Mockup roles" width="800"/></p>
 
-Coloca los archivos con los siguientes nombres en `resources/images/`:
 
-- `wireframe_usuarios.png`
-- `mockup_usuarios.png`
-- `wireframe_roles.png`
-- `mockup_roles.png`
-
-Cuando los subas, puedes hacer `git add`, `commit` y `push` para incluirlos en el repositorio.
