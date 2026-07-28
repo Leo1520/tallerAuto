@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrdenServicioController;
 use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +26,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('clientes', ClienteController::class);
     Route::resource('vehiculos', VehiculoController::class);
+
+    Route::resource('ordenes', OrdenServicioController::class)
+        ->parameters(['ordenes' => 'orden']);
+    Route::patch('ordenes/{orden}/estado', [OrdenServicioController::class, 'cambiarEstado'])
+        ->name('ordenes.estado');
 });
