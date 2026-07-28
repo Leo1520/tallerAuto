@@ -85,6 +85,18 @@
                 <i class="bi bi-pencil" style="font-size:11px;"></i>
                 Editar
             </a>
+            <form method="POST" action="{{ route('sucursales.destroy', $suc) }}"
+                  data-confirm="¿Eliminar la sucursal &quot;{{ $suc->nombre }}&quot;? Esta acción no se puede deshacer."
+                  data-confirm-type="danger"
+                  data-confirm-title="Eliminar sucursal"
+                  data-confirm-ok="Sí, eliminar">
+                @csrf @method('DELETE')
+                <button type="submit"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
+                    <i class="bi bi-trash" style="font-size:11px;"></i>
+                    Eliminar
+                </button>
+            </form>
             @endif
         </div>
 

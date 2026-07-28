@@ -89,7 +89,7 @@ Route::middleware('auth')->group(function () {
     // Sucursales
     Route::get('/sucursales/mapa', [SucursalController::class, 'mapa'])->name('sucursales.mapa');
     Route::resource('sucursales', SucursalController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update'])
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->parameters(['sucursales' => 'sucursal']);
 
     // Adjuntos de órdenes

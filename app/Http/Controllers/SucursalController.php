@@ -86,6 +86,17 @@ class SucursalController extends Controller
         $sucursal->update($data);
 
         return redirect()->route('sucursales.index')
-            ->with('success', 'Sucursal actualizada.');
+            ->with('success', 'Sucursal actualizada correctamente.');
+    }
+
+    public function destroy(Sucursal $sucursal): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        $nombre = $sucursal->nombre;
+        $sucursal->delete();
+
+        return redirect()->route('sucursales.index')
+            ->with('success', "Sucursal \"{$nombre}\" eliminada correctamente.");
     }
 }
