@@ -6,10 +6,12 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\MecanicoController;
 use App\Http\Controllers\OrdenServicioController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RepuestoController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +69,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/reportes/ventas',             [ReporteController::class, 'ventas'])->name('reportes.ventas');
     Route::get('/reportes/mecanicos',          [ReporteController::class, 'mecanicos'])->name('reportes.mecanicos');
     Route::get('/reportes/repuestos',          [ReporteController::class, 'repuestos'])->name('reportes.repuestos');
+
+    // Usuarios (admin only)
+    Route::resource('usuarios', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::patch('/usuarios/{usuario}/password', [UserController::class, 'cambiarPassword'])->name('usuarios.password');
+
+    // Mecánicos
+    Route::resource('mecanicos', MecanicoController::class);
 });
 
 // Webhook de Stripe (sin CSRF ni autenticación)
