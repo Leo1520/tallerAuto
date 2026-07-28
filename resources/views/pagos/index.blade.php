@@ -1,167 +1,177 @@
 @extends('layouts.app')
 @section('title', 'Pagos')
+@section('page-title', 'Pagos')
+
+@section('header-actions')
+    <a href="{{ route('pagos.create') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+        <i class="bi bi-plus-lg" style="font-size:15px;"></i> Registrar pago
+    </a>
+@endsection
 
 @section('content')
-<div class="space-y-6">
-    <div class="flex items-center justify-between">
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-green-900/30 border border-green-800">
+            <i class="bi bi-cash-stack text-green-400" style="font-size:18px;"></i>
+        </div>
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Pagos</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Historial de cobros y transacciones</p>
-        </div>
-        <a href="{{ route('pagos.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Registrar Pago
-        </a>
-    </div>
-
-    {{-- Resumen --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total confirmado</p>
-            <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">Bs {{ number_format($totalConfirmado, 2) }}</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pagos en el período</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $pagos->total() }}</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Pendientes de confirmar</p>
-            <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
-                {{ $pagos->getCollection()->where('estado', 'Pendiente')->count() }}
-            </p>
+            <p class="text-xs text-gray-500 font-medium">Total confirmado</p>
+            <p class="text-xl font-bold text-gray-100">Bs {{ number_format($totalConfirmado ?? 0, 2) }}</p>
         </div>
     </div>
-
-    {{-- Filtros --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-        <form method="GET" class="flex flex-wrap gap-3">
-            <select name="estado"
-                    class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Todos los estados</option>
-                @foreach(['Pendiente','Confirmado','Anulado'] as $e)
-                    <option value="{{ $e }}" @selected(request('estado') === $e)>{{ $e }}</option>
-                @endforeach
-            </select>
-
-            <select name="metodo_pago_id"
-                    class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Todos los métodos</option>
-                @foreach($metodos as $m)
-                    <option value="{{ $m->id }}" @selected(request('metodo_pago_id') == $m->id)>{{ $m->nombre }}</option>
-                @endforeach
-            </select>
-
-            <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}"
-                   class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}"
-                   class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-            <button type="submit"
-                    class="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                Filtrar
-            </button>
-            <a href="{{ route('pagos.index') }}"
-               class="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-                Limpiar
-            </a>
-        </form>
+    <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-900/30 border border-blue-800">
+            <i class="bi bi-receipt text-blue-400" style="font-size:18px;"></i>
+        </div>
+        <div>
+            <p class="text-xs text-gray-500 font-medium">Total de registros</p>
+            <p class="text-xl font-bold text-gray-100">{{ $pagos->total() }}</p>
+        </div>
     </div>
-
-    {{-- Tabla --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <tr>
-                    <th class="px-4 py-3 text-left">Fecha</th>
-                    <th class="px-4 py-3 text-left">Orden</th>
-                    <th class="px-4 py-3 text-left">Cliente</th>
-                    <th class="px-4 py-3 text-left">Método</th>
-                    <th class="px-4 py-3 text-right">Monto</th>
-                    <th class="px-4 py-3 text-center">Estado</th>
-                    <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                @forelse($pagos as $pago)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {{ $pago->created_at->format('d/m/Y') }}<br>{{ $pago->created_at->format('H:i') }}
-                    </td>
-                    <td class="px-4 py-3">
-                        <a href="{{ route('ordenes.show', $pago->orden) }}"
-                           class="font-mono text-blue-600 dark:text-blue-400 hover:underline text-xs">{{ $pago->orden->numero }}</a>
-                    </td>
-                    <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
-                        {{ $pago->orden->vehiculo->cliente->persona->nombre ?? '—' }}
-                    </td>
-                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
-                        {{ $pago->metodoPago->nombre }}
-                        @if($pago->transaccion_externa)
-                            <span class="ml-1 text-xs text-gray-400" title="{{ $pago->transaccion_externa }}">
-                                <svg class="w-3 h-3 inline text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                            </span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-white">
-                        Bs {{ number_format($pago->monto, 2) }}
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $pago->estado === 'Confirmado' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                               ($pago->estado === 'Anulado'    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400') }}">
-                            {{ $pago->estado }}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="flex items-center justify-center gap-2">
-                            @if($pago->estado === 'Pendiente')
-                            <form method="POST" action="{{ route('pagos.confirmar', $pago) }}">
-                                @csrf
-                                <button type="submit"
-                                        class="p-1.5 text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors" title="Confirmar pago">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </button>
-                            </form>
-                            @endif
-                            @if($pago->estado !== 'Anulado' && auth()->user()->isAdmin())
-                            <form method="POST" action="{{ route('pagos.anular', $pago) }}"
-                                  data-confirm="¿Anular este pago? Esta acción no se puede deshacer."
-                                  data-confirm-title="Anular pago"
-                                  data-confirm-type="warning"
-                                  data-confirm-ok="Anular">
-                                @csrf
-                                <button type="submit"
-                                        class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Anular">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </form>
-                            @endif
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="px-4 py-12 text-center text-gray-400 dark:text-gray-500">
-                        No se encontraron pagos.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    @if($pagos->hasPages())
-    <div>{{ $pagos->links() }}</div>
-    @endif
 </div>
+
+<form id="filtroForm" method="GET" action="{{ route('pagos.index') }}"
+      class="bg-gray-800 border border-gray-700 rounded-xl p-4 mb-5 flex flex-wrap gap-3 items-end">
+    <div class="w-44">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Estado</label>
+        <select name="estado"
+                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+            <option value="">Todos</option>
+            <option value="Pendiente"   {{ request('estado') === 'Pendiente'   ? 'selected' : '' }}>Pendiente</option>
+            <option value="Confirmado"  {{ request('estado') === 'Confirmado'  ? 'selected' : '' }}>Confirmado</option>
+            <option value="Anulado"     {{ request('estado') === 'Anulado'     ? 'selected' : '' }}>Anulado</option>
+        </select>
+    </div>
+    <div class="w-48">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Método de pago</label>
+        <select name="metodo_pago_id"
+                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+            <option value="">Todos</option>
+            @foreach ($metodos as $m)
+                <option value="{{ $m->id }}" {{ request('metodo_pago_id') == $m->id ? 'selected' : '' }}>{{ $m->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="w-36">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Desde</label>
+        <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}"
+               class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+    </div>
+    <div class="w-36">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Hasta</label>
+        <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}"
+               class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+    </div>
+    <button type="submit"
+            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5">
+        <i class="bi bi-search" style="font-size:13px;"></i> Filtrar
+    </button>
+    @if (request()->hasAny(['estado', 'metodo_pago_id', 'fecha_desde', 'fecha_hasta']))
+        <a href="{{ route('pagos.index') }}"
+           class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1">
+            <i class="bi bi-x-lg" style="font-size:12px;"></i> Limpiar
+        </a>
+    @endif
+</form>
+
+<div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-700">
+        <p class="text-sm text-gray-400">
+            <span class="font-semibold text-gray-200">{{ $pagos->total() }}</span>
+            {{ Str::plural('pago', $pagos->total()) }} encontrados
+        </p>
+    </div>
+
+    @if ($pagos->isEmpty())
+        <div class="py-20 text-center">
+            <i class="bi bi-wallet2 text-gray-600" style="font-size:48px;"></i>
+            <p class="mt-3 text-sm text-gray-500">No se encontraron pagos.</p>
+        </div>
+    @else
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-900/50">
+                    <tr class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left">N° Pago</th>
+                        <th class="px-6 py-3 text-left">Orden</th>
+                        <th class="px-6 py-3 text-left">Cliente</th>
+                        <th class="px-6 py-3 text-left">Método</th>
+                        <th class="px-6 py-3 text-right">Monto</th>
+                        <th class="px-6 py-3 text-center">Estado</th>
+                        <th class="px-6 py-3 text-left">Fecha</th>
+                        <th class="px-6 py-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700/50">
+                    @foreach ($pagos as $pago)
+                    @php
+                        $estadoClass = match($pago->estado) {
+                            'Confirmado' => 'bg-green-900/40 text-green-400 border border-green-800',
+                            'Pendiente'  => 'bg-yellow-900/40 text-yellow-400 border border-yellow-800',
+                            'Anulado'    => 'bg-red-900/40 text-red-400 border border-red-800',
+                            default      => 'bg-gray-700 text-gray-400 border border-gray-600',
+                        };
+                    @endphp
+                    <tr class="hover:bg-gray-700/30 transition-colors">
+                        <td class="px-6 py-3.5 font-mono text-sm font-semibold text-gray-100">{{ $pago->numero }}</td>
+                        <td class="px-6 py-3.5">
+                            <a href="{{ route('ordenes.show', $pago->orden) }}"
+                               class="text-sm font-medium hover:underline" style="color:#D71920;">
+                                {{ $pago->orden->numero }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-3.5 text-sm text-gray-300">{{ $pago->orden->vehiculo->cliente->persona->nombre }}</td>
+                        <td class="px-6 py-3.5 text-sm text-gray-400">{{ $pago->metodoPago->nombre }}</td>
+                        <td class="px-6 py-3.5 text-right text-sm font-semibold text-gray-100">Bs {{ number_format($pago->monto, 2) }}</td>
+                        <td class="px-6 py-3.5 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $estadoClass }}">
+                                {{ $pago->estado }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3.5 text-sm text-gray-400">{{ $pago->created_at->format('d/m/Y') }}</td>
+                        <td class="px-6 py-3.5">
+                            <div class="flex items-center justify-end gap-1.5">
+                                @if ($pago->estado === 'Pendiente')
+                                <form method="POST" action="{{ route('pagos.confirmar', $pago) }}"
+                                      data-confirm="¿Confirmar el pago #{{ $pago->numero }}?"
+                                      data-confirm-type="warning"
+                                      data-confirm-title="Confirmar pago"
+                                      data-confirm-ok="Sí, confirmar">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-green-300 bg-green-900/30 hover:bg-green-900/50 rounded-lg transition-colors border border-green-800/50">
+                                        <i class="bi bi-check-lg" style="font-size:11px;"></i> Confirmar
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('pagos.anular', $pago) }}"
+                                      data-confirm="¿Anular el pago #{{ $pago->numero }}? Esta acción no se puede deshacer.">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-orange-300 bg-orange-900/20 hover:bg-orange-900/40 rounded-lg transition-colors border border-orange-900/50">
+                                        <i class="bi bi-x-circle" style="font-size:11px;"></i> Anular
+                                    </button>
+                                </form>
+                                @else
+                                <a href="{{ route('ordenes.show', $pago->orden) }}"
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors border border-gray-600">
+                                    <i class="bi bi-eye" style="font-size:11px;"></i> Ver orden
+                                </a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    <div class="px-6 py-4 border-t border-gray-700 {{ $pagos->hasPages() ? '' : 'hidden' }}">
+        {{ $pagos->links() }}
+    </div>
+</div>
+
 @endsection

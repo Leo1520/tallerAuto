@@ -79,7 +79,7 @@
             @if(auth()->user()->isAdmin())
             <div class="w-px h-8 bg-gray-700"></div>
             <a href="{{ route('sucursales.edit', $suc) }}"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg transition-colors border border-blue-800/50">
                 <i class="bi bi-pencil" style="font-size:11px;"></i>
                 Editar
             </a>

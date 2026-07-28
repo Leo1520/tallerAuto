@@ -1,128 +1,157 @@
 @extends('layouts.app')
 @section('title', 'Usuarios')
+@section('page-title', 'Usuarios')
+
+@section('header-actions')
+    <a href="{{ route('usuarios.create') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+        <i class="bi bi-person-plus-fill" style="font-size:15px;"></i> Nuevo usuario
+    </a>
+@endsection
 
 @section('content')
-<div class="space-y-6">
 
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Usuarios</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Gestión de cuentas del sistema</p>
-        </div>
-        <a href="{{ route('usuarios.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nuevo usuario
-        </a>
-    </div>
-
-    {{-- Filtros --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-        <form method="GET" class="flex flex-wrap gap-3 items-end">
-            <div class="flex-1 min-w-48">
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Buscar</label>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Nombre o correo..."
-                       class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Rol</label>
-                <select name="rol_id"
-                        class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Todos los roles</option>
-                    @foreach($roles as $rol)
-                        <option value="{{ $rol->id }}" @selected($rolId == $rol->id)>{{ $rol->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="submit"
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                Filtrar
-            </button>
-            @if($search || $rolId)
-            <a href="{{ route('usuarios.index') }}"
-               class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                Limpiar
-            </a>
-            @endif
-        </form>
-    </div>
-
-    {{-- Tabla --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                {{ $usuarios->total() }} usuarios encontrados
+<form id="filtroForm" method="GET" action="{{ route('usuarios.index') }}"
+      class="bg-gray-800 border border-gray-700 rounded-xl p-4 mb-5 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-48">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Buscar</label>
+        <div class="relative">
+            <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" style="font-size:13px; pointer-events:none;"></i>
+            <input id="searchInput" type="text" name="search" value="{{ $search }}"
+                   placeholder="Nombre o correo..." autocomplete="off"
+                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+            <span id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
+                <svg class="animate-spin w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
             </span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    <tr>
-                        <th class="px-4 py-3 text-left">Usuario</th>
-                        <th class="px-4 py-3 text-left">Correo</th>
-                        <th class="px-4 py-3 text-left">Rol</th>
-                        <th class="px-4 py-3 text-center">Último acceso</th>
-                        <th class="px-4 py-3 text-center">Registrado</th>
-                        <th class="px-4 py-3 text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                    @forelse($usuarios as $usuario)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                                    <span class="text-xs font-bold text-blue-700 dark:text-blue-400">
-                                        {{ strtoupper(substr($usuario->persona->nombre, 0, 2)) }}
-                                    </span>
-                                </div>
-                                <span class="font-medium text-gray-900 dark:text-white">{{ $usuario->persona->nombre }}</span>
+    </div>
+    <div class="w-44">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Rol</label>
+        <select name="rol_id"
+                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+            <option value="">Todos los roles</option>
+            @foreach($roles as $rol)
+                <option value="{{ $rol->id }}" @selected($rolId == $rol->id)>{{ $rol->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+    <button type="submit"
+            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5">
+        <i class="bi bi-search" style="font-size:13px;"></i> Filtrar
+    </button>
+    @if($search || $rolId)
+    <a href="{{ route('usuarios.index') }}"
+       class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1">
+        <i class="bi bi-x-lg" style="font-size:12px;"></i> Limpiar
+    </a>
+    @endif
+</form>
+
+<div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-700">
+        <p id="listCount" class="text-sm text-gray-400">
+            <span class="font-semibold text-gray-200">{{ $usuarios->total() }}</span>
+            usuarios encontrados
+        </p>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+            <thead class="bg-gray-900/50">
+                <tr class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <th class="px-6 py-3 text-left">Usuario</th>
+                    <th class="px-6 py-3 text-left">Correo</th>
+                    <th class="px-6 py-3 text-left">Rol</th>
+                    <th class="px-6 py-3 text-center">Último acceso</th>
+                    <th class="px-6 py-3 text-center">Registrado</th>
+                    <th class="px-6 py-3 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-700/50">
+                @forelse($usuarios as $usuario)
+                <tr class="hover:bg-gray-700/30 transition-colors">
+                    <td class="px-6 py-3.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                                 style="background:#D71920;">
+                                {{ strtoupper(substr($usuario->persona->nombre, 0, 2)) }}
                             </div>
-                        </td>
-                        <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ $usuario->email }}</td>
-                        <td class="px-4 py-3">
-                            @foreach($usuario->roles as $rol)
-                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium
-                                    {{ $rol->nombre === 'Admin' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' }}">
-                                    {{ $rol->nombre }}
-                                </span>
-                            @endforeach
-                            @if($usuario->roles->isEmpty())
-                                <span class="text-xs text-gray-400">Sin rol</span>
-                            @endif
-                        </td>
-                        <td class="px-4 py-3 text-center text-gray-500 dark:text-gray-400 text-xs">
-                            {{ $usuario->ultimo_acceso?->diffForHumans() ?? 'Nunca' }}
-                        </td>
-                        <td class="px-4 py-3 text-center text-gray-500 dark:text-gray-400 text-xs">
-                            {{ $usuario->created_at->format('d/m/Y') }}
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('usuarios.edit', $usuario) }}"
-                                   class="px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
-                                    Editar
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-4 py-10 text-center text-gray-400">
-                            No se encontraron usuarios.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if($usuarios->hasPages())
-        <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700">
-            {{ $usuarios->links() }}
-        </div>
-        @endif
+                            <span class="text-sm font-medium text-gray-100">{{ $usuario->persona->nombre }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-3.5 text-sm text-gray-400">{{ $usuario->email }}</td>
+                    <td class="px-6 py-3.5">
+                        @foreach($usuario->roles as $rol)
+                            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold
+                                {{ in_array($rol->nombre, ['Admin','Administrador'])
+                                    ? 'bg-red-900/40 text-red-400 border border-red-800'
+                                    : 'bg-blue-900/30 text-blue-400 border border-blue-800/50' }}">
+                                {{ $rol->nombre }}
+                            </span>
+                        @endforeach
+                        @if($usuario->roles->isEmpty())
+                            <span class="text-xs text-gray-600">Sin rol</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-3.5 text-center text-xs text-gray-500">
+                        {{ $usuario->ultimo_acceso?->diffForHumans() ?? 'Nunca' }}
+                    </td>
+                    <td class="px-6 py-3.5 text-center text-xs text-gray-500">
+                        {{ $usuario->created_at->format('d/m/Y') }}
+                    </td>
+                    <td class="px-6 py-3.5">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="{{ route('usuarios.edit', $usuario) }}"
+                               class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg transition-colors border border-blue-800/50">
+                                <i class="bi bi-pencil" style="font-size:11px;"></i> Editar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-16 text-center text-gray-500">No se encontraron usuarios.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    <div id="listPag" class="px-6 py-4 border-t border-gray-700 {{ $usuarios->hasPages() ? '' : 'hidden' }}">
+        {{ $usuarios->links() }}
     </div>
 </div>
+
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const input   = document.getElementById('searchInput');
+    const spinner = document.getElementById('searchSpinner');
+    const baseUrl = '{{ route('usuarios.index') }}';
+    let controller = null, timer = null;
+
+    async function buscar() {
+        if (controller) controller.abort();
+        controller = new AbortController();
+        spinner.classList.remove('hidden');
+        const params = new URLSearchParams(new FormData(document.getElementById('filtroForm')));
+        for (const [k, v] of [...params.entries()]) { if (!v) params.delete(k); }
+        try {
+            const res = await fetch(baseUrl + (params.toString() ? '?' + params : ''), { signal: controller.signal, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) return;
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            ['tbody', '#listCount', '#listPag'].forEach(sel => {
+                const n = doc.querySelector(sel), c = document.querySelector(sel);
+                if (n && c) c.innerHTML = n.innerHTML;
+            });
+            history.replaceState(null, '', baseUrl + (params.toString() ? '?' + params : ''));
+        } catch(e) { if (e.name !== 'AbortError') console.error(e); }
+        finally { spinner.classList.add('hidden'); controller = null; }
+    }
+
+    input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(buscar, 250); });
+    document.querySelectorAll('#filtroForm select').forEach(s => s.addEventListener('change', buscar));
+})();
+</script>
+@endpush

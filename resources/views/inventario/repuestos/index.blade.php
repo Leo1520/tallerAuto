@@ -1,154 +1,190 @@
 @extends('layouts.app')
 @section('title', 'Repuestos')
+@section('page-title', 'Repuestos')
+
+@section('header-actions')
+    <a href="{{ route('repuestos.create') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+        <i class="bi bi-plus-lg" style="font-size:15px;"></i> Nuevo repuesto
+    </a>
+@endsection
 
 @section('content')
-<div class="space-y-6">
-    {{-- Header --}}
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Repuestos</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Catálogo de repuestos y autopartes</p>
+
+<form id="filtroForm" method="GET" action="{{ route('repuestos.index') }}"
+      class="bg-gray-800 border border-gray-700 rounded-xl p-4 mb-5 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-48">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Buscar</label>
+        <div class="relative">
+            <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" style="font-size:13px; pointer-events:none;"></i>
+            <input id="searchInput" type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Nombre, código o referencia..." autocomplete="off"
+                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+            <span id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
+                <svg class="animate-spin w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+            </span>
         </div>
-        @can('gestionarRepuestos', App\Policies\InventarioPolicy::class)
-        <a href="{{ route('repuestos.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nuevo Repuesto
+    </div>
+    <div class="w-44">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Proveedor</label>
+        <select name="proveedor_id"
+                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+            <option value="">Todos</option>
+            @foreach ($proveedores as $p)
+                <option value="{{ $p->id }}" {{ request('proveedor_id') == $p->id ? 'selected' : '' }}>{{ $p->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="w-36">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Estado</label>
+        <select name="activo"
+                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+            <option value="">Todos</option>
+            <option value="1" {{ request('activo') === '1' ? 'selected' : '' }}>Activos</option>
+            <option value="0" {{ request('activo') === '0' ? 'selected' : '' }}>Inactivos</option>
+        </select>
+    </div>
+    <div class="flex items-center gap-2 self-end pb-2">
+        <input type="checkbox" name="bajo_stock" value="1" id="bajoStock"
+               {{ request('bajo_stock') ? 'checked' : '' }}
+               class="w-4 h-4 rounded border-gray-600 bg-gray-900 text-red-600 focus:ring-red-600 cursor-pointer">
+        <label for="bajoStock" class="text-xs font-medium text-gray-400 cursor-pointer whitespace-nowrap">Stock bajo</label>
+    </div>
+    <button type="submit"
+            class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5">
+        <i class="bi bi-search" style="font-size:13px;"></i> Filtrar
+    </button>
+    @if (request()->hasAny(['search', 'proveedor_id', 'activo', 'bajo_stock']))
+        <a href="{{ route('repuestos.index') }}"
+           class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1">
+            <i class="bi bi-x-lg" style="font-size:12px;"></i> Limpiar
         </a>
-        @endcan
-    </div>
-
-    {{-- Filtros --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-        <form method="GET" class="flex flex-wrap gap-3">
-            <input type="text" name="search" value="{{ request('search') }}"
-                   placeholder="Buscar por nombre o código..."
-                   class="flex-1 min-w-48 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-
-            <select name="proveedor_id"
-                    class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Todos los proveedores</option>
-                @foreach($proveedores as $prov)
-                    <option value="{{ $prov->id }}" @selected(request('proveedor_id') == $prov->id)>{{ $prov->nombre }}</option>
-                @endforeach
-            </select>
-
-            <select name="activo"
-                    class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Todos</option>
-                <option value="1" @selected(request('activo') === '1')>Activos</option>
-                <option value="0" @selected(request('activo') === '0')>Inactivos</option>
-            </select>
-
-            <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" name="bajo_stock" value="1" @checked(request('bajo_stock'))
-                       class="rounded border-gray-300 text-red-600 focus:ring-red-500">
-                Bajo stock
-            </label>
-
-            <button type="submit"
-                    class="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                Filtrar
-            </button>
-            <a href="{{ route('repuestos.index') }}"
-               class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-                Limpiar
-            </a>
-        </form>
-    </div>
-
-    {{-- Tabla --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <tr>
-                    <th class="px-4 py-3 text-left">Código</th>
-                    <th class="px-4 py-3 text-left">Nombre</th>
-                    <th class="px-4 py-3 text-left">Proveedor</th>
-                    <th class="px-4 py-3 text-right">Precio Compra</th>
-                    <th class="px-4 py-3 text-right">Precio Venta</th>
-                    <th class="px-4 py-3 text-center">Stock Total</th>
-                    <th class="px-4 py-3 text-center">Estado</th>
-                    <th class="px-4 py-3 text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                @forelse($repuestos as $repuesto)
-                @php
-                    $stockTotal    = $repuesto->inventarios->sum('stock');
-                    $stockMinTotal = $repuesto->inventarios->sum('stock_minimo');
-                    $bajStock      = $stockTotal <= $stockMinTotal && $repuesto->inventarios->isNotEmpty();
-                @endphp
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td class="px-4 py-3 font-mono text-gray-600 dark:text-gray-400">{{ $repuesto->codigo }}</td>
-                    <td class="px-4 py-3">
-                        <div class="font-medium text-gray-900 dark:text-white">{{ $repuesto->nombre }}</div>
-                        @if($repuesto->descripcion)
-                            <div class="text-xs text-gray-400 truncate max-w-xs">{{ Str::limit($repuesto->descripcion, 60) }}</div>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $repuesto->proveedor?->nombre ?? '—' }}</td>
-                    <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">Bs {{ number_format($repuesto->precio_compra, 2) }}</td>
-                    <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">Bs {{ number_format($repuesto->precio_venta, 2) }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $bajStock ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' }}">
-                            {{ $stockTotal }}
-                            @if($bajStock) ⚠ @endif
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium
-                            {{ $repuesto->activo ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
-                            {{ $repuesto->activo ? 'Activo' : 'Inactivo' }}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('repuestos.show', $repuesto) }}"
-                               class="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Ver detalle">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </a>
-                            @can('gestionarRepuestos', App\Policies\InventarioPolicy::class)
-                            <a href="{{ route('repuestos.edit', $repuesto) }}"
-                               class="p-1.5 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors" title="Editar">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </a>
-                            <form method="POST" action="{{ route('repuestos.destroy', $repuesto) }}"
-                                  data-confirm="¿Eliminar este repuesto? Esta acción no se puede deshacer.">
-                                @csrf @method('DELETE')
-                                <button type="submit"
-                                        class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Eliminar">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </form>
-                            @endcan
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="px-4 py-12 text-center text-gray-400 dark:text-gray-500">
-                        No se encontraron repuestos.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    {{-- Paginación --}}
-    @if($repuestos->hasPages())
-    <div>{{ $repuestos->links() }}</div>
     @endif
+</form>
+
+<div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-700">
+        <p id="listCount" class="text-sm text-gray-400">
+            <span class="font-semibold text-gray-200">{{ $repuestos->total() }}</span>
+            repuestos encontrados
+        </p>
+    </div>
+
+    @if ($repuestos->isEmpty())
+        <div class="py-20 text-center">
+            <i class="bi bi-box-seam text-gray-600" style="font-size:48px;"></i>
+            <p class="mt-3 text-sm text-gray-500">No se encontraron repuestos.</p>
+        </div>
+    @else
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-900/50">
+                    <tr class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left">Repuesto</th>
+                        <th class="px-6 py-3 text-left">Proveedor</th>
+                        <th class="px-6 py-3 text-right">Precio Compra</th>
+                        <th class="px-6 py-3 text-right">Precio Venta</th>
+                        <th class="px-6 py-3 text-center">Stock total</th>
+                        <th class="px-6 py-3 text-center">Estado</th>
+                        <th class="px-6 py-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700/50">
+                    @foreach ($repuestos as $repuesto)
+                    @php
+                        $stockTotal = $repuesto->inventarios->sum('stock');
+                        $bajoPorAlguna = $repuesto->inventarios->contains(fn($i) => $i->stock <= $i->stock_minimo);
+                    @endphp
+                    <tr class="hover:bg-gray-700/30 transition-colors">
+                        <td class="px-6 py-3.5">
+                            <p class="text-sm font-semibold text-gray-100">{{ $repuesto->nombre }}</p>
+                            @if($repuesto->codigo)
+                            <p class="text-xs font-mono text-gray-500">{{ $repuesto->codigo }}</p>
+                            @endif
+                        </td>
+                        <td class="px-6 py-3.5 text-sm text-gray-400">{{ $repuesto->proveedor->nombre ?? '—' }}</td>
+                        <td class="px-6 py-3.5 text-right text-sm text-gray-300">Bs {{ number_format($repuesto->precio_compra, 2) }}</td>
+                        <td class="px-6 py-3.5 text-right text-sm font-medium text-gray-100">Bs {{ number_format($repuesto->precio_venta, 2) }}</td>
+                        <td class="px-6 py-3.5 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold
+                                {{ $bajoPorAlguna ? 'bg-orange-900/40 text-orange-400 border border-orange-800' : 'bg-gray-700 text-gray-300 border border-gray-600' }}">
+                                {{ $stockTotal }}
+                                @if($bajoPorAlguna) <i class="bi bi-exclamation-triangle-fill" style="font-size:10px;"></i> @endif
+                            </span>
+                        </td>
+                        <td class="px-6 py-3.5 text-center">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold
+                                {{ $repuesto->activo
+                                    ? 'bg-green-900/40 text-green-400 border border-green-800'
+                                    : 'bg-gray-700 text-gray-500 border border-gray-600' }}">
+                                {{ $repuesto->activo ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3.5">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{{ route('repuestos.show', $repuesto) }}"
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors border border-gray-600">
+                                    <i class="bi bi-eye" style="font-size:11px;"></i> Ver
+                                </a>
+                                <a href="{{ route('repuestos.edit', $repuesto) }}"
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg transition-colors border border-blue-800/50">
+                                    <i class="bi bi-pencil" style="font-size:11px;"></i> Editar
+                                </a>
+                                <form method="POST" action="{{ route('repuestos.destroy', $repuesto) }}"
+                                      data-confirm="¿Eliminar el repuesto {{ addslashes($repuesto->nombre) }}?">
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
+                                        <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    <div id="listPag" class="px-6 py-4 border-t border-gray-700 {{ $repuestos->hasPages() ? '' : 'hidden' }}">
+        {{ $repuestos->links() }}
+    </div>
 </div>
+
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const input   = document.getElementById('searchInput');
+    const spinner = document.getElementById('searchSpinner');
+    const baseUrl = '{{ route('repuestos.index') }}';
+    let controller = null, timer = null;
+
+    async function buscar() {
+        if (controller) controller.abort();
+        controller = new AbortController();
+        spinner.classList.remove('hidden');
+        const params = new URLSearchParams(new FormData(document.getElementById('filtroForm')));
+        for (const [k, v] of [...params.entries()]) { if (!v) params.delete(k); }
+        try {
+            const res = await fetch(baseUrl + (params.toString() ? '?' + params : ''), { signal: controller.signal, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) return;
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            ['tbody', '#listCount', '#listPag'].forEach(sel => {
+                const n = doc.querySelector(sel), c = document.querySelector(sel);
+                if (n && c) c.innerHTML = n.innerHTML;
+            });
+            history.replaceState(null, '', baseUrl + (params.toString() ? '?' + params : ''));
+        } catch(e) { if (e.name !== 'AbortError') console.error(e); }
+        finally { spinner.classList.add('hidden'); controller = null; }
+    }
+
+    input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(buscar, 250); });
+    document.querySelectorAll('#filtroForm select').forEach(s => s.addEventListener('change', buscar));
+    document.getElementById('bajoStock').addEventListener('change', buscar);
+})();
+</script>
+@endpush
