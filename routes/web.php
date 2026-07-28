@@ -50,7 +50,8 @@ Route::middleware('auth')->group(function () {
 
     // Inventario
     Route::resource('repuestos', RepuestoController::class);
-    Route::resource('proveedores', ProveedorController::class);
+    Route::resource('proveedores', ProveedorController::class)
+        ->parameters(['proveedores' => 'proveedor']);
     Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
     Route::post('/inventario/movimiento', [InventarioController::class, 'movimiento'])->name('inventario.movimiento');
     Route::get('/inventario/movimientos', [InventarioController::class, 'movimientos'])->name('inventario.movimientos');
