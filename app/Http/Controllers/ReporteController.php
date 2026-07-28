@@ -70,11 +70,11 @@ class ReporteController extends Controller
             ->whereBetween('facturas.fecha_emision', ["{$desde} 00:00:00", "{$hasta} 23:59:59"])
             ->when($sucursalId, fn($q) => $q->where('ordenes_servicio.sucursal_id', $sucursalId))
             ->selectRaw('
-                COUNT(*) as total_facturas,
-                SUM(subtotal) as subtotal,
-                SUM(iva) as iva,
-                SUM(total) as total,
-                AVG(total) as ticket_promedio
+                COUNT(facturas.id) as total_facturas,
+                SUM(facturas.subtotal) as subtotal,
+                SUM(facturas.iva) as iva,
+                SUM(facturas.total) as total,
+                AVG(facturas.total) as ticket_promedio
             ')
             ->first();
 
