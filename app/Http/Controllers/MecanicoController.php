@@ -112,7 +112,7 @@ class MecanicoController extends Controller
         $mecanico->load(['persona', 'sucursal', 'especialidad', 'persona.user.roles']);
 
         $ordenes = $mecanico->ordenes()
-            ->with(['vehiculo.cliente.persona', 'vehiculo.marca', 'vehiculo.modelo'])
+            ->with(['vehiculo.cliente.persona', 'vehiculo.modelo.marca'])
             ->latest()
             ->paginate(10);
 
