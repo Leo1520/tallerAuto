@@ -39,27 +39,53 @@ class UserController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        // Mecánicos que aún no tienen cuenta de usuario
+        $personasConCuenta = User::pluck('persona_id');
+        $mecanicosSinCuenta = \App\Models\Mecanico::with(['persona', 'especialidad', 'sucursal'])
+            ->whereNotIn('persona_id', $personasConCuenta)
+            ->when($search, fn($q) => $q->whereHas('persona',
+                fn($p) => $p->where('nombre', 'like', "%{$search}%")
+            ))
+            ->when($rolId, fn($q) => $q->whereRaw('0=1')) // si filtran por rol, no mostrar mecánicos sin cuenta
+            ->orderBy('id')
+            ->get();
+
         $roles = Role::where('activo', true)->orderBy('nombre')->get();
 
-        return view('usuarios.index', compact('usuarios', 'roles', 'search', 'rolId'));
+        return view('usuarios.index', compact('usuarios', 'roles', 'search', 'rolId', 'mecanicosSinCuenta'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $this->autorizar();
         $roles = Role::where('activo', true)->orderBy('nombre')->get();
-        return view('usuarios.create', compact('roles'));
+
+        // Pre-relleno cuando viene de "Crear cuenta" de un mecánico existente
+        $personaId   = $request->query('persona_id');
+        $preNombre   = $request->query('nombre');
+        $preEmail    = $request->query('email');
+        $esMecanico  = $personaId ? \App\Models\Mecanico::where('persona_id', $personaId)->exists() : false;
+
+        return view('usuarios.create', compact('roles', 'personaId', 'preNombre', 'preEmail', 'esMecanico'));
     }
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
         DB::transaction(function () use ($request) {
-            $persona = Persona::create([
-                'nombre'   => $request->nombre,
-                'telefono' => $request->telefono,
-                'email'    => $request->email,
-                'activo'   => true,
-            ]);
+            // Si ya existe una persona (mecánico), reutilizarla
+            if ($request->persona_id && Persona::find($request->persona_id)) {
+                $persona = Persona::find($request->persona_id);
+                $persona->update([
+                    'email'  => $request->email,
+                ]);
+            } else {
+                $persona = Persona::create([
+                    'nombre'   => $request->nombre,
+                    'telefono' => $request->telefono,
+                    'email'    => $request->email,
+                    'activo'   => true,
+                ]);
+            }
 
             $user = User::create([
                 'persona_id' => $persona->id,

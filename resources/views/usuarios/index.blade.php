@@ -53,6 +53,9 @@
         <p id="listCount" class="text-sm text-gray-400">
             <span class="font-semibold text-gray-200">{{ $usuarios->total() }}</span>
             usuarios encontrados
+            @if($mecanicosSinCuenta->isNotEmpty() && !request('rol_id'))
+                · <span class="text-yellow-500">{{ $mecanicosSinCuenta->count() }} mecánico(s) sin cuenta</span>
+            @endif
         </p>
     </div>
     <div class="overflow-x-auto">
@@ -109,10 +112,46 @@
                     </td>
                 </tr>
                 @empty
+                @if($mecanicosSinCuenta->isEmpty())
                 <tr>
                     <td colspan="6" class="px-6 py-16 text-center text-gray-500">No se encontraron usuarios.</td>
                 </tr>
+                @endif
                 @endforelse
+
+                {{-- Mecánicos sin cuenta de usuario --}}
+                @foreach($mecanicosSinCuenta as $mec)
+                <tr class="hover:bg-gray-700/30 transition-colors opacity-80">
+                    <td class="px-6 py-3.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                                 style="background:#374151;">
+                                {{ strtoupper(substr($mec->persona->nombre, 0, 2)) }}
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-300">{{ $mec->persona->nombre }}</span>
+                                <span class="ml-2 text-xs text-gray-600">sin cuenta</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-3.5 text-sm text-gray-500">{{ $mec->persona->email ?? '—' }}</td>
+                    <td class="px-6 py-3.5">
+                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-700 text-gray-400 border border-gray-600">
+                            Mecánico
+                        </span>
+                    </td>
+                    <td class="px-6 py-3.5 text-center text-xs text-gray-600">—</td>
+                    <td class="px-6 py-3.5 text-center text-xs text-gray-600">—</td>
+                    <td class="px-6 py-3.5">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <a href="{{ route('usuarios.create', ['persona_id' => $mec->persona_id, 'nombre' => $mec->persona->nombre, 'email' => $mec->persona->email]) }}"
+                               class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-green-300 bg-green-900/30 hover:bg-green-900/50 rounded-lg transition-colors border border-green-800/50">
+                                <i class="bi bi-person-plus" style="font-size:11px;"></i> Crear cuenta
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

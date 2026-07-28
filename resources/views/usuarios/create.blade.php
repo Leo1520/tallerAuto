@@ -1,52 +1,72 @@
 @extends('layouts.app')
+
 @section('title', 'Nuevo Usuario')
+@section('page-title', 'Nuevo Usuario')
+
+@section('header-actions')
+    <a href="{{ route('usuarios.index') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors">
+        <i class="bi bi-arrow-left" style="font-size:15px;"></i> Volver
+    </a>
+@endsection
 
 @section('content')
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-2xl mx-auto">
+<form method="POST" action="{{ route('usuarios.store') }}" class="space-y-5">
+    @csrf
 
-    <div class="flex items-center gap-4">
-        <a href="{{ route('usuarios.index') }}"
-           class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </a>
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo usuario</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Crear cuenta de acceso al sistema</p>
-        </div>
+    @if($personaId)
+        <input type="hidden" name="persona_id" value="{{ $personaId }}">
+    @endif
+
+    @if($esMecanico)
+    <div class="flex items-center gap-3 px-4 py-3 rounded-xl border text-sm"
+         style="background:rgba(59,130,246,.08); border-color:rgba(59,130,246,.3); color:#93c5fd;">
+        <i class="bi bi-wrench-adjustable-circle-fill" style="font-size:16px;"></i>
+        <span>Creando cuenta para un mecánico existente — los datos personales ya están registrados.</span>
     </div>
+    @endif
 
-    <form method="POST" action="{{ route('usuarios.store') }}" class="space-y-6">
-        @csrf
+    @if($errors->any())
+    <div class="p-4 rounded-xl border text-sm flex items-start gap-3"
+         style="background:rgba(215,25,32,.1); border-color:rgba(215,25,32,.3); color:#f87171;">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-0.5"></i>
+        <ul class="space-y-0.5 list-disc list-inside">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
-        {{-- Datos personales --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
-            <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Datos personales</h2>
-
+    {{-- Datos personales --}}
+    @if(!$personaId)
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h2 class="text-base font-semibold text-gray-100 flex items-center gap-2">
+                <i class="bi bi-person" style="color:#D71920;"></i>
+                Datos personales
+            </h2>
+        </div>
+        <div class="p-6 space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nombre completo <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="nombre" value="{{ old('nombre') }}"
-                       class="w-full px-3 py-2 text-sm border @error('nombre') border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                @error('nombre')
-                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                @enderror
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Nombre completo <span class="text-red-400">*</span></label>
+                <input type="text" name="nombre" value="{{ old('nombre', $preNombre ?? '') }}" required
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 @error('nombre') border-red-500 @enderror"
+                       placeholder="Nombre completo">
+                @error('nombre') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Teléfono</label>
                     <input type="text" name="telefono" value="{{ old('telefono') }}"
-                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                           class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500"
+                           placeholder="+591 7XXXXXXX">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Rol
-                    </label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Rol</label>
                     <select name="rol_id"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
                         <option value="">Sin rol</option>
                         @foreach($roles as $rol)
                             <option value="{{ $rol->id }}" @selected(old('rol_id') == $rol->id)>{{ $rol->nombre }}</option>
@@ -55,53 +75,82 @@
                 </div>
             </div>
         </div>
-
-        {{-- Credenciales --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
-            <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Credenciales de acceso</h2>
-
+    </div>
+    @else
+    {{-- Si es mecánico, solo mostrar nombre (readonly) + rol --}}
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h2 class="text-base font-semibold text-gray-100 flex items-center gap-2">
+                <i class="bi bi-person" style="color:#D71920;"></i>
+                Datos personales
+            </h2>
+        </div>
+        <div class="p-6 space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Correo electrónico <span class="text-red-500">*</span>
-                </label>
-                <input type="email" name="email" value="{{ old('email') }}"
-                       class="w-full px-3 py-2 text-sm border @error('email') border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                @error('email')
-                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                @enderror
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Nombre</label>
+                <input type="text" value="{{ $preNombre }}" disabled
+                       class="w-full px-3 py-2.5 bg-gray-900/50 border border-gray-700 text-gray-400 rounded-lg text-sm cursor-not-allowed">
             </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Rol</label>
+                <select name="rol_id"
+                        class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+                    <option value="">Sin rol</option>
+                    @foreach($roles as $rol)
+                        <option value="{{ $rol->id }}" @selected(old('rol_id') == $rol->id)>{{ $rol->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </div>
+    @endif
 
+    {{-- Credenciales --}}
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h2 class="text-base font-semibold text-gray-100 flex items-center gap-2">
+                <i class="bi bi-shield-lock" style="color:#D71920;"></i>
+                Credenciales de acceso
+            </h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Correo electrónico <span class="text-red-400">*</span></label>
+                <input type="email" name="email" value="{{ old('email', $preEmail ?? '') }}" required
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 @error('email') border-red-500 @enderror"
+                       placeholder="correo@ejemplo.com">
+                @error('email') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Contraseña <span class="text-red-500">*</span>
-                    </label>
-                    <input type="password" name="password"
-                           class="w-full px-3 py-2 text-sm border @error('password') border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    @error('password')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Contraseña <span class="text-red-400">*</span></label>
+                    <input type="password" name="password" required
+                           class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 @error('password') border-red-500 @enderror"
+                           placeholder="Mínimo 8 caracteres">
+                    @error('password') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Confirmar contraseña <span class="text-red-500">*</span>
-                    </label>
-                    <input type="password" name="password_confirmation"
-                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Confirmar contraseña <span class="text-red-400">*</span></label>
+                    <input type="password" name="password_confirmation" required
+                           class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
+                           placeholder="Repetir contraseña">
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="flex justify-end gap-3">
-            <a href="{{ route('usuarios.index') }}"
-               class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                Cancelar
-            </a>
-            <button type="submit"
-                    class="px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-                Crear usuario
-            </button>
-        </div>
-    </form>
+    <div class="flex items-center justify-end gap-3">
+        <a href="{{ route('usuarios.index') }}"
+           class="px-5 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+            Cancelar
+        </a>
+        <button type="submit"
+                class="px-6 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors"
+                style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+            <i class="bi bi-check-lg me-1"></i> Crear usuario
+        </button>
+    </div>
+
+</form>
 </div>
 @endsection

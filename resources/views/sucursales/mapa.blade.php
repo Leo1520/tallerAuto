@@ -11,13 +11,58 @@
     </a>
 @endsection
 
+@push('styles')
+<style>
+    #mapa-sucursales { height: 500px; width: 100%; }
+
+    /* Estilos del InfoWindow de Google Maps */
+    .gm-infowindow-inner {
+        padding: 0 !important;
+    }
+    .iw-body {
+        min-width: 200px;
+        padding: 14px 16px;
+        font-family: inherit;
+        background: #1f2937;
+        border-radius: 10px;
+        color: #f1f5f9;
+    }
+    .iw-title {
+        font-weight: 700;
+        font-size: 14px;
+        margin: 0 0 4px;
+        color: #f9fafb;
+    }
+    .iw-sub {
+        font-size: 12px;
+        color: #9ca3af;
+        margin: 0 0 3px;
+    }
+    .iw-stats {
+        display: flex;
+        gap: 14px;
+        font-size: 12px;
+        color: #d1d5db;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #374151;
+    }
+    .iw-stats b { color: #f9fafb; }
+    .iw-phone {
+        font-size: 12px;
+        color: #9ca3af;
+        margin: 6px 0 0;
+    }
+</style>
+@endpush
+
 @section('content')
 
 <div class="space-y-5">
 
     {{-- Mapa --}}
     <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-        <div id="mapa-sucursales" style="height:500px; width:100%;"></div>
+        <div id="mapa-sucursales"></div>
     </div>
 
     {{-- Lista de sucursales con coordenadas --}}
@@ -25,7 +70,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         @foreach($sucursales as $suc)
         <div class="bg-gray-800 rounded-xl border border-gray-700 px-5 py-4 flex items-center gap-4 cursor-pointer hover:border-red-700 transition-colors"
-             onclick="centerMap({{ $suc->latitud }}, {{ $suc->longitud }}, '{{ addslashes($suc->nombre) }}')"
+             onclick="centerMap({{ $suc->latitud }}, {{ $suc->longitud }}, {{ $loop->index }})"
              title="Centrar en mapa">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                  style="background:rgba(215,25,32,.15);">
@@ -55,75 +100,97 @@
 
 @endsection
 
-@push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-@endpush
-
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const sucursales = @json($sucursales);
+const SUCURSALES = @json($sucursales);
 
-const map = L.map('mapa-sucursales', {
-    center: sucursales.length
-        ? [sucursales[0].latitud, sucursales[0].longitud]
-        : [-16.5, -68.15],
-    zoom: sucursales.length > 1 ? 8 : 13,
-    zoomControl: true,
-});
+const MAP_STYLES = [
+    { elementType: 'geometry', stylers: [{ color: '#1d2433' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#1a3646' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#304a7d' }] },
+    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#98a5be' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1626' }] },
+    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#283d6a' }] },
+    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#6f9ba5' }] },
+    { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
+    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#4b6878' }] },
+];
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-}).addTo(map);
+let map, markers = [], openInfoWindow = null;
 
-const redIcon = L.divIcon({
-    className: '',
-    html: `<div style="
-        width:32px; height:32px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
-        background:#D71920; border:3px solid #fff;
-        box-shadow: 0 2px 8px rgba(0,0,0,.4);
-    "></div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-});
+function initMap() {
+    const defaultCenter = SUCURSALES.length
+        ? { lat: parseFloat(SUCURSALES[0].latitud), lng: parseFloat(SUCURSALES[0].longitud) }
+        : { lat: -17.7833, lng: -63.1821 };
 
-const markers = [];
+    map = new google.maps.Map(document.getElementById('mapa-sucursales'), {
+        center: defaultCenter,
+        zoom: SUCURSALES.length > 1 ? 11 : 14,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
+        styles: MAP_STYLES,
+    });
 
-sucursales.forEach(suc => {
-    const marker = L.marker([suc.latitud, suc.longitud], { icon: redIcon })
-        .addTo(map)
-        .bindPopup(`
-            <div style="min-width:180px; font-family:sans-serif;">
-                <p style="font-weight:700; font-size:14px; margin:0 0 4px;">${suc.nombre}</p>
-                ${suc.ciudad ? `<p style="color:#6b7280; font-size:12px; margin:0 0 4px;">${suc.ciudad}</p>` : ''}
-                ${suc.direccion ? `<p style="color:#6b7280; font-size:12px; margin:0 0 6px;">${suc.direccion}</p>` : ''}
-                <div style="display:flex; gap:12px; font-size:12px;">
+    const bounds = new google.maps.LatLngBounds();
+
+    SUCURSALES.forEach((suc, i) => {
+        const pos = { lat: parseFloat(suc.latitud), lng: parseFloat(suc.longitud) };
+        bounds.extend(pos);
+
+        const marker = new google.maps.Marker({
+            map,
+            position: pos,
+            title: suc.nombre,
+            animation: google.maps.Animation.DROP,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 11,
+                fillColor: '#D71920',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2.5,
+            },
+        });
+
+        const infoContent = `
+            <div class="iw-body">
+                <p class="iw-title">${suc.nombre}</p>
+                ${suc.ciudad   ? `<p class="iw-sub">${suc.ciudad}</p>` : ''}
+                ${suc.direccion ? `<p class="iw-sub">${suc.direccion}</p>` : ''}
+                <div class="iw-stats">
                     <span><b>${suc.mecanicos_activos}</b> mecánicos</span>
                     <span><b>${suc.ordenes_activas}</b> órdenes</span>
                 </div>
-                ${suc.telefono ? `<p style="margin:6px 0 0; font-size:12px; color:#374151;">${suc.telefono}</p>` : ''}
-            </div>
-        `);
-    markers.push(marker);
-});
+                ${suc.telefono ? `<p class="iw-phone">${suc.telefono}</p>` : ''}
+            </div>`;
 
-if (sucursales.length > 1) {
-    const group = L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.15));
+        const infoWindow = new google.maps.InfoWindow({ content: infoContent });
+
+        marker.addListener('click', () => {
+            if (openInfoWindow) openInfoWindow.close();
+            infoWindow.open(map, marker);
+            openInfoWindow = infoWindow;
+        });
+
+        markers.push({ marker, infoWindow });
+    });
+
+    if (SUCURSALES.length > 1) {
+        map.fitBounds(bounds, { padding: 60 });
+    }
 }
 
-// Forzar re-render por si el contenedor no tenía dimensiones al inicializar
-setTimeout(() => map.invalidateSize(), 200);
-
-function centerMap(lat, lng, nombre) {
-    map.setView([lat, lng], 14, { animate: true });
-    markers.forEach(m => {
-        if (Math.abs(m.getLatLng().lat - lat) < 0.0001 && Math.abs(m.getLatLng().lng - lng) < 0.0001) {
-            m.openPopup();
-        }
-    });
+function centerMap(lat, lng, index) {
+    map.panTo({ lat: parseFloat(lat), lng: parseFloat(lng) });
+    map.setZoom(16);
+    if (openInfoWindow) openInfoWindow.close();
+    if (markers[index]) {
+        markers[index].infoWindow.open(map, markers[index].marker);
+        openInfoWindow = markers[index].infoWindow;
+    }
 }
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&callback=initMap" async defer></script>
 @endpush

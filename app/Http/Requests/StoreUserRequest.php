@@ -13,12 +13,15 @@ class StoreUserRequest extends FormRequest
 
     public function rules(): array
     {
+        $tienePersona = $this->filled('persona_id');
+
         return [
-            'nombre'            => 'required|string|max:100',
-            'telefono'          => 'nullable|string|max:20',
-            'email'             => 'required|email|max:100|unique:persona,email|unique:users,email',
-            'password'          => 'required|string|min:8|confirmed',
-            'rol_id'            => 'nullable|exists:roles,id',
+            'persona_id' => 'nullable|exists:persona,id',
+            'nombre'     => $tienePersona ? 'nullable|string|max:100' : 'required|string|max:100',
+            'telefono'   => 'nullable|string|max:20',
+            'email'      => 'required|email|max:100|unique:users,email',
+            'password'   => 'required|string|min:8|confirmed',
+            'rol_id'     => 'nullable|exists:roles,id',
         ];
     }
 
