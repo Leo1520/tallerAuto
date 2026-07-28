@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FacturaController;
@@ -60,6 +61,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/facturas/emitir',            [FacturaController::class, 'emitir'])->name('facturas.emitir');
     Route::post('/facturas/{factura}/anular',  [FacturaController::class, 'anular'])->name('facturas.anular');
     Route::get('/facturas/{factura}/pdf',      [FacturaController::class, 'pdf'])->name('facturas.pdf');
+
+    // Reportes
+    Route::get('/reportes',                    [ReporteController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/ventas',             [ReporteController::class, 'ventas'])->name('reportes.ventas');
+    Route::get('/reportes/mecanicos',          [ReporteController::class, 'mecanicos'])->name('reportes.mecanicos');
+    Route::get('/reportes/repuestos',          [ReporteController::class, 'repuestos'])->name('reportes.repuestos');
 });
 
 // Webhook de Stripe (sin CSRF ni autenticación)
