@@ -12,6 +12,22 @@
 @section('content')
 
 <div class="max-w-2xl mx-auto">
+
+@if($errors->any())
+<div class="mb-4 p-4 rounded-xl border text-sm flex items-start gap-3"
+     style="background:rgba(215,25,32,.1); border-color:rgba(215,25,32,.3); color:#f87171;">
+    <i class="bi bi-exclamation-circle-fill mt-0.5 flex-shrink-0" style="font-size:15px;"></i>
+    <div>
+        <p class="font-semibold mb-1">Corrige los siguientes errores:</p>
+        <ul class="list-disc list-inside space-y-0.5">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+</div>
+@endif
+
 <form method="POST" action="{{ route('mecanicos.update', $mecanico) }}" class="space-y-4">
     @csrf @method('PUT')
 

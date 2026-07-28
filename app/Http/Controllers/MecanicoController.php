@@ -153,7 +153,7 @@ class MecanicoController extends Controller
                 'sucursal_id'     => $request->sucursal_id,
                 'especialidad_id' => $request->especialidad_id,
                 'cedula'          => $request->cedula,
-                'fecha_ingreso'   => $request->fecha_ingreso,
+                'fecha_ingreso'   => $request->filled('fecha_ingreso') ? $request->fecha_ingreso : $mecanico->fecha_ingreso,
                 'salario'         => $request->salario,
                 'activo'          => $request->boolean('activo', true),
             ]);

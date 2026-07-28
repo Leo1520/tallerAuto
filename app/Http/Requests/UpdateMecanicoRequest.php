@@ -22,7 +22,7 @@ class UpdateMecanicoRequest extends FormRequest
             'cedula'          => 'required|string|max:20|unique:mecanicos,cedula,' . $mecanico->id,
             'sucursal_id'     => 'required|exists:sucursales,id',
             'especialidad_id' => 'required|exists:especialidades,id',
-            'fecha_ingreso'   => 'required|date',
+            'fecha_ingreso'   => 'nullable|date',
             'salario'         => 'required|numeric|min:0',
             'activo'          => 'nullable|boolean',
         ];
