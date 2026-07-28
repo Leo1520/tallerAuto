@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Públicas ────────────────────────────────────────────────
@@ -17,7 +19,10 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-// ─── Dashboard (autenticado) ─────────────────────────────────
+// ─── Dashboard y módulos (autenticado) ───────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('clientes', ClienteController::class);
+    Route::resource('vehiculos', VehiculoController::class);
 });
