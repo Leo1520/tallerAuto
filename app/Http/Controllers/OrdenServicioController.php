@@ -11,9 +11,12 @@ use App\Models\OrdenServicio;
 use App\Models\Servicio;
 use App\Models\Sucursal;
 use App\Models\Vehiculo;
+use App\Notifications\OrdenAsignadaNotification;
+use App\Notifications\OrdenEstadoNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class OrdenServicioController extends Controller
@@ -84,6 +87,7 @@ class OrdenServicioController extends Controller
             'repuestos.repuesto',
             'pagos.metodoPago',
             'factura',
+            'adjuntos.user.persona',
         ]);
 
         return view('ordenes.show', compact('orden'));
@@ -106,7 +110,19 @@ class OrdenServicioController extends Controller
             return back()->with('error', 'No se puede editar una orden entregada o cancelada.');
         }
 
+        $mecAnterior = $orden->mecanico_id;
         $orden->update($request->validated());
+
+        // Notificar al mecánico si fue recién asignado
+        if ($orden->mecanico_id && $orden->mecanico_id !== $mecAnterior) {
+            $orden->load(['mecanico.persona', 'vehiculo.cliente.persona']);
+            $email  = $orden->mecanico->persona->email ?? null;
+            $nombre = $orden->mecanico->persona->nombre ?? '';
+            if ($email) {
+                Notification::route('mail', [$email => $nombre])
+                    ->notify(new OrdenAsignadaNotification($orden));
+            }
+        }
 
         return redirect()->route('ordenes.show', $orden)
             ->with('success', 'Orden actualizada correctamente.');
@@ -126,6 +142,17 @@ class OrdenServicioController extends Controller
                 ? $orden->observaciones . "\n[{$nuevoEstado}] " . $request->observaciones
                 : "[{$nuevoEstado}] " . $request->observaciones
             ]);
+        }
+
+        // Notificar al cliente cuando el vehículo está listo o fue entregado
+        if (in_array($nuevoEstado, ['Listo', 'Entregado'])) {
+            $email  = $orden->vehiculo->cliente->persona->email ?? null;
+            $nombre = $orden->vehiculo->cliente->persona->nombre ?? '';
+            if ($email) {
+                $orden->load(['vehiculo.cliente.persona', 'vehiculo']);
+                Notification::route('mail', [$email => $nombre])
+                    ->notify(new OrdenEstadoNotification($orden));
+            }
         }
 
         return back()->with('success', "Estado actualizado a «{$nuevoEstado}».");

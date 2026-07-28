@@ -3,128 +3,283 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+@endpush
+
 @section('content')
 
-    {{-- Stats --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+@php
+$badgeEstado = [
+    'Recibido'            => 'badge-info',
+    'En diagnóstico'      => 'badge-warning',
+    'En reparación'       => 'badge-warning',
+    'Esperando repuestos' => 'badge-gray',
+    'Listo'               => 'badge-success',
+    'Entregado'           => 'badge-success',
+    'Cancelado'           => 'badge-danger',
+];
+@endphp
 
-        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-blue-50 rounded-lg">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Clientes</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['clientes']) }}</p>
-            </div>
+{{-- ── KPIs ─────────────────────────────────────────────── --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+
+    <div class="kpi-card bg-white rounded-xl p-5 border border-gray-200 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+             style="background:rgba(215,25,32,.12);">
+            <i class="bi bi-people-fill" style="font-size:22px; color:#D71920;"></i>
         </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-emerald-50 rounded-lg">
-                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Vehículos</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['vehiculos']) }}</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-orange-50 rounded-lg">
-                <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Órdenes activas</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['ordenes_activas']) }}</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">
-            <div class="p-3 bg-purple-50 rounded-lg">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Órdenes hoy</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['ordenes_hoy']) }}</p>
-            </div>
+        <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Clientes</p>
+            <p class="text-3xl font-bold text-gray-900 leading-tight">{{ number_format($stats['clientes']) }}</p>
         </div>
     </div>
 
+    <div class="kpi-card bg-white rounded-xl p-5 border border-gray-200 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+             style="background:rgba(59,130,246,.1);">
+            <i class="bi bi-car-front-fill" style="font-size:22px; color:#60a5fa;"></i>
+        </div>
+        <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Vehículos</p>
+            <p class="text-3xl font-bold text-gray-900 leading-tight">{{ number_format($stats['vehiculos']) }}</p>
+        </div>
+    </div>
+
+    <div class="kpi-card bg-white rounded-xl p-5 border border-gray-200 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+             style="background:rgba(249,115,22,.1);">
+            <i class="bi bi-clipboard2-pulse-fill" style="font-size:22px; color:#fb923c;"></i>
+        </div>
+        <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ordenes activas</p>
+            <p class="text-3xl font-bold text-gray-900 leading-tight">{{ number_format($stats['ordenes_activas']) }}</p>
+        </div>
+    </div>
+
+    <div class="kpi-card bg-white rounded-xl p-5 border border-gray-200 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+             style="background:rgba(16,185,129,.1);">
+            <i class="bi bi-cash-stack" style="font-size:22px; color:#34d399;"></i>
+        </div>
+        <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ingresos este mes</p>
+            <p class="text-2xl font-bold text-gray-900 leading-tight">Bs {{ number_format($stats['ingresos_mes'], 0) }}</p>
+        </div>
+    </div>
+</div>
+
+{{-- ── Gráficas ─────────────────────────────────────────── --}}
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
+
+    {{-- Línea: Ingresos 30 días --}}
+    <div class="xl:col-span-2 bg-white rounded-xl border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <p class="text-sm font-semibold text-gray-200">Ingresos — últimos 30 días</p>
+                <p class="text-xs text-gray-400">Pagos confirmados acumulados por día</p>
+            </div>
+            <i class="bi bi-graph-up-arrow text-gray-500" style="font-size:20px;"></i>
+        </div>
+        <div style="height:200px; position:relative;">
+            <canvas id="chartIngresos"></canvas>
+        </div>
+    </div>
+
+    {{-- Donut: Estados --}}
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-semibold text-gray-200">Ordenes por estado</p>
+            <i class="bi bi-pie-chart text-gray-500" style="font-size:18px;"></i>
+        </div>
+        <div style="height:170px; position:relative;">
+            <canvas id="chartEstados"></canvas>
+        </div>
+        <div class="mt-3 space-y-1">
+            @foreach(['Recibido','En reparación','Listo','Entregado','Cancelado'] as $idx => $e)
+            @php $n = $donutData[array_search($e, $donutLabels)] ?? 0; @endphp
+            @if($n > 0)
+            <div class="flex items-center justify-between text-xs text-gray-400">
+                <span>{{ $e }}</span>
+                <span class="font-semibold text-gray-300">{{ $n }}</span>
+            </div>
+            @endif
+            @endforeach
+        </div>
+    </div>
+</div>
+
+{{-- ── Fila inferior ─────────────────────────────────────── --}}
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
     {{-- Órdenes recientes --}}
-    <div class="bg-white rounded-xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 class="text-base font-semibold text-gray-800">Órdenes recientes</h2>
+    <div class="xl:col-span-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+            <p class="text-sm font-semibold text-gray-200">Ordenes recientes</p>
+            <a href="{{ route('ordenes.index') }}" class="text-xs text-gray-400 hover:text-gray-200 transition-colors">
+                Ver todas <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
 
         @if ($ordenes_recientes->isEmpty())
-            <div class="px-6 py-12 text-center text-gray-400 text-sm">
-                No hay órdenes de servicio registradas aún.
+            <div class="py-12 text-center text-gray-500 text-sm">
+                <i class="bi bi-clipboard2 text-gray-600" style="font-size:36px;"></i>
+                <p class="mt-2">No hay ordenes de servicio aun.</p>
             </div>
         @else
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead>
-                        <tr class="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <th class="px-6 py-3 text-left">N° Orden</th>
-                            <th class="px-6 py-3 text-left">Cliente</th>
-                            <th class="px-6 py-3 text-left">Vehículo</th>
-                            <th class="px-6 py-3 text-left">Mecánico</th>
-                            <th class="px-6 py-3 text-left">Estado</th>
-                            <th class="px-6 py-3 text-left">Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        @foreach ($ordenes_recientes as $orden)
-                        @php
-                            $colores = [
-                                'Recibido'            => 'bg-blue-100 text-blue-800',
-                                'En diagnóstico'      => 'bg-yellow-100 text-yellow-800',
-                                'En reparación'       => 'bg-orange-100 text-orange-800',
-                                'Esperando repuestos' => 'bg-purple-100 text-purple-800',
-                                'Listo'               => 'bg-green-100 text-green-800',
-                                'Entregado'           => 'bg-gray-100 text-gray-600',
-                                'Cancelado'           => 'bg-red-100 text-red-700',
-                            ];
-                        @endphp
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 text-sm font-mono font-medium text-gray-900">
-                                {{ $orden->numero }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                {{ $orden->vehiculo->cliente->persona->nombre ?? '—' }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                {{ $orden->vehiculo->placa ?? '—' }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                {{ $orden->mecanico?->persona->nombre ?? 'Sin asignar' }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-full text-xs font-semibold
-                                    {{ $colores[$orden->estado] ?? 'bg-gray-100 text-gray-600' }}">
-                                    {{ $orden->estado }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">
-                                {{ $orden->fecha_ingreso->format('d/m/Y') }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="divide-y divide-gray-200">
+                @foreach ($ordenes_recientes as $orden)
+                <a href="{{ route('ordenes.show', $orden) }}"
+                   class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors group">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs font-bold text-gray-300">{{ $orden->numero }}</span>
+                            <span class="badge {{ $badgeEstado[$orden->estado] ?? 'badge-gray' }} text-xs">{{ $orden->estado }}</span>
+                        </div>
+                        <p class="text-sm font-medium text-gray-200 truncate mt-0.5 group-hover:text-white transition-colors">
+                            {{ $orden->vehiculo->cliente->persona->nombre ?? '—' }}
+                            <span class="text-gray-500 font-normal">· {{ $orden->vehiculo->placa ?? '' }}</span>
+                        </p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-xs text-gray-500">{{ $orden->fecha_ingreso->format('d/m/Y') }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">{{ $orden->mecanico?->persona->nombre ?? 'Sin asignar' }}</p>
+                    </div>
+                </a>
+                @endforeach
             </div>
         @endif
     </div>
+
+    {{-- Panel derecho: Top mecánicos + alertas stock --}}
+    <div class="space-y-4">
+
+        {{-- Top mecánicos --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-semibold text-gray-200">Top mecanicos</p>
+                <span class="text-xs text-gray-500">Este mes</span>
+            </div>
+            @forelse($topMecanicos as $i => $mec)
+            <div class="flex items-center gap-3 py-2 {{ !$loop->last ? 'border-b border-gray-200' : '' }}">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                     style="{{ $i === 0 ? 'background:#D71920; color:#fff;' : 'background:#233044; color:#64748B;' }}">
+                    {{ $i + 1 }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-gray-200 truncate">{{ $mec->persona->nombre }}</p>
+                    <p class="text-xs text-gray-500">{{ $mec->activas }} activa{{ $mec->activas != 1 ? 's' : '' }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-gray-200">{{ $mec->entregadas_mes }}</p>
+                    <p class="text-xs text-gray-500">entregadas</p>
+                </div>
+            </div>
+            @empty
+            <p class="text-xs text-gray-500 py-2">Sin datos este mes.</p>
+            @endforelse
+        </div>
+
+        {{-- Alertas bajo stock --}}
+        @if($alertasStock->isNotEmpty())
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size:15px;"></i>
+                <p class="text-sm font-semibold text-gray-200">Bajo stock</p>
+            </div>
+            <div class="space-y-2">
+                @foreach($alertasStock as $inv)
+                <div class="flex items-center justify-between">
+                    <div class="min-w-0">
+                        <p class="text-xs font-medium text-gray-300 truncate">{{ $inv->repuesto->nombre }}</p>
+                        <p class="text-xs text-gray-500">{{ $inv->sucursal->nombre }}</p>
+                    </div>
+                    <span class="badge badge-danger ml-2 flex-shrink-0">{{ $inv->stock }} / {{ $inv->stock_minimo }}</span>
+                </div>
+                @endforeach
+            </div>
+            <a href="{{ route('inventario.index') }}"
+               class="block mt-3 text-xs text-center text-gray-400 hover:text-gray-200 transition-colors">
+                Ver inventario completo <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        @endif
+
+    </div>
+</div>
+
+{{-- ── Charts JS ────────────────────────────────────────── --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Chart.defaults.color = '#64748B';
+    Chart.defaults.borderColor = '#1e3352';
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+    // Gráfica de ingresos (línea)
+    new Chart(document.getElementById('chartIngresos'), {
+        type: 'line',
+        data: {
+            labels: @json($labels30),
+            datasets: [{
+                label: 'Ingresos (Bs)',
+                data:  @json($data30),
+                borderColor: '#D71920',
+                backgroundColor: 'rgba(215,25,32,.08)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 2,
+                pointHoverRadius: 5,
+                pointBackgroundColor: '#D71920',
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: '#1e3352' }, ticks: { maxTicksLimit: 8, font: { size: 11 } } },
+                y: {
+                    grid: { color: '#1e3352' },
+                    ticks: {
+                        font: { size: 11 },
+                        callback: v => 'Bs ' + v.toLocaleString(),
+                    },
+                },
+            },
+        },
+    });
+
+    // Donut de estados
+    new Chart(document.getElementById('chartEstados'), {
+        type: 'doughnut',
+        data: {
+            labels: @json($donutLabels),
+            datasets: [{
+                data: @json($donutData),
+                backgroundColor: [
+                    '#3B82F6','#F97316','#F97316',
+                    '#64748B','#10B981','#334155','#D71920',
+                ],
+                borderWidth: 0,
+                hoverOffset: 6,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ' ' + ctx.label + ': ' + ctx.parsed,
+                    },
+                },
+            },
+        },
+    });
+});
+</script>
 
 @endsection

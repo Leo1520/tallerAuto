@@ -58,8 +58,9 @@
                 ['route' => 'reportes.index', 'label' => 'Reportes', 'icon' => 'bi-bar-chart-line', 'pattern' => 'reportes*'],
             ],
             'ADMINISTRACION' => [
-                ['route' => 'mecanicos.index', 'label' => 'Mecanicos', 'icon' => 'bi-wrench-adjustable', 'pattern' => 'mecanicos*'],
-                ['route' => 'usuarios.index',  'label' => 'Usuarios',  'icon' => 'bi-shield-person',    'pattern' => 'usuarios*'],
+                ['route' => 'mecanicos.index',  'label' => 'Mecanicos',  'icon' => 'bi-wrench-adjustable', 'pattern' => 'mecanicos*'],
+                ['route' => 'sucursales.index', 'label' => 'Sucursales', 'icon' => 'bi-geo-alt',           'pattern' => 'sucursales*'],
+                ['route' => 'usuarios.index',   'label' => 'Usuarios',   'icon' => 'bi-shield-person',     'pattern' => 'usuarios*'],
             ],
         ];
         @endphp
@@ -190,5 +191,6 @@
     </footer>
 </div>
 
+@stack('scripts')
 </body>
 </html>

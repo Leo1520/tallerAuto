@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Persona;
 use App\Models\User;
+use App\Notifications\NuevaCuentaNotification;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -91,6 +92,13 @@ class AuthController extends Controller
                 'password'   => $request->password,
             ]);
         });
+
+        // Notificar a todos los admins
+        User::whereHas('roles', fn($q) => $q->where('nombre', 'Administrador'))
+            ->get()
+            ->each(fn($admin) => $admin->notify(
+                new NuevaCuentaNotification($request->nombre, $request->email)
+            ));
 
         return redirect()->route('login')
             ->with('status', 'Cuenta creada. Un administrador asignara tu rol para que puedas ingresar.');

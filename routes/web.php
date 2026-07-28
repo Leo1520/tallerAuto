@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdjuntoController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ClienteController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\OrdenServicioController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RepuestoController;
+use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
@@ -82,6 +84,17 @@ Route::middleware('auth')->group(function () {
 
     // Mecánicos
     Route::resource('mecanicos', MecanicoController::class);
+
+    // Sucursales
+    Route::get('/sucursales/mapa', [SucursalController::class, 'mapa'])->name('sucursales.mapa');
+    Route::resource('sucursales', SucursalController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update'])
+        ->parameters(['sucursales' => 'sucursal']);
+
+    // Adjuntos de órdenes
+    Route::post('/ordenes/{orden}/adjuntos',          [AdjuntoController::class, 'store'])->name('adjuntos.store');
+    Route::get('/adjuntos/{adjunto}/download',         [AdjuntoController::class, 'download'])->name('adjuntos.download');
+    Route::delete('/adjuntos/{adjunto}',               [AdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
 });
 
 // Webhook de Stripe (sin CSRF ni autenticación)

@@ -9,11 +9,11 @@
     .page { padding: 30px 36px; }
 
     /* Header */
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 2px solid #2563eb; padding-bottom: 16px; }
-    .brand h1 { font-size: 22px; font-weight: 700; color: #1e40af; letter-spacing: -0.5px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 2px solid #D71920; padding-bottom: 16px; }
+    .brand h1 { font-size: 22px; font-weight: 700; color: #D71920; letter-spacing: -0.5px; }
     .brand p { font-size: 10px; color: #6b7280; margin-top: 2px; }
     .factura-info { text-align: right; }
-    .factura-numero { font-size: 18px; font-weight: 700; color: #1e40af; font-family: monospace; }
+    .factura-numero { font-size: 18px; font-weight: 700; color: #D71920; font-family: monospace; }
     .factura-info p { font-size: 10px; color: #6b7280; margin-top: 3px; }
     .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
     .badge-emitida { background: #d1fae5; color: #065f46; }
@@ -31,7 +31,7 @@
     /* Tabla */
     table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
     .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; margin-bottom: 6px; margin-top: 16px; }
-    thead tr { background: #1e40af; color: #fff; }
+    thead tr { background: #D71920; color: #fff; }
     thead th { padding: 8px 10px; text-align: left; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     thead th.right { text-align: right; }
     thead th.center { text-align: center; }
@@ -48,7 +48,7 @@
     .totales-row { display: flex; justify-content: space-between; padding: 7px 12px; font-size: 11px; border-bottom: 1px solid #f3f4f6; }
     .totales-row .label { color: #6b7280; }
     .totales-row .amount { font-weight: 600; color: #111827; }
-    .totales-total { display: flex; justify-content: space-between; padding: 10px 12px; background: #1e40af; color: #fff; }
+    .totales-total { display: flex; justify-content: space-between; padding: 10px 12px; background: #D71920; color: #fff; }
     .totales-total .label { font-weight: 600; font-size: 11px; }
     .totales-total .amount { font-weight: 700; font-size: 14px; }
 

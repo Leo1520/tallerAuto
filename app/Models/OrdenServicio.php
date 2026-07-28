@@ -57,4 +57,9 @@ class OrdenServicio extends Model
     {
         return $this->hasOne(Factura::class, 'orden_id');
     }
+
+    public function adjuntos(): HasMany
+    {
+        return $this->hasMany(Adjunto::class, 'orden_id')->latest('created_at');
+    }
 }

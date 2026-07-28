@@ -207,6 +207,116 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
             <p class="text-sm text-gray-600 whitespace-pre-line">{{ $orden->observaciones }}</p>
         </div>
         @endif
+
+        {{-- Adjuntos --}}
+        <div class="bg-white rounded-xl shadow-sm" x-data="{ uploading: false }">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="bi bi-paperclip text-gray-500"></i>
+                    Adjuntos
+                    @if($orden->adjuntos?->count())
+                    <span class="px-1.5 py-0.5 text-xs font-bold rounded-full bg-gray-100 text-gray-600">
+                        {{ $orden->adjuntos->count() }}
+                    </span>
+                    @endif
+                </h3>
+                @can('update', $orden)
+                <button type="button" @click="uploading = !uploading"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                        style="background:#D71920; color:white;"
+                        onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                    <i class="bi bi-cloud-upload" style="font-size:13px;"></i>
+                    Subir archivo
+                </button>
+                @endcan
+            </div>
+
+            @can('update', $orden)
+            <div x-show="uploading" x-cloak class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                <form method="POST"
+                      action="{{ route('adjuntos.store', $orden) }}"
+                      enctype="multipart/form-data"
+                      class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+                    @csrf
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Nombre descriptivo (opcional)</label>
+                        <input type="text" name="nombre" placeholder="Ej: Foto diagnóstico motor"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white text-gray-900">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Archivo <span class="text-gray-400">(JPG, PNG, PDF, DOC — max 10 MB)</span></label>
+                        <input type="file" name="archivo" required accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx"
+                               class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-600 file:text-white hover:file:bg-red-700 file:cursor-pointer">
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white rounded-lg transition-colors"
+                                style="background:#D71920;"
+                                onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                            <i class="bi bi-upload"></i> Adjuntar
+                        </button>
+                        <button type="button" @click="uploading = false"
+                                class="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+                @error('archivo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+            @endcan
+
+            @if($orden->adjuntos?->isNotEmpty())
+            <div class="divide-y divide-gray-50">
+                @foreach($orden->adjuntos as $adj)
+                <div class="px-6 py-3 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                         style="background:#1E293B;">
+                        @if($adj->esImagen())
+                            <i class="bi bi-image text-blue-400" style="font-size:16px;"></i>
+                        @elseif(str_contains($adj->tipo ?? '', 'pdf'))
+                            <i class="bi bi-file-earmark-pdf text-red-400" style="font-size:16px;"></i>
+                        @else
+                            <i class="bi bi-file-earmark-text text-gray-400" style="font-size:16px;"></i>
+                        @endif
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ $adj->nombre }}</p>
+                        <p class="text-xs text-gray-400">
+                            {{ $adj->tamanoFormateado() }}
+                            @if($adj->created_at)
+                            &nbsp;·&nbsp;{{ $adj->created_at->format('d/m/Y H:i') }}
+                            @endif
+                            @if($adj->user)
+                            &nbsp;·&nbsp;{{ $adj->user->nombre }}
+                            @endif
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <a href="{{ route('adjuntos.download', $adj) }}"
+                           class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                           title="Descargar">
+                            <i class="bi bi-download" style="font-size:14px;"></i>
+                        </a>
+                        @can('update', $orden)
+                        <form method="POST" action="{{ route('adjuntos.destroy', $adj) }}"
+                              onsubmit="return confirm('Eliminar adjunto «{{ addslashes($adj->nombre) }}»?')">
+                            @csrf @method('DELETE')
+                            <button type="submit"
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                    title="Eliminar">
+                                <i class="bi bi-trash" style="font-size:14px;"></i>
+                            </button>
+                        </form>
+                        @endcan
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <p class="px-6 py-5 text-sm text-gray-400 text-center">Sin archivos adjuntos.</p>
+            @endif
+        </div>
+
     </div>
 
     {{-- Sidebar --}}
