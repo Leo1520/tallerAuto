@@ -55,9 +55,12 @@
 
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+@endpush
+
 @push('scripts')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLcE=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const sucursales = @json($sucursales);
 
@@ -110,6 +113,9 @@ if (sucursales.length > 1) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.15));
 }
+
+// Forzar re-render por si el contenedor no tenía dimensiones al inicializar
+setTimeout(() => map.invalidateSize(), 200);
 
 function centerMap(lat, lng, nombre) {
     map.setView([lat, lng], 14, { animate: true });
