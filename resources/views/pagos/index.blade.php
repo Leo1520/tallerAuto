@@ -133,7 +133,10 @@
                             @endif
                             @if($pago->estado !== 'Anulado' && auth()->user()->isAdmin())
                             <form method="POST" action="{{ route('pagos.anular', $pago) }}"
-                                  onsubmit="return confirm('¿Anular este pago?')">
+                                  data-confirm="¿Anular este pago? Esta acción no se puede deshacer."
+                                  data-confirm-title="Anular pago"
+                                  data-confirm-type="warning"
+                                  data-confirm-ok="Anular">
                                 @csrf
                                 <button type="submit"
                                         class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Anular">

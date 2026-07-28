@@ -122,7 +122,7 @@
                                 </svg>
                             </a>
                             <form method="POST" action="{{ route('repuestos.destroy', $repuesto) }}"
-                                  onsubmit="return confirm('¿Eliminar este repuesto?')">
+                                  data-confirm="¿Eliminar este repuesto? Esta acción no se puede deshacer.">
                                 @csrf @method('DELETE')
                                 <button type="submit"
                                         class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Eliminar">

@@ -193,5 +193,132 @@
 </div>
 
 @stack('scripts')
+
+{{-- ═══════════════════════════════════════════════════════ --}}
+{{--  MODAL DE CONFIRMACIÓN GLOBAL                          --}}
+{{-- ═══════════════════════════════════════════════════════ --}}
+<div id="tpConfirmModal"
+     class="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4"
+     style="display:none!important;">
+
+    {{-- Overlay --}}
+    <div id="tpConfirmOverlay"
+         class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-200 opacity-0"></div>
+
+    {{-- Panel --}}
+    <div id="tpConfirmPanel"
+         class="relative bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm
+                transition-all duration-200 opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+
+        <div class="p-6 flex flex-col items-center text-center gap-4">
+
+            {{-- Ícono --}}
+            <div id="tpConfirmIcon"
+                 class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
+                 style="background:rgba(215,25,32,.15);">
+                <i id="tpConfirmIconEl" class="bi bi-trash3" style="color:#D71920; font-size:28px;"></i>
+            </div>
+
+            {{-- Texto --}}
+            <div>
+                <p id="tpConfirmTitle" class="text-base font-bold text-gray-100 mb-1">Confirmar eliminación</p>
+                <p id="tpConfirmMsg" class="text-sm text-gray-400 leading-relaxed"></p>
+            </div>
+
+        </div>
+
+        {{-- Botones --}}
+        <div class="px-6 pb-6 flex gap-3">
+            <button id="tpConfirmCancel"
+                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-200 bg-gray-700 hover:bg-gray-600 rounded-xl transition-colors">
+                Cancelar
+            </button>
+            <button id="tpConfirmOk"
+                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition-colors"
+                    style="background:#D71920;"
+                    onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                Eliminar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    let pendingForm = null;
+
+    const modal   = document.getElementById('tpConfirmModal');
+    const overlay = document.getElementById('tpConfirmOverlay');
+    const panel   = document.getElementById('tpConfirmPanel');
+    const msgEl   = document.getElementById('tpConfirmMsg');
+    const titleEl = document.getElementById('tpConfirmTitle');
+    const iconEl  = document.getElementById('tpConfirmIconEl');
+    const btnOk   = document.getElementById('tpConfirmOk');
+    const btnCancel = document.getElementById('tpConfirmCancel');
+
+    function openModal(msg, form) {
+        pendingForm = form;
+        msgEl.textContent  = msg;
+
+        const type  = form.dataset.confirmType || 'delete';
+        const title = form.dataset.confirmTitle || 'Confirmar eliminación';
+        titleEl.textContent = title;
+
+        if (type === 'warning') {
+            iconEl.className = 'bi bi-exclamation-triangle';
+            iconEl.style.color = '#F97316';
+            iconEl.parentElement.style.background = 'rgba(249,115,22,.12)';
+            btnOk.style.background = '#F97316';
+            btnOk.onmouseover = () => btnOk.style.background = '#ea6c0a';
+            btnOk.onmouseout  = () => btnOk.style.background = '#F97316';
+            btnOk.textContent = form.dataset.confirmOk || 'Confirmar';
+        } else {
+            iconEl.className = 'bi bi-trash3';
+            iconEl.style.color = '#D71920';
+            iconEl.parentElement.style.background = 'rgba(215,25,32,.15)';
+            btnOk.style.background = '#D71920';
+            btnOk.onmouseover = () => btnOk.style.background = '#b81218';
+            btnOk.onmouseout  = () => btnOk.style.background = '#D71920';
+            btnOk.textContent = form.dataset.confirmOk || 'Eliminar';
+        }
+
+        modal.style.removeProperty('display');
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            panel.style.opacity   = '1';
+            panel.style.transform = 'translateY(0) scale(1)';
+        });
+    }
+
+    function closeModal() {
+        overlay.style.opacity = '0';
+        panel.style.opacity   = '0';
+        panel.style.transform = 'translateY(16px) scale(0.97)';
+        setTimeout(() => { modal.style.display = 'none'; pendingForm = null; }, 200);
+    }
+
+    // Interceptar forms con data-confirm
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (form.dataset.confirm) {
+            e.preventDefault();
+            openModal(form.dataset.confirm, form);
+        }
+    });
+
+    btnOk.addEventListener('click', function () {
+        if (pendingForm) {
+            pendingForm.removeAttribute('data-confirm');
+            pendingForm.submit();
+        }
+        closeModal();
+    });
+
+    btnCancel.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
 </body>
 </html>

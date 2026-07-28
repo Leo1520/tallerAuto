@@ -131,7 +131,7 @@
                                 @endcan
                                 @can('delete', $cliente)
                                 <form method="POST" action="{{ route('clientes.destroy', $cliente) }}"
-                                      onsubmit="return confirm('¿Eliminar a {{ addslashes($cliente->persona->nombre) }}?')">
+                                      data-confirm="¿Eliminar al cliente {{ addslashes($cliente->persona->nombre) }}? Esta acción no se puede deshacer.">
                                     @csrf @method('DELETE')
                                     <button type="submit"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">

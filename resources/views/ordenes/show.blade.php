@@ -299,7 +299,7 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                         </a>
                         @can('update', $orden)
                         <form method="POST" action="{{ route('adjuntos.destroy', $adj) }}"
-                              onsubmit="return confirm('Eliminar adjunto «{{ addslashes($adj->nombre) }}»?')">
+                              data-confirm="¿Eliminar el adjunto «{{ addslashes($adj->nombre) }}»?">
                             @csrf @method('DELETE')
                             <button type="submit"
                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
