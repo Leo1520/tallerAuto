@@ -4,7 +4,7 @@
 @section('page-title', 'Editar — ' . $cliente->persona->nombre)
 
 @section('header-actions')
-    <a href="{{ route('clientes.show', $cliente) }}"
+    <a href="{{ route('clientes.index') }}"
        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors">
         <i class="bi bi-arrow-left" style="font-size:14px;"></i> Volver
     </a>
@@ -94,7 +94,7 @@
 
     {{-- Acciones --}}
     <div class="flex items-center justify-end gap-3">
-        <a href="{{ route('clientes.show', $cliente) }}"
+        <a href="{{ route('clientes.index') }}"
            class="px-5 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
             Cancelar
         </a>

@@ -13,8 +13,10 @@
     <a href="{{ route('sucursales.create') }}"
        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
        style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
-        <i class="bi bi-plus-lg" style="font-size:15px;"></i>
-        Nueva sucursal
+        <span class="relative inline-flex items-center" style="font-size:15px;">
+                <i class="bi bi-building-fill"></i>
+                <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
+            </span> Nueva sucursal
     </a>
     @endif
 @endsection
