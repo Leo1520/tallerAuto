@@ -17,28 +17,43 @@
 @section('content')
 
 {{-- Filtros --}}
-<form method="GET" action="{{ route('clientes.index') }}"
+<form id="filtroForm" method="GET" action="{{ route('clientes.index') }}"
       class="bg-gray-800 border border-gray-700 rounded-xl p-4 mb-5 flex flex-wrap gap-3 items-end">
+
     <div class="flex-1 min-w-48">
         <label class="block text-xs font-medium text-gray-400 mb-1.5">Buscar</label>
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="Nombre, email, teléfono o documento..."
-               class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+        <div class="relative">
+            <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" style="font-size:13px; pointer-events:none;"></i>
+            <input id="searchInput" type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Nombre, apellido, documento, teléfono o ciudad..."
+                   autocomplete="off"
+                   class="w-full pl-9 pr-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+            {{-- Spinner de búsqueda --}}
+            <span id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
+                <svg class="animate-spin w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+            </span>
+        </div>
     </div>
+
     <div class="w-44">
         <label class="block text-xs font-medium text-gray-400 mb-1.5">Ciudad</label>
-        <select name="ciudad"
-                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+        <select id="ciudadSelect" name="ciudad"
+                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 cursor-pointer">
             <option value="">Todas</option>
             @foreach ($ciudades as $ciudad)
                 <option value="{{ $ciudad }}" {{ request('ciudad') === $ciudad ? 'selected' : '' }}>{{ $ciudad }}</option>
             @endforeach
         </select>
     </div>
+
     <button type="submit"
             class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5">
         <i class="bi bi-search" style="font-size:13px;"></i> Filtrar
     </button>
+
     @if (request()->hasAny(['search', 'ciudad']))
         <a href="{{ route('clientes.index') }}"
            class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1">
@@ -51,7 +66,7 @@
 <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
 
     <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
-        <p class="text-sm text-gray-400">
+        <p id="clienteCount" class="text-sm text-gray-400">
             <span class="font-semibold text-gray-200">{{ $clientes->total() }}</span>
             {{ Str::plural('cliente', $clientes->total()) }} encontrados
         </p>
@@ -109,7 +124,18 @@
                         </td>
 
                         <td class="px-6 py-3.5 text-sm text-gray-300">{{ $cliente->persona->telefono ?? '—' }}</td>
-                        <td class="px-6 py-3.5 text-sm text-gray-300">{{ $cliente->ciudad ?? '—' }}</td>
+                        <td class="px-6 py-3.5">
+                            @if($cliente->ciudad)
+                            <button type="button"
+                                    onclick="filtrarCiudad('{{ addslashes($cliente->ciudad) }}')"
+                                    title="Filtrar por {{ $cliente->ciudad }}"
+                                    class="text-sm text-gray-300 hover:text-red-400 underline decoration-dotted underline-offset-2 transition-colors cursor-pointer">
+                                {{ $cliente->ciudad }}
+                            </button>
+                            @else
+                            <span class="text-gray-600">—</span>
+                            @endif
+                        </td>
 
                         <td class="px-6 py-3.5 text-center">
                             <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-gray-700 text-gray-300">
@@ -148,12 +174,94 @@
             </table>
         </div>
 
-        @if ($clientes->hasPages())
-        <div class="px-6 py-4 border-t border-gray-700">
+        <div id="paginacion" class="px-6 py-4 border-t border-gray-700 {{ $clientes->hasPages() ? '' : 'hidden' }}">
             {{ $clientes->links() }}
         </div>
-        @endif
     @endif
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const input   = document.getElementById('searchInput');
+    const select  = document.getElementById('ciudadSelect');
+    const spinner = document.getElementById('searchSpinner');
+    const baseUrl = '{{ route('clientes.index') }}';
+
+    let controller = null;
+    let timer      = null;
+
+    async function buscar() {
+        // Cancelar petición anterior si todavía está en vuelo
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        spinner.classList.remove('hidden');
+
+        const params = new URLSearchParams();
+        const q      = input.value.trim();
+        const ciudad = select.value;
+        if (q)      params.set('search', q);
+        if (ciudad) params.set('ciudad', ciudad);
+
+        try {
+            const res  = await fetch(baseUrl + (params.toString() ? '?' + params : ''), {
+                signal:  controller.signal,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            if (!res.ok) return;
+
+            const html = await res.text();
+            const doc  = new DOMParser().parseFromString(html, 'text/html');
+
+            // Reemplazar tbody
+            const newTbody = doc.querySelector('tbody');
+            const curTbody = document.querySelector('tbody');
+            if (newTbody && curTbody) curTbody.innerHTML = newTbody.innerHTML;
+
+            // Reemplazar contador
+            const newCount = doc.getElementById('clienteCount');
+            const curCount = document.getElementById('clienteCount');
+            if (newCount && curCount) curCount.innerHTML = newCount.innerHTML;
+
+            // Reemplazar paginación
+            const newPag = doc.getElementById('paginacion');
+            const curPag = document.getElementById('paginacion');
+            if (newPag && curPag) {
+                curPag.innerHTML = newPag.innerHTML;
+                curPag.classList.toggle('hidden', !newPag.innerHTML.trim());
+            }
+
+            // Actualizar la URL en el navegador (sin recargar)
+            const newUrl = baseUrl + (params.toString() ? '?' + params : '');
+            history.replaceState(null, '', newUrl);
+
+        } catch (e) {
+            if (e.name !== 'AbortError') console.error(e);
+        } finally {
+            spinner.classList.add('hidden');
+            controller = null;
+        }
+    }
+
+    // Mientras se escribe — sin debounce forzado, se cancela la anterior con AbortController
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(buscar, 250);   // 250 ms: muy corto, apenas perceptible
+    });
+
+    // Al cambiar ciudad → busca inmediatamente
+    select.addEventListener('change', buscar);
+
+    // Mantener la función global para clic en ciudad desde la tabla
+    window.filtrarCiudad = function (ciudad) {
+        select.value = ciudad;
+        input.value  = '';
+        buscar();
+    };
+})();
+</script>
+@endpush
