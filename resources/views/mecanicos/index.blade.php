@@ -125,7 +125,7 @@
 
             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
                 <span class="text-xs text-gray-400">
-                    Desde {{ $mecanico->fecha_ingreso->format('d/m/Y') }}
+                    Desde {{ $mecanico->fecha_ingreso?->format('d/m/Y') ?? '—' }}
                 </span>
                 <div class="flex gap-2">
                     @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('mecanicos.editar'))
