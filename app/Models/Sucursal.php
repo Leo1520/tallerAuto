@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sucursal extends Model
 {
+    protected $table = 'sucursales';
     protected $fillable = ['nombre', 'direccion', 'ciudad', 'telefono', 'email', 'latitud', 'longitud', 'activo'];
 
     protected $casts = ['activo' => 'boolean'];

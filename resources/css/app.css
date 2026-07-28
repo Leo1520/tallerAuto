@@ -1,11 +1,211 @@
 @import 'tailwindcss';
 
+/* Tailwind v4: activate dark: utilities when .dark is on <html> */
+@variant dark (&:where(.dark, .dark *));
+
 [x-cloak] { display: none !important; }
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* ── Design System Tokens ───────────────────────────── */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* Override grays to match Taller Pro dark palette */
+    --color-gray-950:  #060c18;
+    --color-gray-900:  #0F172A;
+    --color-gray-800:  #1E293B;
+    --color-gray-750:  #233044;
+    --color-gray-700:  #2d3d52;
+    --color-gray-600:  #334155;
+    --color-gray-500:  #475569;
+    --color-gray-400:  #64748B;
+    --color-gray-300:  #94a3b8;
+    --color-gray-200:  #cbd5e1;
+    --color-gray-100:  #e2e8f0;
+    --color-gray-50:   #f1f5f9;
+
+    /* Brand */
+    --color-brand:       #D71920;
+    --color-brand-dark:  #b81218;
+    --color-brand-light: rgba(215,25,32,.12);
+
+    /* Status */
+    --color-success: #10B981;
+    --color-warning: #F97316;
+    --color-info:    #3B82F6;
+    --color-danger:  #EF4444;
+
+    /* Radius */
+    --radius-card: 12px;
 }
+
+/* ── Global resets for the dark system ─────────────── */
+:root {
+    --sidebar-w:        260px;
+    --sidebar-w-mini:   64px;
+    --topbar-h:         60px;
+    color-scheme: dark;
+}
+
+/* ── Scrollbar (dark) ───────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* ── Focus ring — red brand ─────────────────────────── */
+*:focus-visible {
+    outline: 2px solid #D71920;
+    outline-offset: 2px;
+}
+
+/* ── Input focus rings ──────────────────────────────── */
+input:focus, select:focus, textarea:focus {
+    --tw-ring-color: rgba(215,25,32,.4) !important;
+}
+
+/* ── Sidebar nav styles ─────────────────────────────── */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #64748B;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+}
+.nav-item:hover {
+    background: rgba(215,25,32,.08);
+    color: #cbd5e1;
+}
+.nav-item.active {
+    background: #D71920;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(215,25,32,.35);
+}
+.nav-item.active .nav-icon { color: #fff; }
+.nav-icon {
+    font-size: 17px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+    transition: color .15s;
+}
+.nav-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #334155;
+    padding: 14px 12px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* ── Pagination override for dark ───────────────────── */
+nav[role="navigation"] span[aria-current="page"] > span {
+    background: #D71920 !important;
+    border-color: #D71920 !important;
+    color: #fff !important;
+}
+
+/* ── KPI card accent line ───────────────────────────── */
+.kpi-card { position: relative; overflow: hidden; }
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #D71920 0%, transparent 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+/* ── Status badges ──────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+.badge-success { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.25); }
+.badge-warning { background: rgba(249,115,22,.15); color: #fb923c; border: 1px solid rgba(249,115,22,.25); }
+.badge-danger  { background: rgba(215,25,32,.15);  color: #f87171; border: 1px solid rgba(215,25,32,.25); }
+.badge-info    { background: rgba(59,130,246,.15); color: #60a5fa; border: 1px solid rgba(59,130,246,.25); }
+.badge-gray    { background: rgba(100,116,139,.15); color: #94a3b8; border: 1px solid rgba(100,116,139,.25); }
+
+/* ── Btn primary (brand red) ────────────────────────── */
+.btn-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #D71920;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s, box-shadow .15s;
+    white-space: nowrap;
+}
+.btn-brand:hover {
+    background: #b81218;
+    box-shadow: 0 4px 16px rgba(215,25,32,.35);
+    color: #fff;
+}
+
+/* ── Dark overrides for legacy light-theme views ────────── */
+/* Scoped to .dark ancestor so auth views (inline CSS) are unaffected */
+.dark .bg-white   { background-color: #1E293B; }
+.dark .bg-gray-50 { background-color: #1a2842; }
+
+.dark .divide-y > * + * { border-color: #1e3352; }
+.dark .divide-gray-50  > * + * { border-color: #1e3352; }
+.dark .divide-gray-100 > * + * { border-color: #1e3352; }
+.dark .divide-gray-200 > * + * { border-color: #334155; }
+
+.dark .border-gray-100 { border-color: #1e3352; }
+.dark .border-gray-200 { border-color: #334155; }
+.dark .border-gray-300 { border-color: #475569; }
+
+.dark .text-gray-900 { color: #F8FAFC; }
+.dark .text-gray-800 { color: #e2e8f0; }
+.dark .text-gray-700 { color: #cbd5e1; }
+.dark .text-gray-600 { color: #94a3b8; }
+.dark .text-gray-500 { color: #64748B; }
+.dark .text-gray-400 { color: #64748B; }
+.dark .text-gray-300 { color: #94a3b8; }
+
+.dark .hover\:bg-gray-50:hover  { background-color: #233044; }
+.dark .hover\:bg-gray-100:hover { background-color: #2d3d52; }
+
+/* Blue buttons → brand red in dark mode */
+.dark .bg-blue-600 { background-color: #D71920; }
+.dark .hover\:bg-blue-700:hover { background-color: #b81218; }
+.dark .focus\:ring-blue-500:focus { --tw-ring-color: rgba(215,25,32,.4); }
+.dark .text-blue-600 { color: #D71920; }
+.dark .text-blue-500 { color: #f87171; }
+.dark a.text-blue-600 { color: #f87171; }
+
+/* Table header bg */
+.dark .bg-gray-50 thead, .dark thead.bg-gray-50 { background-color: #152033; }
+
+/* Shadows — soften on dark */
+.dark .shadow-sm  { box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.dark .shadow-md  { box-shadow: 0 4px 12px rgba(0,0,0,.5); }
+.dark .shadow-lg  { box-shadow: 0 8px 24px rgba(0,0,0,.6); }

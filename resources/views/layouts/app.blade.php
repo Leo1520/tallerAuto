@@ -1,132 +1,194 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Taller Pro') — Taller Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-100 min-h-screen flex" x-data="{ sidebarOpen: true }">
+<body class="bg-gray-900 min-h-screen" x-data="{ sidebarOpen: true, userMenu: false }">
 
-    {{-- Sidebar --}}
-    <aside class="w-64 bg-slate-800 min-h-screen flex flex-col flex-shrink-0 transition-all duration-200"
-           :class="sidebarOpen ? 'w-64' : 'w-16'">
-
-        {{-- Logo --}}
-        <div class="flex items-center gap-3 px-4 py-5 border-b border-slate-700">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-            </div>
-            <span class="font-bold text-white text-lg" x-show="sidebarOpen">Taller Pro</span>
+{{-- ═══════════════════════════════════════════════════════ --}}
+{{--  SIDEBAR                                               --}}
+{{-- ═══════════════════════════════════════════════════════ --}}
+<aside
+    class="fixed top-0 left-0 h-full bg-gray-800 border-r border-gray-600 z-30 flex flex-col transition-all duration-200 overflow-hidden"
+    :style="sidebarOpen ? 'width:260px' : 'width:64px'"
+>
+    {{-- ── Brand ── --}}
+    <div class="flex items-center gap-3 px-4 py-5 border-b border-gray-600 flex-shrink-0" style="min-height:68px;">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+             style="background:#D71920; box-shadow:0 4px 12px rgba(215,25,32,.35);">
+            <i class="bi bi-tools text-white" style="font-size:16px;"></i>
         </div>
+        <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-150"
+             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+            <p class="font-bold text-gray-100 text-base leading-tight tracking-tight">Taller Pro</p>
+            <p class="text-gray-400 text-xs">Sistema automotriz</p>
+        </div>
+    </div>
 
-        {{-- Nav --}}
-        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-            @php
-            $navItems = [
-                ['route' => 'dashboard',  'label' => 'Dashboard',    'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
-                ['route' => 'clientes.index', 'label' => 'Clientes',  'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
-                ['route' => 'vehiculos.index', 'label' => 'Vehículos', 'icon' => 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4'],
-                ['route' => 'ordenes.index',  'label' => 'Órdenes',   'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-                ['route' => 'inventario.index', 'label' => 'Inventario', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10'],
-                ['route' => 'repuestos.index',  'label' => 'Repuestos',  'icon' => 'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z'],
-                ['route' => 'proveedores.index','label' => 'Proveedores','icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'],
-                ['route' => 'pagos.index',    'label' => 'Pagos',     'icon' => 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z'],
-                ['route' => 'facturas.index', 'label' => 'Facturas',  'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-                ['route' => 'reportes.index','label' => 'Reportes',  'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'],
-                ['route' => 'mecanicos.index','label' => 'Mecánicos', 'icon' => 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4'],
-                ['route' => 'usuarios.index', 'label' => 'Usuarios',  'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'],
-            ];
-            @endphp
+    {{-- ── Navigation ── --}}
+    <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
 
-            @foreach ($navItems as $item)
-                @if (Route::has($item['route']))
+        @php
+        $isActive = fn(string $pattern) => request()->routeIs($pattern);
+
+        $groups = [
+            null => [
+                ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'pattern' => 'dashboard'],
+            ],
+            'OPERACIONES' => [
+                ['route' => 'clientes.index',  'label' => 'Clientes',   'icon' => 'bi-people',         'pattern' => 'clientes*'],
+                ['route' => 'vehiculos.index', 'label' => 'Vehiculos',  'icon' => 'bi-car-front',      'pattern' => 'vehiculos*'],
+                ['route' => 'ordenes.index',   'label' => 'Ordenes',    'icon' => 'bi-clipboard2-check','pattern' => 'ordenes*'],
+            ],
+            'INVENTARIO' => [
+                ['route' => 'repuestos.index',   'label' => 'Repuestos',   'icon' => 'bi-box-seam',         'pattern' => 'repuestos*'],
+                ['route' => 'proveedores.index', 'label' => 'Proveedores', 'icon' => 'bi-building',         'pattern' => 'proveedores*'],
+                ['route' => 'inventario.index',  'label' => 'Inventario',  'icon' => 'bi-archive',          'pattern' => 'inventario*'],
+            ],
+            'FINANZAS' => [
+                ['route' => 'pagos.index',    'label' => 'Pagos',    'icon' => 'bi-credit-card-2-front', 'pattern' => 'pagos*'],
+                ['route' => 'facturas.index', 'label' => 'Facturas', 'icon' => 'bi-receipt',             'pattern' => 'facturas*'],
+            ],
+            'ANALISIS' => [
+                ['route' => 'reportes.index', 'label' => 'Reportes', 'icon' => 'bi-bar-chart-line', 'pattern' => 'reportes*'],
+            ],
+            'ADMINISTRACION' => [
+                ['route' => 'mecanicos.index', 'label' => 'Mecanicos', 'icon' => 'bi-wrench-adjustable', 'pattern' => 'mecanicos*'],
+                ['route' => 'usuarios.index',  'label' => 'Usuarios',  'icon' => 'bi-shield-person',    'pattern' => 'usuarios*'],
+            ],
+        ];
+        @endphp
+
+        @foreach($groups as $groupLabel => $items)
+            @if($groupLabel)
+                <div class="nav-group-label" x-show="sidebarOpen">{{ $groupLabel }}</div>
+                <div x-show="!sidebarOpen" style="height:8px;"></div>
+            @endif
+
+            @foreach($items as $item)
+                @if(Route::has($item['route']))
                 <a href="{{ route($item['route']) }}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                          {{ request()->routeIs(explode('.', $item['route'])[0].'*')
-                             ? 'bg-blue-600 text-white'
-                             : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
-                    </svg>
-                    <span x-show="sidebarOpen">{{ $item['label'] }}</span>
+                   class="nav-item {{ $isActive($item['pattern']) ? 'active' : '' }}"
+                   title="{{ $item['label'] }}">
+                    <i class="bi {{ $item['icon'] }} nav-icon"></i>
+                    <span x-show="sidebarOpen" x-transition:enter="transition-opacity duration-100"
+                          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                        {{ $item['label'] }}
+                    </span>
                 </a>
                 @endif
             @endforeach
-        </nav>
+        @endforeach
 
-        {{-- Usuario --}}
-        <div class="border-t border-slate-700 p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span class="text-white text-xs font-bold">
-                        {{ strtoupper(substr(auth()->user()->nombre, 0, 2)) }}
-                    </span>
-                </div>
-                <div class="flex-1 min-w-0" x-show="sidebarOpen">
-                    <p class="text-sm font-medium text-white truncate">{{ auth()->user()->nombre }}</p>
-                    <p class="text-xs text-slate-400 truncate">
-                        {{ auth()->user()->roles->first()?->nombre ?? 'Sin rol' }}
-                    </p>
-                </div>
+    </nav>
+
+    {{-- ── User profile ── --}}
+    <div class="border-t border-gray-600 p-3 flex-shrink-0">
+        <div class="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-750 transition-colors cursor-default">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
+                 style="background:#D71920;">
+                {{ strtoupper(substr(auth()->user()->nombre, 0, 2)) }}
             </div>
-            <form method="POST" action="{{ route('logout') }}" x-show="sidebarOpen" class="mt-3">
-                @csrf
-                <button type="submit"
-                        class="w-full text-left text-xs text-slate-400 hover:text-red-400 transition-colors py-1">
-                    Cerrar sesión
-                </button>
-            </form>
+            <div class="flex-1 min-w-0" x-show="sidebarOpen">
+                <p class="text-xs font-semibold text-gray-200 truncate leading-tight">{{ auth()->user()->nombre }}</p>
+                <p class="text-xs text-gray-400 truncate">{{ auth()->user()->roles->first()?->nombre ?? 'Sin rol' }}</p>
+            </div>
         </div>
-    </aside>
 
-    {{-- Main --}}
-    <div class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
-
-        {{-- Topbar --}}
-        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-            <button @click="sidebarOpen = !sidebarOpen"
-                    class="text-gray-500 hover:text-gray-700 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
+        <form method="POST" action="{{ route('logout') }}" x-show="sidebarOpen"
+              x-transition:enter="transition-opacity duration-100"
+              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+              class="mt-1">
+            @csrf
+            <button type="submit"
+                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-red-400 hover:bg-gray-750 transition-colors">
+                <i class="bi bi-box-arrow-left" style="font-size:13px;"></i>
+                Cerrar sesion
             </button>
-            <h1 class="text-lg font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h1>
-            <div class="ml-auto flex items-center gap-3">
-                @yield('header-actions')
-            </div>
-        </header>
-
-        {{-- Content --}}
-        <main class="flex-1 p-6">
-
-            {{-- Flash messages --}}
-            @if (session('success'))
-                <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm flex items-center gap-2">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm flex items-center gap-2">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            @yield('content')
-        </main>
+        </form>
     </div>
+</aside>
+
+{{-- ═══════════════════════════════════════════════════════ --}}
+{{--  MAIN WRAPPER                                          --}}
+{{-- ═══════════════════════════════════════════════════════ --}}
+<div class="flex flex-col min-h-screen transition-all duration-200"
+     :style="sidebarOpen ? 'margin-left:260px' : 'margin-left:64px'">
+
+    {{-- ── Topbar ── --}}
+    <header class="sticky top-0 z-20 flex items-center gap-4 px-5 bg-gray-800 border-b border-gray-600"
+            style="height:60px;">
+
+        {{-- Sidebar toggle --}}
+        <button @click="sidebarOpen = !sidebarOpen"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors flex-shrink-0">
+            <i class="bi bi-layout-sidebar-inset" style="font-size:17px;"></i>
+        </button>
+
+        {{-- Breadcrumb / page title --}}
+        <div class="flex items-center gap-2 text-sm">
+            <span class="text-gray-400">Taller Pro</span>
+            <i class="bi bi-chevron-right text-gray-600" style="font-size:10px;"></i>
+            <span class="text-gray-200 font-medium">@yield('page-title', 'Dashboard')</span>
+        </div>
+
+        {{-- Spacer --}}
+        <div class="flex-1"></div>
+
+        {{-- Actions slot --}}
+        @yield('header-actions')
+
+        {{-- Notifications (placeholder) --}}
+        <button class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors relative">
+            <i class="bi bi-bell" style="font-size:16px;"></i>
+        </button>
+
+        {{-- User chip --}}
+        <div class="flex items-center gap-2 pl-2 border-l border-gray-600">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                 style="background:#D71920;">
+                {{ strtoupper(substr(auth()->user()->nombre, 0, 2)) }}
+            </div>
+            <span class="text-xs font-medium text-gray-300 hidden sm:block">{{ auth()->user()->nombre }}</span>
+        </div>
+    </header>
+
+    {{-- ── Page content ── --}}
+    <main class="flex-1 p-6">
+
+        {{-- Flash messages --}}
+        @if(session('success'))
+        <div class="mb-5 flex items-start gap-3 p-4 rounded-xl border text-sm"
+             style="background:rgba(16,185,129,.1); border-color:rgba(16,185,129,.25); color:#34d399;"
+             x-data x-init="setTimeout(() => $el.remove(), 5000)">
+            <i class="bi bi-check-circle-fill mt-0.5 flex-shrink-0" style="font-size:15px;"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="mb-5 flex items-start gap-3 p-4 rounded-xl border text-sm"
+             style="background:rgba(215,25,32,.1); border-color:rgba(215,25,32,.25); color:#f87171;"
+             x-data x-init="setTimeout(() => $el.remove(), 7000)">
+            <i class="bi bi-exclamation-circle-fill mt-0.5 flex-shrink-0" style="font-size:15px;"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+        @endif
+
+        @yield('content')
+    </main>
+
+    {{-- Footer --}}
+    <footer class="px-6 py-3 border-t border-gray-800 flex items-center justify-between">
+        <p class="text-xs text-gray-500">&copy; {{ date('Y') }} Taller Pro — Sistema de gestion automotriz</p>
+        <p class="text-xs text-gray-600">v1.0</p>
+    </footer>
+</div>
 
 </body>
 </html>

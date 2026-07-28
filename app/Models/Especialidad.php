@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Especialidad extends Model
 {
+    protected $table = 'especialidades';
     public $timestamps = false;
     protected $fillable = ['nombre', 'descripcion'];
 
