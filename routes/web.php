@@ -36,6 +36,11 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+// Pantalla para usuarios autenticados pero sin rol asignado
+Route::get('/pendiente', [AuthController::class, 'pending'])
+    ->middleware('auth')
+    ->name('pending');
+
 // ─── Dashboard y módulos (autenticado) ───────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

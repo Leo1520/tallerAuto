@@ -93,7 +93,9 @@
                             </span>
                         @endforeach
                         @if($usuario->roles->isEmpty())
-                            <span class="text-xs text-gray-600">Sin rol</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-900/30 text-yellow-400 border border-yellow-700/50">
+                                <i class="bi bi-clock-history" style="font-size:10px;"></i> Pendiente
+                            </span>
                         @endif
                     </td>
                     <td class="px-6 py-3.5 text-center text-xs text-gray-500">

@@ -42,9 +42,25 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        Auth::user()->update(['ultimo_acceso' => now()]);
+        $user = Auth::user();
+        $user->update(['ultimo_acceso' => now()]);
+
+        // Sin rol → pantalla de espera
+        if ($user->roles->isEmpty()) {
+            return redirect()->route('pending');
+        }
 
         return redirect()->intended(route('dashboard'));
+    }
+
+    public function pending(): RedirectResponse|\Illuminate\View\View
+    {
+        // Si ya tiene rol, mandarlo al dashboard
+        if (Auth::user()->roles->isNotEmpty()) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('auth.pending');
     }
 
     public function logout(Request $request): RedirectResponse

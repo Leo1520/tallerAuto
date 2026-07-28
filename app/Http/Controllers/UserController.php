@@ -35,7 +35,9 @@ class UserController extends Controller
             ->when($rolId, function ($q) use ($rolId) {
                 $q->whereHas('roles', fn($r) => $r->where('roles.id', $rolId));
             })
-            ->latest()
+            // Pendientes (sin rol) primero
+            ->orderByRaw('(SELECT COUNT(*) FROM role_user WHERE role_user.user_id = users.id) ASC')
+            ->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
 
