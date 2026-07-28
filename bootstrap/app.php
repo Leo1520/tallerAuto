@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'       => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
+
+        // El webhook de Stripe envía su propia firma, no necesita CSRF
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

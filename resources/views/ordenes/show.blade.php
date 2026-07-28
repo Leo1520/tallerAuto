@@ -128,11 +128,54 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
         @endif
 
         {{-- Pagos --}}
-        @if ($orden->pagos->isNotEmpty())
+        @php $totalPagado = $orden->pagos->where('estado','Confirmado')->sum('monto'); @endphp
         <div class="bg-white rounded-xl shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-base font-semibold text-gray-800">Pagos</h3>
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-semibold text-gray-800">Pagos</h3>
+                    @if($totalPagado < $orden->total)
+                    <p class="text-xs text-red-500 mt-0.5">Pendiente: Bs {{ number_format($orden->total - $totalPagado, 2) }}</p>
+                    @else
+                    <p class="text-xs text-green-600 mt-0.5">Orden totalmente pagada</p>
+                    @endif
+                </div>
+                <div class="flex items-center gap-2">
+                    @if(Route::has('pagos.create') && $orden->estado !== 'Cancelado' && $totalPagado < $orden->total)
+                    <a href="{{ route('pagos.create', ['orden_id' => $orden->id]) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Registrar Pago
+                    </a>
+                    @endif
+                    @if(Route::has('facturas.emitir') && $totalPagado >= $orden->total && !$orden->factura?->estaEmitida())
+                    <form method="POST" action="{{ route('facturas.emitir') }}">
+                        @csrf
+                        <input type="hidden" name="orden_id" value="{{ $orden->id }}">
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Emitir Factura
+                        </button>
+                    </form>
+                    @endif
+                    @if($orden->factura?->estaEmitida())
+                    <a href="{{ route('facturas.show', $orden->factura) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg hover:bg-green-100 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Ver Factura
+                    </a>
+                    @endif
+                </div>
             </div>
+        @if ($orden->pagos->isNotEmpty())
+            <div>
             <div class="divide-y divide-gray-50">
                 @foreach ($orden->pagos as $pago)
                 <div class="px-6 py-4 flex items-center justify-between text-sm">
@@ -152,8 +195,10 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                 </div>
                 @endforeach
             </div>
-        </div>
+        @else
+            <p class="px-6 py-4 text-sm text-gray-400">Sin pagos registrados aún.</p>
         @endif
+        </div>
 
         {{-- Observaciones --}}
         @if ($orden->observaciones)
