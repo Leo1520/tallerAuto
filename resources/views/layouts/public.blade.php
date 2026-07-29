@@ -127,11 +127,13 @@
 
         <div class="pub-nav-actions">
             @auth
-                <a href="{{ route('cliente.inicio') }}" class="btn-nav-login">Mi cuenta</a>
+                <a href="{{ route('cliente.inicio') }}" class="btn-nav-login">
+                    <i class="bi bi-person-circle" style="font-size:14px;"></i> Mi cuenta
+                </a>
             @else
                 <a href="{{ route('login') }}" class="btn-nav-login">Iniciar sesión</a>
             @endauth
-            <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" class="btn-nav-tienda">
+            <a href="{{ route('tienda') }}" class="btn-nav-tienda">
                 <i class="bi bi-shop-window" style="font-size:14px;"></i>
                 Tienda
             </a>
@@ -156,7 +158,7 @@
             @else
                 <a href="{{ route('login') }}" style="flex:1; text-align:center; padding:10px; border-radius:8px; border:1px solid var(--pub-border); color:var(--pub-text); text-decoration:none; font-size:13px; font-weight:600;">Iniciar sesión</a>
             @endauth
-            <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" style="flex:1; text-align:center; padding:10px; border-radius:8px; background:var(--accent); color:#fff; text-decoration:none; font-size:13px; font-weight:700;">Tienda</a>
+            <a href="{{ route('tienda') }}" style="flex:1; text-align:center; padding:10px; border-radius:8px; background:var(--accent); color:#fff; text-decoration:none; font-size:13px; font-weight:700;">Tienda</a>
         </div>
     </div>
 </nav>

@@ -16,11 +16,14 @@ use App\Http\Controllers\RepuestoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\Cliente\PortalController;
+use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Pública ─────────────────────────────────────────────────
-Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::get('/',        [LandingController::class, 'index'])->name('landing');
+Route::get('/tienda',  [LandingController::class, 'tienda'])->name('tienda');
 
 // ─── Auth (invitados) ────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -52,9 +55,15 @@ Route::middleware('auth')->group(function () {
 });
 
 // ─── Área de cliente ─────────────────────────────────────────
-// Por ahora solo ruta placeholder; se desarrollará en la siguiente fase
 Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->group(function () {
-    Route::get('/inicio', fn() => view('cliente.inicio'))->name('inicio');
+    Route::get('/inicio',                          [PortalController::class, 'inicio'])->name('inicio');
+    Route::get('/citas',                           [PortalController::class, 'citasIndex'])->name('citas.index');
+    Route::get('/citas/nueva',                     [PortalController::class, 'citasCreate'])->name('citas.create');
+    Route::post('/citas',                          [PortalController::class, 'citasStore'])->name('citas.store');
+    Route::patch('/citas/{cita}/cancelar',         [PortalController::class, 'citasCancel'])->name('citas.cancel');
+    Route::get('/vehiculos',                       [PortalController::class, 'vehiculosIndex'])->name('vehiculos.index');
+    Route::get('/ordenes',                         [PortalController::class, 'ordenesIndex'])->name('ordenes.index');
+    Route::get('/ordenes/{orden}',                 [PortalController::class, 'ordenShow'])->name('ordenes.show');
 });
 
 // ─── Área administrativa ──────────────────────────────────────
@@ -106,6 +115,9 @@ Route::middleware(['auth', 'verified'])
     // Usuarios
     Route::resource('usuarios', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::patch('/usuarios/{usuario}/password', [UserController::class, 'cambiarPassword'])->name('usuarios.password');
+
+    // Servicios
+    Route::resource('servicios', ServicioController::class)->except(['show']);
 
     // Mecánicos
     Route::resource('mecanicos', MecanicoController::class);

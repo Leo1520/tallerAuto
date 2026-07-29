@@ -15,6 +15,7 @@ class RolesPermissionsSeeder extends Seeder
             ['nombre' => 'Mecanico',  'descripcion' => 'Actualización de estado de órdenes asignadas'],
             ['nombre' => 'Bodega',    'descripcion' => 'Gestión de inventario y repuestos'],
             ['nombre' => 'Contador',  'descripcion' => 'Acceso a pagos, facturas y reportes'],
+            ['nombre' => 'Cliente',   'descripcion' => 'Portal de cliente — citas, vehículos y seguimiento'],
         ];
 
         DB::table('roles')->insertOrIgnore(array_map(fn($r) => array_merge($r, [

@@ -131,6 +131,15 @@ class AuthController extends Controller
                 'email'      => $request->email,
                 'password'   => $request->password,
             ]);
+
+            // Crear registro de cliente asociado
+            \App\Models\Cliente::create(['persona_id' => $persona->id]);
+
+            // Asignar rol Cliente automáticamente
+            $rolCliente = \App\Models\Role::where('nombre', 'Cliente')->first();
+            if ($rolCliente) {
+                $user->roles()->attach($rolCliente->id);
+            }
         });
 
         // Enviar email de verificación
