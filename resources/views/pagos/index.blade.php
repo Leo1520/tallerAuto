@@ -3,14 +3,30 @@
 @section('page-title', 'Pagos')
 
 @section('header-actions')
-    <a href="{{ route('pagos.create') }}"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
-        <span class="relative inline-flex items-center" style="font-size:15px;">
-                <i class="bi bi-wallet-fill"></i>
-                <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
-            </span> Registrar pago
-    </a>
+    <div class="inline-flex gap-2">
+        <a href="{{ route('pagos.revision.index') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+           style="background:rgba(234,179,8,.12);color:#facc15;border:1px solid rgba(234,179,8,.2);">
+            <i class="bi bi-hourglass-split"></i>
+            Revisión QR
+            @if(($pendientesRevision ?? 0) > 0)
+                <span style="background:#facc15;color:#000;border-radius:20px;padding:1px 7px;font-size:11px;font-weight:700;">{{ $pendientesRevision }}</span>
+            @endif
+        </a>
+        <a href="{{ route('pagos.efectivo') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+           style="background:#059669;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+            <i class="bi bi-cash"></i> Cobro efectivo
+        </a>
+        <a href="{{ route('pagos.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+           style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+            <span class="relative inline-flex items-center" style="font-size:15px;">
+                    <i class="bi bi-wallet-fill"></i>
+                    <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
+                </span> Registrar pago
+        </a>
+    </div>
 @endsection
 
 @section('content')
@@ -43,8 +59,10 @@
         <select name="estado"
                 class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
             <option value="">Todos</option>
-            <option value="Pendiente"   {{ request('estado') === 'Pendiente'   ? 'selected' : '' }}>Pendiente</option>
+            <option value="Pendiente"    {{ request('estado') === 'Pendiente'    ? 'selected' : '' }}>Pendiente</option>
+            <option value="En revisión" {{ request('estado') === 'En revisión' ? 'selected' : '' }}>En revisión (QR)</option>
             <option value="Confirmado"  {{ request('estado') === 'Confirmado'  ? 'selected' : '' }}>Confirmado</option>
+            <option value="Rechazado"   {{ request('estado') === 'Rechazado'   ? 'selected' : '' }}>Rechazado</option>
             <option value="Anulado"     {{ request('estado') === 'Anulado'     ? 'selected' : '' }}>Anulado</option>
         </select>
     </div>
@@ -112,10 +130,12 @@
                     @foreach ($pagos as $pago)
                     @php
                         $estadoClass = match($pago->estado) {
-                            'Confirmado' => 'bg-green-900/40 text-green-400 border border-green-800',
-                            'Pendiente'  => 'bg-yellow-900/40 text-yellow-400 border border-yellow-800',
-                            'Anulado'    => 'bg-red-900/40 text-red-400 border border-red-800',
-                            default      => 'bg-gray-700 text-gray-400 border border-gray-600',
+                            'Confirmado'   => 'bg-green-900/40 text-green-400 border border-green-800',
+                            'Pendiente'    => 'bg-yellow-900/40 text-yellow-400 border border-yellow-800',
+                            'En revisión'  => 'bg-blue-900/40 text-blue-300 border border-blue-800',
+                            'Rechazado'    => 'bg-orange-900/40 text-orange-400 border border-orange-800',
+                            'Anulado'      => 'bg-red-900/40 text-red-400 border border-red-800',
+                            default        => 'bg-gray-700 text-gray-400 border border-gray-600',
                         };
                     @endphp
                     <tr class="hover:bg-gray-700/30 transition-colors">
@@ -139,7 +159,7 @@
                             <div class="flex items-center justify-end gap-1.5">
                                 @if ($pago->estado === 'Pendiente')
                                 <form method="POST" action="{{ route('pagos.confirmar', $pago) }}"
-                                      data-confirm="¿Confirmar el pago #{{ $pago->numero }}?"
+                                      data-confirm="¿Confirmar el pago #{{ $pago->id }}?"
                                       data-confirm-type="warning"
                                       data-confirm-title="Confirmar pago"
                                       data-confirm-ok="Sí, confirmar">
@@ -150,13 +170,18 @@
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ route('pagos.anular', $pago) }}"
-                                      data-confirm="¿Anular el pago #{{ $pago->numero }}? Esta acción no se puede deshacer.">
+                                      data-confirm="¿Anular el pago #{{ $pago->id }}? Esta acción no se puede deshacer.">
                                     @csrf
                                     <button type="submit"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-orange-300 bg-orange-900/20 hover:bg-orange-900/40 rounded-lg transition-colors border border-orange-900/50">
                                         <i class="bi bi-x-circle" style="font-size:11px;"></i> Anular
                                     </button>
                                 </form>
+                                @elseif ($pago->estado === 'En revisión')
+                                <a href="{{ route('pagos.revision.show', $pago) }}"
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-300 bg-blue-900/20 hover:bg-blue-900/40 rounded-lg transition-colors border border-blue-900/50">
+                                    <i class="bi bi-eye" style="font-size:11px;"></i> Revisar
+                                </a>
                                 @else
                                 <a href="{{ route('ordenes.show', $pago->orden) }}"
                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors border border-gray-600">

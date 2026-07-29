@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pago extends Model
 {
@@ -37,14 +38,44 @@ class Pago extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function comprobante(): HasOne
+    {
+        return $this->hasOne(ComprobantePago::class);
+    }
+
+    public function movimientoCaja(): HasOne
+    {
+        return $this->hasOne(MovimientoCaja::class);
+    }
+
     public function esStripe(): bool
     {
         return str_contains(strtolower($this->metodoPago?->nombre ?? ''), 'stripe')
             || str_contains(strtolower($this->metodoPago?->nombre ?? ''), 'tarjeta');
     }
 
+    public function esQr(): bool
+    {
+        return str_contains(strtolower($this->metodoPago?->nombre ?? ''), 'qr');
+    }
+
+    public function esEfectivo(): bool
+    {
+        return strtolower($this->metodoPago?->nombre ?? '') === 'efectivo';
+    }
+
     public function estaConfirmado(): bool
     {
         return $this->estado === 'Confirmado';
+    }
+
+    public function estaEnRevision(): bool
+    {
+        return $this->estado === 'En revisión';
+    }
+
+    public function estaRechazado(): bool
+    {
+        return $this->estado === 'Rechazado';
     }
 }

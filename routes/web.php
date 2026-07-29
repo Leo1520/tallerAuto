@@ -70,6 +70,10 @@ Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->gr
     Route::get('/vehiculos',                       [PortalController::class, 'vehiculosIndex'])->name('vehiculos.index');
     Route::get('/ordenes',                         [PortalController::class, 'ordenesIndex'])->name('ordenes.index');
     Route::get('/ordenes/{orden}',                 [PortalController::class, 'ordenShow'])->name('ordenes.show');
+    // Pago QR desde el portal cliente
+    Route::get('/pago/enviado',                    [PagoController::class, 'pagoEnviado'])->name('pagar.enviado');
+    Route::get('/ordenes/{orden}/pagar',           [PagoController::class, 'qrMostrar'])->name('ordenes.pagar');
+    Route::post('/ordenes/{orden}/pagar',          [PagoController::class, 'qrClienteConfirmar'])->name('ordenes.pagar.confirmar');
 });
 
 // ─── Área administrativa ──────────────────────────────────────
@@ -97,13 +101,20 @@ Route::middleware(['auth', 'verified'])
     Route::patch('/inventario/{inventarioSucursal}/stock-minimo', [InventarioController::class, 'actualizarStockMinimo'])
         ->name('inventario.stockMinimo');
 
-    // Pagos
-    Route::get('/pagos',                   [PagoController::class, 'index'])->name('pagos.index');
-    Route::get('/pagos/nuevo',             [PagoController::class, 'create'])->name('pagos.create');
-    Route::post('/pagos',                  [PagoController::class, 'store'])->name('pagos.store');
-    Route::post('/pagos/{pago}/confirmar', [PagoController::class, 'confirmar'])->name('pagos.confirmar');
-    Route::post('/pagos/{pago}/anular',    [PagoController::class, 'anular'])->name('pagos.anular');
-    Route::post('/pagos/stripe/intent',    [PagoController::class, 'crearIntent'])->name('pagos.intent');
+    // Pagos — rutas estáticas PRIMERO (antes de {pago} para evitar conflictos)
+    Route::get('/pagos',                        [PagoController::class, 'index'])->name('pagos.index');
+    Route::get('/pagos/nuevo',                  [PagoController::class, 'create'])->name('pagos.create');
+    Route::get('/pagos/revision',               [PagoController::class, 'revisionIndex'])->name('pagos.revision.index');
+    Route::get('/pagos/efectivo',               [PagoController::class, 'efectivoCreate'])->name('pagos.efectivo');
+    Route::post('/pagos',                       [PagoController::class, 'store'])->name('pagos.store');
+    Route::post('/pagos/stripe/intent',         [PagoController::class, 'crearIntent'])->name('pagos.intent');
+    Route::post('/pagos/efectivo',              [PagoController::class, 'efectivoStore'])->name('pagos.efectivo.store');
+    // Pagos — con parámetro {pago}
+    Route::get('/pagos/{pago}/revision',        [PagoController::class, 'revisionShow'])->name('pagos.revision.show');
+    Route::post('/pagos/{pago}/confirmar',      [PagoController::class, 'confirmar'])->name('pagos.confirmar');
+    Route::post('/pagos/{pago}/validar',        [PagoController::class, 'cajeroValidar'])->name('pagos.validar');
+    Route::post('/pagos/{pago}/rechazar',       [PagoController::class, 'cajeroRechazar'])->name('pagos.rechazar');
+    Route::post('/pagos/{pago}/anular',         [PagoController::class, 'anular'])->name('pagos.anular');
 
     // Facturas
     Route::get('/facturas',                [FacturaController::class, 'index'])->name('facturas.index');

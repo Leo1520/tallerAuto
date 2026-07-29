@@ -6,6 +6,7 @@ use App\Http\Requests\StorePagoRequest;
 use App\Models\MetodoPago;
 use App\Models\OrdenServicio;
 use App\Models\Pago;
+use App\Services\PagoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,12 +20,13 @@ use Stripe\Webhook;
 
 class PagoController extends Controller
 {
-    public function __construct()
+    public function __construct(private PagoService $pagoService)
     {
         Stripe::setApiKey(config('services.stripe.secret'));
     }
 
-    // Lista de pagos (todos)
+    // ─── Admin: lista de pagos ────────────────────────────────────────────
+
     public function index(Request $request): View
     {
         $pagos = Pago::with(['orden.vehiculo.cliente.persona', 'metodoPago', 'user.persona'])
@@ -43,10 +45,13 @@ class PagoController extends Controller
             ->when($request->fecha_hasta, fn($q, $f) => $q->whereDate('created_at', '<=', $f))
             ->sum('monto');
 
-        return view('pagos.index', compact('pagos', 'metodos', 'totalConfirmado'));
+        $pendientesRevision = Pago::where('estado', 'En revisión')->count();
+
+        return view('pagos.index', compact('pagos', 'metodos', 'totalConfirmado', 'pendientesRevision'));
     }
 
-    // Formulario de pago para una orden
+    // ─── Admin: formulario Stripe / pago manual ──────────────────────────
+
     public function create(Request $request): View
     {
         $orden = OrdenServicio::with(['vehiculo.cliente.persona', 'pagos'])
@@ -55,14 +60,13 @@ class PagoController extends Controller
         $metodos   = MetodoPago::where('activo', true)->orderBy('nombre')->get();
         $pendiente = $orden->total - $orden->pagos->where('estado', 'Confirmado')->sum('monto');
 
-        // Si hay un método Stripe, creamos el PaymentIntent de inmediato
         $stripeClientSecret = null;
-        $metodosStripe      = $metodos->filter(fn($m) => $m->esStripe ?? false)->pluck('id');
 
         return view('pagos.create', compact('orden', 'metodos', 'pendiente', 'stripeClientSecret'));
     }
 
-    // Crear PaymentIntent de Stripe (AJAX)
+    // ─── Admin: crear PaymentIntent de Stripe (AJAX) ─────────────────────
+
     public function crearIntent(Request $request): JsonResponse
     {
         $request->validate([
@@ -73,7 +77,7 @@ class PagoController extends Controller
         $orden = OrdenServicio::findOrFail($request->orden_id);
 
         $intent = PaymentIntent::create([
-            'amount'   => (int) round($request->monto * 100), // en centavos
+            'amount'   => (int) round($request->monto * 100),
             'currency' => 'bob',
             'metadata' => [
                 'orden_id'     => $orden->id,
@@ -84,7 +88,8 @@ class PagoController extends Controller
         return response()->json(['client_secret' => $intent->client_secret]);
     }
 
-    // Registrar pago (manual o confirmación Stripe)
+    // ─── Admin: registrar pago Stripe / manual ───────────────────────────
+
     public function store(StorePagoRequest $request): RedirectResponse
     {
         $orden   = OrdenServicio::with('pagos')->findOrFail($request->orden_id);
@@ -92,7 +97,6 @@ class PagoController extends Controller
         $esStripe = str_contains(strtolower($metodo->nombre), 'stripe') ||
                     str_contains(strtolower($metodo->nombre), 'tarjeta');
 
-        // Si es Stripe necesitamos el PaymentIntent confirmado
         if ($esStripe && !$request->filled('payment_intent')) {
             return back()->withErrors(['payment_intent' => 'El pago con tarjeta no fue completado.'])->withInput();
         }
@@ -101,12 +105,10 @@ class PagoController extends Controller
             $estado = $esStripe ? 'Confirmado' : 'Pendiente';
 
             if ($esStripe) {
-                // Verificar que el PaymentIntent esté realmente pagado
                 $intent = PaymentIntent::retrieve($request->payment_intent);
                 if ($intent->status !== 'succeeded') {
                     throw new \Exception('El PaymentIntent no está confirmado.');
                 }
-                $estado = 'Confirmado';
             }
 
             Pago::create([
@@ -123,37 +125,33 @@ class PagoController extends Controller
                 'observaciones'       => $request->observaciones,
             ]);
 
-            // Marcar orden como pagada si el total está cubierto
             $totalPagado = $orden->pagos()->where('estado', 'Confirmado')->sum('monto') + ($esStripe ? $request->monto : 0);
             if ($totalPagado >= $orden->total && $orden->estado !== 'Cancelado') {
                 $orden->update(['estado' => 'Entregado']);
             }
         });
 
-        return redirect()->route('ordenes.show', $orden)
-            ->with('success', 'Pago registrado correctamente.');
+        return redirect()->route('ordenes.show', $orden)->with('success', 'Pago registrado correctamente.');
     }
 
-    // Confirmar pago manual (cambiar de Pendiente → Confirmado)
+    // ─── Admin: confirmar pago pendiente (genérico) ───────────────────────
+
     public function confirmar(Pago $pago): RedirectResponse
     {
         abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'), 403);
 
-        $pago->update([
-            'estado'             => 'Confirmado',
-            'fecha_confirmacion' => now(),
-        ]);
+        $this->pagoService->confirmarPago($pago, auth()->user());
 
         return back()->with('success', 'Pago confirmado.');
     }
 
-    // Anular pago
+    // ─── Admin: anular pago ───────────────────────────────────────────────
+
     public function anular(Pago $pago): RedirectResponse
     {
         abort_unless(auth()->user()->isAdmin(), 403);
 
         if ($pago->estado === 'Confirmado' && $pago->esStripe()) {
-            // Reembolso en Stripe
             \Stripe\Refund::create(['payment_intent' => $pago->transaccion_externa]);
         }
 
@@ -162,11 +160,155 @@ class PagoController extends Controller
         return back()->with('success', 'Pago anulado.');
     }
 
-    // Webhook de Stripe
+    // ─── Admin: cola de revisión QR ──────────────────────────────────────
+
+    public function revisionIndex(Request $request): View
+    {
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'), 403);
+
+        $pagos = Pago::with(['orden.vehiculo.cliente.persona', 'metodoPago', 'comprobante'])
+            ->where('estado', 'En revisión')
+            ->latest()
+            ->paginate(20);
+
+        return view('pagos.revision.index', compact('pagos'));
+    }
+
+    public function revisionShow(Pago $pago): View
+    {
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'), 403);
+
+        $pago->load(['orden.vehiculo.cliente.persona', 'metodoPago', 'comprobante', 'user.persona']);
+
+        return view('pagos.revision.show', compact('pago'));
+    }
+
+    public function cajeroValidar(Request $request, Pago $pago): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'), 403);
+        abort_unless($pago->estado === 'En revisión', 422, 'Solo se pueden validar pagos en revisión.');
+
+        $this->pagoService->confirmarPago($pago, auth()->user());
+
+        return redirect()->route('pagos.revision.index')->with('success', "Pago #$pago->id confirmado. Factura generada si el total está cubierto.");
+    }
+
+    public function cajeroRechazar(Request $request, Pago $pago): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'), 403);
+        abort_unless($pago->estado === 'En revisión', 422, 'Solo se pueden rechazar pagos en revisión.');
+
+        $request->validate(['motivo' => 'required|string|max:500']);
+
+        $this->pagoService->rechazarPago($pago, $request->motivo, auth()->user());
+
+        return redirect()->route('pagos.revision.index')->with('warning', 'Pago rechazado. Se notificó al cliente.');
+    }
+
+    // ─── Admin: pago en efectivo ──────────────────────────────────────────
+
+    public function efectivoCreate(Request $request): View
+    {
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.crear'), 403);
+
+        $orden = null;
+        if ($request->filled('orden_id')) {
+            $orden = OrdenServicio::with(['vehiculo.cliente.persona', 'pagos'])->findOrFail($request->orden_id);
+        }
+
+        $metodoEfectivo = MetodoPago::where('nombre', 'Efectivo')->first();
+
+        return view('pagos.efectivo', compact('orden', 'metodoEfectivo'));
+    }
+
+    public function efectivoStore(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.crear'), 403);
+
+        $request->validate([
+            'orden_id'       => 'required|exists:ordenes_servicio,id',
+            'monto'          => 'required|numeric|min:0.01',
+            'monto_recibido' => 'required|numeric|min:0.01',
+        ], [
+            'monto_recibido.min' => 'El monto recibido debe ser mayor a cero.',
+        ]);
+
+        $orden          = OrdenServicio::with(['pagos', 'vehiculo.cliente.persona'])->findOrFail($request->orden_id);
+        $metodoEfectivo = MetodoPago::where('nombre', 'Efectivo')->firstOrFail();
+
+        if ($request->monto_recibido < $request->monto) {
+            return back()->withErrors(['monto_recibido' => 'El monto recibido es menor al monto a cobrar.'])->withInput();
+        }
+
+        $pago = $this->pagoService->registrarEfectivo(
+            $orden,
+            $metodoEfectivo,
+            (float) $request->monto,
+            (float) $request->monto_recibido,
+            auth()->user()
+        );
+
+        return redirect()->route('ordenes.show', $orden)
+            ->with('success', "Pago en efectivo registrado. Cambio: Bs " . number_format($request->monto_recibido - $request->monto, 2));
+    }
+
+    // ─── Cliente: página QR ───────────────────────────────────────────────
+
+    public function qrMostrar(OrdenServicio $orden): View
+    {
+        $this->autorizarClienteOrden($orden);
+
+        $orden->load(['pagos', 'vehiculo.cliente.persona', 'factura']);
+        $metodoQr  = MetodoPago::where('nombre', 'QR Banco Ganadero')->first();
+        $pendiente = $orden->montoPendiente();
+
+        abort_if($pendiente <= 0, 302, redirect()->route('cliente.ordenes.show', $orden));
+
+        return view('cliente.pagar.qr', compact('orden', 'metodoQr', 'pendiente'));
+    }
+
+    public function qrClienteConfirmar(Request $request, OrdenServicio $orden): RedirectResponse
+    {
+        $this->autorizarClienteOrden($orden);
+
+        $orden->load('pagos');
+        $pendiente = $orden->montoPendiente();
+
+        abort_if($pendiente <= 0, 403, 'Esta orden ya está pagada.');
+
+        $request->validate([
+            'comprobante' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'comprobante.mimes' => 'Solo se aceptan imágenes (JPG, PNG) o PDF.',
+            'comprobante.max'   => 'El archivo no puede superar 5 MB.',
+        ]);
+
+        $metodoQr = MetodoPago::where('nombre', 'QR Banco Ganadero')->firstOrFail();
+
+        $this->pagoService->registrarPagoEnRevision(
+            $orden,
+            $metodoQr,
+            $pendiente,
+            $request->file('comprobante')
+        );
+
+        return redirect()->route('cliente.pagar.enviado', ['orden' => $orden->id])
+            ->with('success', 'Comprobante enviado. El cajero lo revisará pronto.');
+    }
+
+    public function pagoEnviado(Request $request): View
+    {
+        $ordenId = $request->query('orden');
+        $orden   = $ordenId ? OrdenServicio::find($ordenId) : null;
+        return view('cliente.pagar.enviado', compact('orden'));
+    }
+
+    // ─── Webhook Stripe ───────────────────────────────────────────────────
+
     public function webhook(Request $request): JsonResponse
     {
-        $payload = $request->getContent();
-        $sigHeader = $request->header('Stripe-Signature');
+        $payload       = $request->getContent();
+        $sigHeader     = $request->header('Stripe-Signature');
         $webhookSecret = config('services.stripe.webhook');
 
         if (!$webhookSecret) {
@@ -191,5 +333,14 @@ class PagoController extends Controller
         }
 
         return response()->json(['received' => true]);
+    }
+
+    // ─── Helper privado ────────────────────────────────────────────────────
+
+    private function autorizarClienteOrden(OrdenServicio $orden): void
+    {
+        $user      = auth()->user();
+        $personaId = $orden->vehiculo?->cliente?->persona_id;
+        abort_unless($personaId && $user->persona_id === $personaId, 403);
     }
 }

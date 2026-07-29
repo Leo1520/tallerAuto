@@ -62,4 +62,19 @@ class OrdenServicio extends Model
     {
         return $this->hasMany(Adjunto::class, 'orden_id')->latest('created_at');
     }
+
+    public function montoPagado(): float
+    {
+        return (float) $this->pagos->where('estado', 'Confirmado')->sum('monto');
+    }
+
+    public function montoPendiente(): float
+    {
+        return max(0, (float) $this->total - $this->montoPagado());
+    }
+
+    public function estaPagada(): bool
+    {
+        return $this->montoPagado() >= (float) $this->total;
+    }
 }
