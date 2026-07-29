@@ -45,12 +45,34 @@ class AuthController extends Controller
         $user = Auth::user();
         $user->update(['ultimo_acceso' => now()]);
 
-        // Sin rol → pantalla de espera
-        if ($user->roles->isEmpty()) {
-            return redirect()->route('pending');
+        // Sin verificar → pantalla de verificación
+        if (! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
         }
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended($this->redirectAfterLogin($user));
+    }
+
+    private function redirectAfterLogin(\App\Models\User $user): string
+    {
+        $roleNames = $user->roles->pluck('nombre')->toArray();
+
+        // Roles de staff — van al panel admin
+        $staffRoles = ['Admin', 'Administrador', 'Mecánico', 'Mecanico', 'Recepcionista', 'Cajero', 'Inventario', 'Supervisor'];
+
+        foreach ($staffRoles as $role) {
+            if (in_array($role, $roleNames)) {
+                return route('dashboard');
+            }
+        }
+
+        // Solo rol Cliente → portal cliente
+        if (in_array('Cliente', $roleNames)) {
+            return route('cliente.inicio');
+        }
+
+        // Sin rol → pendiente
+        return route('pending');
     }
 
     public function pending(): RedirectResponse|\Illuminate\View\View
@@ -95,19 +117,24 @@ class AuthController extends Controller
             'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
-        DB::transaction(function () use ($request) {
+        $user = null;
+
+        DB::transaction(function () use ($request, &$user) {
             $persona = Persona::create([
                 'nombre'   => $request->nombre,
                 'email'    => $request->email,
                 'activo'   => true,
             ]);
 
-            User::create([
+            $user = User::create([
                 'persona_id' => $persona->id,
                 'email'      => $request->email,
                 'password'   => $request->password,
             ]);
         });
+
+        // Enviar email de verificación
+        $user->sendEmailVerificationNotification();
 
         // Notificar a todos los admins
         User::whereHas('roles', fn($q) => $q->where('nombre', 'Administrador'))
@@ -116,8 +143,10 @@ class AuthController extends Controller
                 new NuevaCuentaNotification($request->nombre, $request->email)
             ));
 
-        return redirect()->route('login')
-            ->with('status', 'Cuenta creada. Un administrador asignara tu rol para que puedas ingresar.');
+        // Iniciar sesión automáticamente y redirigir a verificar email
+        Auth::login($user);
+
+        return redirect()->route('verification.notice');
     }
 
     // ─── Olvidé mi contraseña ────────────────────────────────────

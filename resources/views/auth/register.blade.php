@@ -56,7 +56,7 @@
                     required
                     autofocus
                     autocomplete="name"
-                    placeholder="Juan Perez"
+                    placeholder="Nombre completo"
                 >
             </div>
         </div>
@@ -73,7 +73,7 @@
                     value="{{ old('email') }}"
                     required
                     autocomplete="email"
-                    placeholder="juan@tallerpro.bo"
+                    placeholder="correo@ejemplo.com"
                 >
             </div>
         </div>
@@ -120,7 +120,7 @@
         <div style="background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.2); border-radius:8px; padding:10px 14px; display:flex; align-items:flex-start; gap:8px;">
             <i class="bi bi-info-circle" style="color:var(--accent); margin-top:2px; flex-shrink:0;"></i>
             <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin:0;">
-                Tu cuenta quedara pendiente de aprobacion. Un administrador asignara tu rol de acceso.
+                Al crear tu cuenta recibirás un <strong style="color:var(--text-secondary);">correo de activación</strong>. Haz clic en el enlace para verificar tu dirección y acceder al sistema.
             </p>
         </div>
 

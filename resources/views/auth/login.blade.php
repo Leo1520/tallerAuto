@@ -53,7 +53,7 @@
                 <span class="input-icon"><i class="bi bi-envelope-at"></i></span>
                 <input id="email" type="email" name="email" value="{{ old('email') }}"
                        required autofocus autocomplete="email"
-                       placeholder="usuario@tallerpro.bo">
+                       placeholder="correo@ejemplo.com">
             </div>
         </div>
 
