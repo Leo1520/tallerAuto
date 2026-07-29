@@ -32,26 +32,43 @@ class VerificationController extends Controller
         ]);
     }
 
-    // Activar cuenta — ruta pública protegida por firma (no requiere auth)
+    // Activar cuenta — ruta pública, firma validada manualmente
     public function verify(Request $request, string $id, string $hash): RedirectResponse
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
 
-        // Verificar que el hash coincide con el email del usuario
-        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            abort(403, 'El enlace de activación no es válido.');
+        // Si el usuario no existe, redirigir al login con mensaje genérico
+        if (! $user) {
+            return redirect()->route('login')
+                ->with('status', 'El enlace de activación no es válido. Intenta registrarte de nuevo.');
         }
 
-        if (! $user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
-            event(new Verified($user));
+        // Si ya está verificado, redirigir directo al login — sin error
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('login', ['email' => $user->email])
+                ->with('status', 'Tu cuenta ya estaba activa. Ingresa tu contraseña.');
+        }
 
-            // Garantizar rol Cliente si aún no tiene ninguno
-            if ($user->roles()->count() === 0) {
-                $rolCliente = Role::where('nombre', 'Cliente')->first();
-                if ($rolCliente) {
-                    $user->roles()->attach($rolCliente->id);
-                }
+        // Validar firma de la URL
+        if (! $request->hasValidSignature()) {
+            return redirect()->route('login')
+                ->with('error', 'El enlace de activación expiró o no es válido. Solicita uno nuevo al iniciar sesión.');
+        }
+
+        // Validar hash del email
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return redirect()->route('login')
+                ->with('error', 'El enlace de activación no es válido.');
+        }
+
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+
+        // Garantizar rol Cliente si aún no tiene ninguno
+        if ($user->roles()->count() === 0) {
+            $rolCliente = Role::where('nombre', 'Cliente')->first();
+            if ($rolCliente) {
+                $user->roles()->attach($rolCliente->id);
             }
         }
 

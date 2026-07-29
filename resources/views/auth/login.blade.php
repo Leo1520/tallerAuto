@@ -44,6 +44,13 @@
     </div>
     @endif
 
+    @if(session('error'))
+    <div class="alert-error" style="margin-bottom:20px; display:flex; align-items:flex-start; gap:8px;">
+        <i class="bi bi-exclamation-circle-fill" style="margin-top:1px; flex-shrink:0;"></i>
+        <span>{{ session('error') }}</span>
+    </div>
+    @endif
+
     <form method="POST" action="{{ route('login.post') }}" style="display:flex; flex-direction:column; gap:18px;">
         @csrf
 

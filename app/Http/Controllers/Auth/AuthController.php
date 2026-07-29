@@ -55,24 +55,21 @@ class AuthController extends Controller
 
     private function redirectAfterLogin(\App\Models\User $user): string
     {
-        $roleNames = $user->roles->pluck('nombre')->toArray();
+        $roles = $user->roles->pluck('nombre');
 
-        // Roles de staff — van al panel admin
-        $staffRoles = ['Admin', 'Administrador', 'Mecánico', 'Mecanico', 'Recepcionista', 'Cajero', 'Inventario', 'Supervisor'];
-
-        foreach ($staffRoles as $role) {
-            if (in_array($role, $roleNames)) {
-                return route('dashboard');
-            }
+        // Sin ningún rol → pendiente de aprobación
+        if ($roles->isEmpty()) {
+            return route('pending');
         }
 
-        // Solo rol Cliente → portal cliente
-        if (in_array('Cliente', $roleNames)) {
+        // Solo tiene rol Cliente → portal cliente
+        $soloCliente = $roles->every(fn($r) => $r === 'Cliente');
+        if ($soloCliente) {
             return route('cliente.inicio');
         }
 
-        // Sin rol → pendiente
-        return route('pending');
+        // Cualquier otro rol (Admin, Recepcion, Mecanico, Bodega, Contador…) → panel admin
+        return route('dashboard');
     }
 
     public function pending(): RedirectResponse|\Illuminate\View\View
