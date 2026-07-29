@@ -152,10 +152,8 @@ class AuthController extends Controller
                 new NuevaCuentaNotification($request->nombre, $request->email)
             ));
 
-        // Iniciar sesión automáticamente y redirigir a verificar email
-        Auth::login($user);
-
-        return redirect()->route('verification.notice');
+        // Sin auto-login: redirigir a página "revisa tu correo"
+        return redirect()->route('registro.activacion', ['email' => $request->email]);
     }
 
     // ─── Olvidé mi contraseña ────────────────────────────────────

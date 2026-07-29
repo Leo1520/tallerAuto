@@ -3,13 +3,24 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class VerificationController extends Controller
 {
+    // Página "revisa tu correo" — pública, sin login
+    public function activacion(Request $request): View
+    {
+        return view('auth.activacion', [
+            'email' => $request->query('email', ''),
+        ]);
+    }
+
+    // Pantalla de reenvío (requiere auth, para quien ya inició sesión sin verificar)
     public function notice(Request $request): View|RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
@@ -21,31 +32,31 @@ class VerificationController extends Controller
         ]);
     }
 
-    public function verify(EmailVerificationRequest $request): RedirectResponse
+    // Activar cuenta — ruta pública protegida por firma (no requiere auth)
+    public function verify(Request $request, string $id, string $hash): RedirectResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->route('dashboard')->with('status', 'Tu correo ya fue verificado.');
+        $user = User::findOrFail($id);
+
+        // Verificar que el hash coincide con el email del usuario
+        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            abort(403, 'El enlace de activación no es válido.');
         }
 
-        $request->fulfill();
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new Verified($user));
 
-        $user      = $request->user();
-        $roleNames = $user->roles->pluck('nombre')->toArray();
-        $staffRoles = ['Admin','Administrador','Mecánico','Mecanico','Recepcionista','Cajero','Inventario','Supervisor'];
-
-        foreach ($staffRoles as $role) {
-            if (in_array($role, $roleNames)) {
-                return redirect()->route('dashboard')
-                    ->with('status', '¡Correo verificado! Bienvenido a Taller Pro.');
+            // Garantizar rol Cliente si aún no tiene ninguno
+            if ($user->roles()->count() === 0) {
+                $rolCliente = Role::where('nombre', 'Cliente')->first();
+                if ($rolCliente) {
+                    $user->roles()->attach($rolCliente->id);
+                }
             }
         }
 
-        if (in_array('Cliente', $roleNames)) {
-            return redirect()->route('cliente.inicio')
-                ->with('status', '¡Correo verificado! Bienvenido.');
-        }
-
-        return redirect()->route('pending');
+        return redirect()->route('login', ['email' => $user->email])
+            ->with('status', '¡Cuenta activada! Ingresa tu contraseña para continuar.');
     }
 
     public function resend(Request $request): RedirectResponse

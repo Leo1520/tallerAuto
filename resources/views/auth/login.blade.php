@@ -51,7 +51,7 @@
             <label for="email" class="field-label">Correo electronico</label>
             <div class="input-group {{ $errors->has('email') ? 'is-error' : '' }}">
                 <span class="input-icon"><i class="bi bi-envelope-at"></i></span>
-                <input id="email" type="email" name="email" value="{{ old('email') }}"
+                <input id="email" type="email" name="email" value="{{ old('email', request('email')) }}"
                        required autofocus autocomplete="email"
                        placeholder="correo@ejemplo.com">
             </div>

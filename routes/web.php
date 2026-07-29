@@ -40,12 +40,18 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // ─── Verificación de correo ───────────────────────────────────
+// Activar cuenta: ruta pública (la URL firmada es la autenticación)
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
+// Página "revisa tu correo" (pública, sin login)
+Route::get('/registro/activacion', [VerificationController::class, 'activacion'])
+    ->name('registro.activacion');
+
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', [VerificationController::class, 'notice'])
         ->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
     Route::post('/email/resend', [VerificationController::class, 'resend'])
         ->middleware('throttle:6,1')
         ->name('verification.resend');
