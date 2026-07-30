@@ -18,34 +18,91 @@
 
 /* ── HERO ── */
 .tp-hero {
-    min-height: 100vh;
-    background: #000;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
     position: relative;
+    min-height: 100vh;
     overflow: hidden;
-    padding: 80px 80px 60px;
-    gap: 48px;
+    cursor: crosshair;
 }
-.tp-hero::before {
-    content: '';
+
+/* Image layers — full bleed */
+.hero-img-base,
+.hero-img-top {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+.hero-img-base {
+    z-index: 0;
+    background-image: url('/images/car-exploded.jpg');
+}
+.hero-img-top {
+    z-index: 1;
+    background-image: url('/images/car-built.jpg');
+    will-change: -webkit-mask-image, mask-image;
+}
+
+/* Gradient veil so text stays readable on any image */
+.hero-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+        linear-gradient(to right,  rgba(0,0,0,.88) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.1) 100%),
+        linear-gradient(to top,    rgba(0,0,0,.6)  0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Red left stripe */
+.hero-stripe {
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 3px;
     background: var(--accent);
+    z-index: 3;
 }
-@media (max-width: 1024px) { .tp-hero { padding: 80px 40px 60px; gap: 32px; } }
+
+/* Reveal hint */
+.hero-hint {
+    position: absolute;
+    bottom: 36px;
+    right: 48px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.3);
+    pointer-events: none;
+    transition: opacity .3s;
+}
+.hero-hint i { font-size: 14px; animation: cursor-blink 1.6s infinite; }
+@keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+.tp-hero.revealing .hero-hint { opacity: 0; }
+
+/* Text content — overlaid on z-index 3 */
+.hero-content {
+    position: relative;
+    z-index: 4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 72px 72px;
+    max-width: 680px;
+    pointer-events: none; /* let mouse events pass to hero for reveal */
+}
+.hero-content a,
+.hero-content button { pointer-events: auto; }
+
 @media (max-width: 800px) {
-    .tp-hero {
-        grid-template-columns: 1fr;
-        padding: 60px 24px 40px;
-        text-align: center;
-        gap: 0;
-    }
-    .tp-hero::before { display: none; }
-    .tp-cta-row { justify-content: center; }
-    .tp-info-col { align-items: center; }
+    .hero-content { padding: 100px 24px 60px; max-width: 100%; }
+    .hero-hint { right: 24px; }
+    .tp-cta-row { flex-wrap: wrap; }
 }
 
 /* Eyebrow */
@@ -162,68 +219,7 @@
 }
 .btn-tp-wa:hover { background: #1db954; color: #fff; }
 
-/* ── IMAGE REVEAL ── */
-.tp-hero-visual {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-.car-reveal-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 560px;
-    aspect-ratio: 1 / 1;
-    cursor: pointer;
-}
-.car-glow {
-    position: absolute;
-    inset: 10%;
-    background: radial-gradient(ellipse at center, rgba(215,25,32,.07) 0%, transparent 65%);
-    border-radius: 50%;
-    z-index: 0;
-    pointer-events: none;
-    transition: opacity 1s;
-}
-.car-reveal-wrap.show-built .car-glow {
-    opacity: .5;
-}
-.car-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    user-select: none;
-    pointer-events: none;
-    transition: opacity .95s cubic-bezier(0.4, 0, 0.2, 1),
-                transform .95s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
-}
-.car-built  { z-index: 1; opacity: 1; }
-.car-exploded { z-index: 2; opacity: 1; transform: scale(1); }
-.car-reveal-wrap.show-built .car-exploded {
-    opacity: 0;
-    transform: scale(1.06);
-}
-
-/* progress indicator */
-.reveal-progress {
-    position: absolute;
-    bottom: -28px;
-    left: 0; right: 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    justify-content: center;
-}
-.rp-dot {
-    width: 20px; height: 2px;
-    background: #2a2a2a;
-    border-radius: 1px;
-    transition: background .3s;
-}
-.rp-dot.active { background: var(--accent); }
+/* (image reveal is handled by hero-img-base / hero-img-top above) */
 
 /* ── STATS ── */
 .tp-stats {
@@ -571,12 +567,27 @@
 @section('content')
 
 {{-- ══════════════════════════════════════════
-     HERO
+     HERO — full-screen cursor reveal
 ════════════════════════════════════════════ --}}
-<section class="tp-hero">
+<section class="tp-hero" id="heroSection">
 
-    {{-- Text column --}}
-    <div class="tp-hero-text">
+    {{-- Layer 1 (bottom): car-exploded — visible through the "scratch" --}}
+    <div class="hero-img-base" id="heroBase"></div>
+
+    {{-- Layer 2 (top): car-built — default visible; cursor cuts a hole --}}
+    <div class="hero-img-top" id="heroTop"></div>
+
+    {{-- Gradient veil for text readability --}}
+    <div class="hero-vignette"></div>
+    <div class="hero-stripe"></div>
+
+    {{-- Hint badge --}}
+    <div class="hero-hint" id="heroHint">
+        <i class="bi bi-cursor-fill"></i> Pasa el cursor para descubrir
+    </div>
+
+    {{-- All text overlaid --}}
+    <div class="hero-content">
         <div class="tp-eyebrow">
             <span class="dot"></span>
             Taller Automotriz — Santa Cruz, Bolivia
@@ -617,26 +628,6 @@
             <a href="#servicios" class="btn-tp-outline">
                 Ver servicios <i class="bi bi-arrow-down"></i>
             </a>
-        </div>
-    </div>
-
-    {{-- Image reveal column --}}
-    <div class="tp-hero-visual">
-        <div class="car-reveal-wrap" id="carReveal">
-            <div class="car-glow"></div>
-            {{-- Imagen base: Defender ensamblado (siempre visible debajo) --}}
-            <img class="car-layer car-built"
-                 src="{{ asset('images/car-built.jpg') }}"
-                 alt="Defender ensamblado">
-            {{-- Imagen superior: vista explotada (se desvanece al revelar) --}}
-            <img class="car-layer car-exploded"
-                 src="{{ asset('images/car-exploded.jpg') }}"
-                 alt="Despiece automotriz">
-
-            <div class="reveal-progress">
-                <div class="rp-dot active" id="rpDot0"></div>
-                <div class="rp-dot" id="rpDot1"></div>
-            </div>
         </div>
     </div>
 
@@ -898,43 +889,78 @@
 
 @push('scripts')
 <script>
-/* ─── IMAGE REVEAL EFFECT ─── */
+/* ─── HERO CURSOR REVEAL (scratch-card effect) ─── */
 (function() {
-    const wrap   = document.getElementById('carReveal');
-    if (!wrap) return;
+    const hero    = document.getElementById('heroSection');
+    const topLayer = document.getElementById('heroTop');
+    const hint    = document.getElementById('heroHint');
+    if (!hero || !topLayer) return;
 
-    const dot0   = document.getElementById('rpDot0');
-    const dot1   = document.getElementById('rpDot1');
-    let shown    = false; // false = exploded on top (default), true = built revealed
-    let timer    = null;
-    let paused   = false;
+    const RADIUS = 200; // px — hole size
 
-    function setRevealed(val) {
-        shown = val;
-        wrap.classList.toggle('show-built', val);
-        dot0.classList.toggle('active', !val);
-        dot1.classList.toggle('active',  val);
+    function applyMask(x, y, r) {
+        const mask = `radial-gradient(circle ${r}px at ${x}px ${y}px, transparent 0%, transparent 70%, black 100%)`;
+        topLayer.style.webkitMaskImage = mask;
+        topLayer.style.maskImage = mask;
     }
 
-    function startCycle() {
-        if (timer) clearInterval(timer);
-        timer = setInterval(() => {
-            if (!paused) setRevealed(!shown);
-        }, 3400);
+    function clearMask() {
+        topLayer.style.webkitMaskImage = 'none';
+        topLayer.style.maskImage = 'none';
     }
 
-    /* Desktop hover: pause cycle and immediately reveal built car */
-    wrap.addEventListener('mouseenter', () => {
-        paused = true;
-        setRevealed(true);
-    });
-    wrap.addEventListener('mouseleave', () => {
-        paused = false;
-        // let cycle resume naturally
-    });
+    /* ── Desktop: follow cursor ── */
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-    /* Start auto-cycle after 1.5s (let hero load first) */
-    setTimeout(() => startCycle(), 1500);
+    if (!isTouch) {
+        hero.addEventListener('mousemove', (e) => {
+            const rect = hero.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            hero.classList.add('revealing');
+            applyMask(x, y, RADIUS);
+        });
+
+        hero.addEventListener('mouseleave', () => {
+            hero.classList.remove('revealing');
+            clearMask();
+        });
+    }
+
+    /* ── Mobile / no cursor: animate the reveal circle automatically ── */
+    if (isTouch) {
+        hint.innerHTML = '<i class="bi bi-hand-index-fill"></i> Toca para descubrir';
+
+        let raf;
+        let t = 0;
+        const W = () => hero.offsetWidth;
+        const H = () => hero.offsetHeight;
+
+        function autoAnimate() {
+            t += 0.007;
+            // Lemniscate-style path so it sweeps the whole image
+            const x = W() * (0.5 + 0.38 * Math.cos(t));
+            const y = H() * (0.5 + 0.30 * Math.sin(t * 1.3));
+            applyMask(x, y, RADIUS * 1.2);
+            raf = requestAnimationFrame(autoAnimate);
+        }
+
+        autoAnimate();
+
+        /* Pause on touch and follow finger */
+        hero.addEventListener('touchmove', (e) => {
+            cancelAnimationFrame(raf);
+            hero.classList.add('revealing');
+            const rect = hero.getBoundingClientRect();
+            const touch = e.touches[0];
+            applyMask(touch.clientX - rect.left, touch.clientY - rect.top, RADIUS * 1.4);
+        }, { passive: true });
+
+        hero.addEventListener('touchend', () => {
+            hero.classList.remove('revealing');
+            autoAnimate();
+        });
+    }
 })();
 
 /* ─── SCROLL REVEAL ─── */
