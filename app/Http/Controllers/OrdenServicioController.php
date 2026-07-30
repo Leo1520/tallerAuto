@@ -6,8 +6,12 @@ use App\Actions\Ordenes\CrearOrdenAction;
 use App\Http\Requests\CambiarEstadoOrdenRequest;
 use App\Http\Requests\StoreOrdenServicioRequest;
 use App\Http\Requests\UpdateOrdenServicioRequest;
+use App\Models\DetalleOrdenRepuesto;
+use App\Models\InventarioSucursal;
 use App\Models\Mecanico;
+use App\Models\MovimientoInventario;
 use App\Models\OrdenServicio;
+use App\Models\Repuesto;
 use App\Models\Servicio;
 use App\Models\Sucursal;
 use App\Models\Vehiculo;
@@ -90,7 +94,112 @@ class OrdenServicioController extends Controller
             'adjuntos.user.persona',
         ]);
 
-        return view('ordenes.show', compact('orden'));
+        // Repuestos disponibles en la sucursal de la orden (con stock > 0)
+        $repuestosDisponibles = $orden->sucursal_id
+            ? InventarioSucursal::with('repuesto')
+                ->where('sucursal_id', $orden->sucursal_id)
+                ->where('stock', '>', 0)
+                ->whereHas('repuesto', fn($q) => $q->where('activo', true))
+                ->get()
+            : collect();
+
+        return view('ordenes.show', compact('orden', 'repuestosDisponibles'));
+    }
+
+    public function agregarRepuesto(Request $request, OrdenServicio $orden): RedirectResponse
+    {
+        $this->authorize('update', $orden);
+
+        if (in_array($orden->estado, ['Entregado', 'Cancelado'])) {
+            return back()->with('error', 'No se pueden agregar repuestos a una orden entregada o cancelada.');
+        }
+
+        $data = $request->validate([
+            'repuesto_id'     => ['required', 'exists:repuestos,id'],
+            'cantidad'        => ['required', 'integer', 'min:1'],
+            'precio_unitario' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        DB::transaction(function () use ($data, $orden) {
+            $repuesto  = Repuesto::findOrFail($data['repuesto_id']);
+            $cantidad  = (int) $data['cantidad'];
+            $precio    = (float) $data['precio_unitario'];
+            $subtotal  = round($cantidad * $precio, 2);
+
+            // Verificar stock en la sucursal
+            $inv = InventarioSucursal::where('sucursal_id', $orden->sucursal_id)
+                ->where('repuesto_id', $repuesto->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($inv->stock < $cantidad) {
+                throw new \Exception("Stock insuficiente. Disponible: {$inv->stock}.");
+            }
+
+            // Descontar stock
+            $inv->decrement('stock', $cantidad);
+            $inv->touch();
+
+            // Registrar movimiento
+            MovimientoInventario::create([
+                'repuesto_id' => $repuesto->id,
+                'sucursal_id' => $orden->sucursal_id,
+                'user_id'     => auth()->id(),
+                'tipo'        => 'Salida',
+                'cantidad'    => $cantidad,
+                'motivo'      => "Usado en orden {$orden->numero}",
+                'created_at'  => now(),
+            ]);
+
+            // Agregar detalle a la orden
+            DetalleOrdenRepuesto::create([
+                'orden_id'        => $orden->id,
+                'repuesto_id'     => $repuesto->id,
+                'cantidad'        => $cantidad,
+                'precio_unitario' => $precio,
+                'subtotal'        => $subtotal,
+            ]);
+
+            // Recalcular total de la orden
+            $orden->recalcularTotal();
+        });
+
+        return back()->with('success', 'Repuesto agregado y stock descontado.');
+    }
+
+    public function quitarRepuesto(OrdenServicio $orden, DetalleOrdenRepuesto $detalle): RedirectResponse
+    {
+        $this->authorize('update', $orden);
+
+        if (in_array($orden->estado, ['Entregado', 'Cancelado'])) {
+            return back()->with('error', 'No se pueden quitar repuestos de una orden entregada o cancelada.');
+        }
+
+        DB::transaction(function () use ($orden, $detalle) {
+            // Devolver stock
+            $inv = InventarioSucursal::firstOrCreate(
+                ['sucursal_id' => $orden->sucursal_id, 'repuesto_id' => $detalle->repuesto_id],
+                ['stock' => 0, 'stock_minimo' => 0, 'updated_at' => now()]
+            );
+            $inv->increment('stock', $detalle->cantidad);
+            $inv->touch();
+
+            // Registrar movimiento de devolución
+            MovimientoInventario::create([
+                'repuesto_id' => $detalle->repuesto_id,
+                'sucursal_id' => $orden->sucursal_id,
+                'user_id'     => auth()->id(),
+                'tipo'        => 'Entrada',
+                'cantidad'    => $detalle->cantidad,
+                'motivo'      => "Devolución al quitar de orden {$orden->numero}",
+                'created_at'  => now(),
+            ]);
+
+            $detalle->delete();
+            $orden->recalcularTotal();
+        });
+
+        return back()->with('success', 'Repuesto quitado y stock devuelto.');
     }
 
     public function edit(OrdenServicio $orden): View

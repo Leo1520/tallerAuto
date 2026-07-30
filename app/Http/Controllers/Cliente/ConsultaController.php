@@ -25,10 +25,20 @@ class ConsultaController extends Controller
 
     public function repuestoStore(Request $request, Repuesto $repuesto): RedirectResponse
     {
+        // Calcular stock disponible en tiempo real antes de validar
+        $repuesto->load('inventarios');
+        $stockDisponible = (int) $repuesto->inventarios->sum('stock');
+
+        if ($stockDisponible === 0) {
+            return back()->with('error', 'Lo sentimos, este producto ya no tiene stock disponible.');
+        }
+
         $request->validate([
-            'cantidad' => 'required|integer|min:1|max:999',
+            'cantidad' => ['required', 'integer', 'min:1', "max:{$stockDisponible}"],
             'telefono' => 'nullable|string|max:30',
             'notas'    => 'nullable|string|max:500',
+        ], [
+            'cantidad.max' => "Solo hay {$stockDisponible} unidad(es) disponible(s) en este momento.",
         ]);
 
         $user    = auth()->user();

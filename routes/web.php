@@ -95,6 +95,10 @@ Route::middleware(['auth', 'verified'])
         ->parameters(['ordenes' => 'orden']);
     Route::patch('ordenes/{orden}/estado', [OrdenServicioController::class, 'cambiarEstado'])
         ->name('ordenes.estado');
+    Route::post('ordenes/{orden}/repuestos', [OrdenServicioController::class, 'agregarRepuesto'])
+        ->name('ordenes.repuestos.agregar');
+    Route::delete('ordenes/{orden}/repuestos/{detalle}', [OrdenServicioController::class, 'quitarRepuesto'])
+        ->name('ordenes.repuestos.quitar');
 
     // Inventario
     Route::resource('repuestos', RepuestoController::class);

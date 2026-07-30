@@ -63,6 +63,16 @@ class OrdenServicio extends Model
         return $this->hasMany(Adjunto::class, 'orden_id')->latest('created_at');
     }
 
+    public function recalcularTotal(): void
+    {
+        $this->loadMissing(['detalles', 'repuestos']);
+        $subtotal  = round((float) $this->detalles->sum('subtotal') + (float) $this->repuestos->sum('subtotal'), 2);
+        $descuento = (float) $this->descuento;
+        $impuestos = round(($subtotal - $descuento) * 0.13, 2);
+        $total     = round($subtotal - $descuento + $impuestos, 2);
+        $this->update(compact('subtotal', 'impuestos', 'total'));
+    }
+
     public function montoPagado(): float
     {
         return (float) $this->pagos->where('estado', 'Confirmado')->sum('monto');

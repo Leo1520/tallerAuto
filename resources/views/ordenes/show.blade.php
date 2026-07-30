@@ -97,35 +97,129 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
         </div>
 
         {{-- Repuestos utilizados --}}
-        @if ($orden->repuestos->isNotEmpty())
+        @php $puedeEditarRepuestos = !in_array($orden->estado, ['Entregado','Cancelado']) && auth()->user()->can('update', $orden); @endphp
         <div class="bg-white rounded-xl shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-base font-semibold text-gray-800">Repuestos utilizados</h3>
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-semibold text-gray-800">Repuestos utilizados</h3>
+                    @if($orden->repuestos->isNotEmpty())
+                    <p class="text-xs text-gray-500 mt-0.5">Bs {{ number_format($orden->repuestos->sum('subtotal'), 2) }} en repuestos</p>
+                    @endif
+                </div>
             </div>
+
+            {{-- Tabla de repuestos actuales --}}
+            @if($orden->repuestos->isNotEmpty())
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-100 text-sm">
                     <thead class="bg-gray-50 text-xs font-medium text-gray-500 uppercase">
                         <tr>
                             <th class="px-6 py-3 text-left">Repuesto</th>
                             <th class="px-6 py-3 text-center">Cant.</th>
-                            <th class="px-6 py-3 text-right">Precio</th>
+                            <th class="px-6 py-3 text-right">P. Unit.</th>
                             <th class="px-6 py-3 text-right">Subtotal</th>
+                            @if($puedeEditarRepuestos)<th class="px-4 py-3"></th>@endif
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach ($orden->repuestos as $rep)
                         <tr>
-                            <td class="px-6 py-3 font-medium text-gray-900">{{ $rep->repuesto->nombre }} <span class="text-gray-400 font-mono text-xs">{{ $rep->repuesto->codigo }}</span></td>
+                            <td class="px-6 py-3">
+                                <p class="font-medium text-gray-900">{{ $rep->repuesto->nombre }}</p>
+                                <p class="text-xs text-gray-400 font-mono">{{ $rep->repuesto->codigo }}</p>
+                            </td>
                             <td class="px-6 py-3 text-center text-gray-700">{{ $rep->cantidad }}</td>
                             <td class="px-6 py-3 text-right text-gray-700">Bs {{ number_format($rep->precio_unitario, 2) }}</td>
                             <td class="px-6 py-3 text-right font-semibold text-gray-900">Bs {{ number_format($rep->subtotal, 2) }}</td>
+                            @if($puedeEditarRepuestos)
+                            <td class="px-4 py-3 text-center">
+                                <form method="POST" action="{{ route('ordenes.repuestos.quitar', [$orden, $rep]) }}"
+                                      data-confirm="¿Quitar {{ $rep->repuesto->nombre }} de la orden? El stock se devolverá al inventario."
+                                      data-confirm-title="Quitar repuesto"
+                                      data-confirm-ok="Sí, quitar"
+                                      data-confirm-type="warning">
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+                                        <i class="bi bi-x-lg"></i> Quitar
+                                    </button>
+                                </form>
+                            </td>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+            @else
+            <p class="px-6 py-4 text-sm text-gray-400">No se han agregado repuestos a esta orden.</p>
+            @endif
+
+            {{-- Formulario agregar repuesto --}}
+            @if($puedeEditarRepuestos && $repuestosDisponibles->isNotEmpty())
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50"
+                 x-data="{
+                     repuestoId: '',
+                     precio: '',
+                     stockMax: 1,
+                     seleccionar(inv) {
+                         this.repuestoId = inv.repuesto_id;
+                         this.precio = inv.repuesto.precio_venta;
+                         this.stockMax = inv.stock;
+                     }
+                 }">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    <i class="bi bi-plus-circle me-1"></i> Agregar repuesto
+                </p>
+                <form method="POST" action="{{ route('ordenes.repuestos.agregar', $orden) }}"
+                      class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                    @csrf
+                    <input type="hidden" name="repuesto_id" :value="repuestoId">
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Repuesto (stock en sucursal)</label>
+                        <select class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                                @change="seleccionar({{ $repuestosDisponibles->keyBy('repuesto_id')->toJson() }}[parseInt($event.target.value)] || {})">
+                            <option value="">— Seleccionar —</option>
+                            @foreach($repuestosDisponibles as $inv)
+                            <option value="{{ $inv->repuesto_id }}">
+                                {{ $inv->repuesto->nombre }} ({{ $inv->repuesto->codigo }}) — Stock: {{ $inv->stock }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad</label>
+                        <input type="number" name="cantidad" min="1" :max="stockMax" value="1"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Precio unit. (Bs)</label>
+                        <input type="number" name="precio_unitario" min="0" step="0.01" :value="precio"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-800 focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-4 flex justify-end">
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                                style="background:#D71920;" :disabled="!repuestoId"
+                                onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                            <i class="bi bi-plus-lg"></i> Agregar y descontar stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+            @elseif($puedeEditarRepuestos && $repuestosDisponibles->isEmpty())
+            <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
+                <p class="text-xs text-gray-400">
+                    <i class="bi bi-info-circle me-1"></i>
+                    No hay repuestos con stock en la sucursal de esta orden.
+                </p>
+            </div>
+            @endif
         </div>
-        @endif
 
         {{-- Pagos --}}
         @php $totalPagado = $orden->pagos->where('estado','Confirmado')->sum('monto'); @endphp
