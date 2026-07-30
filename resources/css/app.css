@@ -94,9 +94,9 @@ input:focus, select:focus, textarea:focus {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 8px;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
     color: #64748B;
     text-decoration: none;

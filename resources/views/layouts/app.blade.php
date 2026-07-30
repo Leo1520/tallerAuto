@@ -24,14 +24,14 @@
 >
     {{-- ── Brand ── --}}
     <div class="flex flex-col items-center border-b border-gray-600 flex-shrink-0 overflow-hidden"
-         style="padding: 20px 12px 16px;">
+         style="padding: 10px 12px 8px;">
         <img src="{{ asset('images/logo.png') }}" alt="SC-BOL"
              style="width:150px;height:150px;object-fit:contain;flex-shrink:0;">
         <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-150"
              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-             style="text-align:center;margin-top:10px;">
-            <p class="font-bold text-gray-100 leading-tight tracking-tight" style="font-size:13px;">Taller Automotrices SC-BOL</p>
-            <p class="text-gray-400" style="font-size:11px;margin-top:2px;">Sistema automotriz</p>
+             style="text-align:center;margin-top:4px;">
+            <p class="font-bold text-gray-100 leading-tight tracking-tight" style="font-size:12px;">Taller Automotrices SC-BOL</p>
+            <p class="text-gray-400" style="font-size:10px;margin-top:1px;">Sistema automotriz</p>
         </div>
     </div>
 
