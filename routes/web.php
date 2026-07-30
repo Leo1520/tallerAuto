@@ -16,6 +16,7 @@ use App\Http\Controllers\RepuestoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\Cliente\ConsultaController;
 use App\Http\Controllers\Cliente\PortalController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\LandingController;
@@ -70,6 +71,11 @@ Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->gr
     Route::get('/vehiculos',                       [PortalController::class, 'vehiculosIndex'])->name('vehiculos.index');
     Route::get('/ordenes',                         [PortalController::class, 'ordenesIndex'])->name('ordenes.index');
     Route::get('/ordenes/{orden}',                 [PortalController::class, 'ordenShow'])->name('ordenes.show');
+    // Consulta de repuesto desde la tienda
+    Route::get('/consultas/enviada',                    [ConsultaController::class, 'enviada'])->name('consultas.enviada');
+    Route::get('/consultas/repuesto/{repuesto}',        [ConsultaController::class, 'repuestoForm'])->name('consultas.repuesto');
+    Route::post('/consultas/repuesto/{repuesto}',       [ConsultaController::class, 'repuestoStore'])->name('consultas.repuesto.store');
+
     // Pago QR desde el portal cliente
     Route::get('/pago/enviado',                    [PagoController::class, 'pagoEnviado'])->name('pagar.enviado');
     Route::get('/ordenes/{orden}/pagar',           [PagoController::class, 'qrMostrar'])->name('ordenes.pagar');

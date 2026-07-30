@@ -252,9 +252,9 @@
                         </div>
                     </div>
                     @if($stockTotal > 0)
-                    <a href="{{ auth()->check() ? route('cliente.citas.create') : route('register') }}"
+                    <a href="{{ auth()->check() ? route('cliente.consultas.repuesto', $rep) : route('login', ['redirect' => route('cliente.consultas.repuesto', $rep)]) }}"
                        class="btn-agendar" style="background:#7C3AED;">
-                        <i class="bi bi-cart-plus"></i> Consultar
+                        <i class="bi bi-cart-plus"></i> Comprar
                     </a>
                     @else
                     <span style="font-size:12px;color:var(--pub-muted);">No disponible</span>
