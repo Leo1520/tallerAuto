@@ -16,6 +16,9 @@ use App\Http\Controllers\RepuestoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\CitaAdminController;
+use App\Http\Controllers\ConsultaAdminController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Cliente\ConsultaController;
 use App\Http\Controllers\Cliente\PortalController;
 use App\Http\Controllers\ServicioController;
@@ -163,6 +166,19 @@ Route::middleware([
     Route::post('/ordenes/{orden}/adjuntos',     [AdjuntoController::class, 'store'])->name('adjuntos.store');
     Route::get('/adjuntos/{adjunto}/download',   [AdjuntoController::class, 'download'])->name('adjuntos.download');
     Route::delete('/adjuntos/{adjunto}',         [AdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
+
+    // Citas
+    Route::get('/citas',                [CitaAdminController::class, 'index'])->name('citas.index');
+    Route::get('/citas/{cita}',         [CitaAdminController::class, 'show'])->name('citas.show');
+    Route::patch('/citas/{cita}',       [CitaAdminController::class, 'update'])->name('citas.update');
+
+    // Consultas de repuesto
+    Route::get('/consultas',                              [ConsultaAdminController::class, 'index'])->name('consultas.index');
+    Route::get('/consultas/{consultaRepuesto}',           [ConsultaAdminController::class, 'show'])->name('consultas.show');
+    Route::patch('/consultas/{consultaRepuesto}',         [ConsultaAdminController::class, 'update'])->name('consultas.update');
+
+    // Notificaciones (campana)
+    Route::get('/notificaciones/resumen', [NotificacionController::class, 'resumen'])->name('notificaciones.resumen');
 });
 
 // Stripe webhook eliminado — se usa PAYMENT_DRIVER=manual_qr

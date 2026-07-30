@@ -46,9 +46,11 @@
                 ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'pattern' => 'dashboard'],
             ],
             'OPERACIONES' => [
-                ['route' => 'clientes.index',  'label' => 'Clientes',   'icon' => 'bi-people',         'pattern' => 'clientes*'],
-                ['route' => 'vehiculos.index', 'label' => 'Vehiculos',  'icon' => 'bi-car-front',      'pattern' => 'vehiculos*'],
-                ['route' => 'ordenes.index',   'label' => 'Ordenes',    'icon' => 'bi-clipboard2-check','pattern' => 'ordenes*'],
+                ['route' => 'clientes.index',  'label' => 'Clientes',        'icon' => 'bi-people',            'pattern' => 'clientes*'],
+                ['route' => 'vehiculos.index', 'label' => 'Vehiculos',       'icon' => 'bi-car-front',         'pattern' => 'vehiculos*'],
+                ['route' => 'ordenes.index',   'label' => 'Ordenes',         'icon' => 'bi-clipboard2-check',  'pattern' => 'ordenes*'],
+                ['route' => 'citas.index',     'label' => 'Citas',           'icon' => 'bi-calendar2-check',   'pattern' => 'citas*'],
+                ['route' => 'consultas.index', 'label' => 'Solicitudes',     'icon' => 'bi-box-seam',          'pattern' => 'consultas*'],
             ],
             'INVENTARIO' => [
                 ['route' => 'repuestos.index',   'label' => 'Repuestos',   'icon' => 'bi-box-seam',         'pattern' => 'repuestos*'],
@@ -149,10 +151,42 @@
         {{-- Actions slot --}}
         @yield('header-actions')
 
-        {{-- Notifications (placeholder) --}}
-        <button class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors relative">
-            <i class="bi bi-bell" style="font-size:16px;"></i>
-        </button>
+        {{-- Notificaciones --}}
+        <div class="dropdown" id="notifDropdown">
+            <button id="notifBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition-colors relative"
+                    style="border:none;background:transparent;">
+                <i class="bi bi-bell" style="font-size:16px;"></i>
+                <span id="notifBadge"
+                      class="absolute -top-1 -right-1 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                      style="display:none!important;min-width:18px;height:18px;font-size:10px;padding:0 4px;background:#D71920;line-height:1;">
+                    0
+                </span>
+            </button>
+
+            <div class="dropdown-menu dropdown-menu-end shadow-xl border-0 p-0 overflow-hidden"
+                 style="width:340px;background:#1f2937;border:1px solid #374151;border-radius:12px;margin-top:8px;">
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color:#374151;">
+                    <span class="text-sm font-semibold text-gray-200">Notificaciones</span>
+                    <span id="notifTotal" class="text-xs text-gray-500"></span>
+                </div>
+
+                {{-- Lista --}}
+                <div id="notifList" style="max-height:320px;overflow-y:auto;">
+                    <div class="px-4 py-8 text-center text-gray-500 text-sm">
+                        <i class="bi bi-arrow-clockwise" style="font-size:20px;display:block;margin-bottom:8px;opacity:.5;"></i>
+                        Cargando...
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div class="px-4 py-2.5 border-t text-center" style="border-color:#374151;">
+                    <span class="text-xs text-gray-600">Actualización automática cada 60s</span>
+                </div>
+            </div>
+        </div>
 
         {{-- User chip --}}
         <div class="flex items-center gap-2 pl-2 border-l border-gray-600">
@@ -326,6 +360,79 @@
 </script>
 {{-- Bootstrap 5 JS (modals, dropdowns, tooltips) --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+(function () {
+    const badge    = document.getElementById('notifBadge');
+    const list     = document.getElementById('notifList');
+    const totalEl  = document.getElementById('notifTotal');
+    const endpoint = '{{ route("notificaciones.resumen") }}';
+
+    const iconMap = {
+        'cita':     'bi-calendar2-check',
+        'consulta': 'bi-box-seam',
+        'stock':    'bi-exclamation-triangle-fill',
+        'pago':     'bi-credit-card-2-front',
+    };
+
+    function renderItems(data) {
+        if (!data.items || data.items.length === 0) {
+            list.innerHTML = `
+                <div class="px-4 py-8 text-center text-gray-500 text-sm">
+                    <i class="bi bi-check-circle" style="font-size:24px;display:block;margin-bottom:8px;color:#34d399;opacity:.7;"></i>
+                    Todo al día, sin pendientes.
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = data.items.map(item => `
+            <a href="${item.url}"
+               class="flex items-start gap-3 px-4 py-3 border-b text-decoration-none hover:bg-gray-700/40 transition-colors"
+               style="border-color:#374151;">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                     style="background:${item.color}20;">
+                    <i class="bi ${item.icono}" style="color:${item.color};font-size:15px;"></i>
+                </div>
+                <span class="text-sm text-gray-300 leading-snug">${item.mensaje}</span>
+            </a>
+        `).join('');
+    }
+
+    function updateBadge(total) {
+        if (total > 0) {
+            badge.textContent = total > 99 ? '99+' : total;
+            badge.style.removeProperty('display');
+        } else {
+            badge.style.setProperty('display', 'none', 'important');
+        }
+        totalEl.textContent = total > 0 ? `${total} pendiente(s)` : 'Sin pendientes';
+    }
+
+    async function fetchNotifs() {
+        try {
+            const res  = await fetch(endpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const data = await res.json();
+            updateBadge(data.total);
+            renderItems(data);
+        } catch (e) {
+            list.innerHTML = `<div class="px-4 py-4 text-center text-gray-600 text-xs">Error al cargar.</div>`;
+        }
+    }
+
+    // Cargar al abrir el dropdown
+    const btn = document.getElementById('notifBtn');
+    if (btn) {
+        btn.addEventListener('show.bs.dropdown', fetchNotifs);
+    }
+
+    // Carga inicial del badge (sin abrir dropdown)
+    fetchNotifs();
+
+    // Polling cada 60s
+    setInterval(fetchNotifs, 60000);
+})();
+</script>
+
 @stack('scripts')
 </body>
 </html>

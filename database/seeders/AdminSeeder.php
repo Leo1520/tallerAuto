@@ -23,7 +23,7 @@ class AdminSeeder extends Seeder
             'persona_id'        => $personaId,
             'email'             => 'leonardopenaanez@gmail.com',
             'email_verified_at' => now(),
-            'password'          => Hash::make('Admin1234!'),
+            'password'          => Hash::make('L.l1234567'),
             'created_at'        => now(),
             'updated_at'        => now(),
         ]);
