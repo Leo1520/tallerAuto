@@ -224,8 +224,13 @@
                 $stockTotal = $rep->inventarios->sum('stock');
             @endphp
             <div class="product-card">
-                <div class="product-thumb">
-                    <i class="bi bi-box-seam-fill" style="font-size:48px;color:#A78BFA;opacity:.5;"></i>
+                <div class="product-thumb" style="{{ $rep->imagen ? 'padding:0;' : '' }}">
+                    @if($rep->imagen)
+                        <img src="{{ asset('storage/' . $rep->imagen) }}" alt="{{ $rep->nombre }}"
+                             style="width:100%;height:100%;object-fit:cover;">
+                    @else
+                        <i class="bi bi-box-seam-fill" style="font-size:48px;color:#A78BFA;opacity:.5;"></i>
+                    @endif
                 </div>
                 <div class="product-body">
                     @if($rep->codigo)

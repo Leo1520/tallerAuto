@@ -16,7 +16,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('repuestos.update', $repuesto) }}" class="space-y-6">
+    <form method="POST" action="{{ route('repuestos.update', $repuesto) }}" class="space-y-6" enctype="multipart/form-data">
         @csrf @method('PUT')
 
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
@@ -66,6 +66,33 @@
                     <input type="number" name="precio_venta" value="{{ old('precio_venta', $repuesto->precio_venta) }}" min="0" step="0.01" required
                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 @error('precio_venta') border-red-500 @enderror">
                     @error('precio_venta')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            {{-- Imagen --}}
+            <div x-data="{ preview: '{{ $repuesto->imagen ? asset('storage/' . $repuesto->imagen) : '' }}' }">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imagen del repuesto</label>
+                <div class="flex items-start gap-4">
+                    <div class="w-24 h-24 rounded-xl border-2 border-dashed border-gray-600 flex items-center justify-center overflow-hidden flex-shrink-0"
+                         style="background:rgba(255,255,255,.03);">
+                        <template x-if="preview">
+                            <img :src="preview" class="w-full h-full object-cover rounded-xl">
+                        </template>
+                        <template x-if="!preview">
+                            <i class="bi bi-image text-gray-500" style="font-size:28px;"></i>
+                        </template>
+                    </div>
+                    <div class="flex-1">
+                        <label class="cursor-pointer flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-600 rounded-xl hover:border-red-500 transition-colors"
+                               style="background:rgba(255,255,255,.02);">
+                            <i class="bi bi-cloud-upload text-gray-400" style="font-size:20px;"></i>
+                            <span class="text-xs text-gray-400 mt-1">{{ $repuesto->imagen ? 'Cambiar imagen' : 'Subir imagen' }}</span>
+                            <span class="text-xs text-gray-600 mt-0.5">JPG, PNG, WEBP — máx. 2 MB</span>
+                            <input type="file" name="imagen" accept="image/*" class="sr-only"
+                                   @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : preview">
+                        </label>
+                        @error('imagen')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
                 </div>
             </div>
 

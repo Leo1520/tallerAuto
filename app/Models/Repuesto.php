@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Repuesto extends Model
 {
-    protected $fillable = ['proveedor_id', 'nombre', 'codigo', 'descripcion', 'precio_compra', 'precio_venta', 'activo'];
+    protected $fillable = ['proveedor_id', 'nombre', 'codigo', 'descripcion', 'imagen', 'precio_compra', 'precio_venta', 'activo'];
 
     protected $casts = ['activo' => 'boolean'];
 

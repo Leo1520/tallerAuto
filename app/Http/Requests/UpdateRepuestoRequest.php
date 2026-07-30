@@ -17,6 +17,7 @@ class UpdateRepuestoRequest extends FormRequest
             'nombre'        => ['required', 'string', 'max:100'],
             'codigo'        => ['required', 'string', 'max:50', Rule::unique('repuestos', 'codigo')->ignore($repuesto->id)],
             'descripcion'   => ['nullable', 'string', 'max:1000'],
+            'imagen'        => ['nullable', 'image', 'max:2048'],
             'precio_compra' => ['nullable', 'numeric', 'min:0'],
             'precio_venta'  => ['required', 'numeric', 'min:0'],
             'activo'        => ['boolean'],

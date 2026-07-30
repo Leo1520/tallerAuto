@@ -12,6 +12,7 @@ use App\Models\Sucursal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class RepuestoController extends Controller
@@ -52,7 +53,11 @@ class RepuestoController extends Controller
     public function store(StoreRepuestoRequest $request): RedirectResponse
     {
         DB::transaction(function () use ($request) {
-            $repuesto = Repuesto::create($request->only(['proveedor_id', 'nombre', 'codigo', 'descripcion', 'precio_compra', 'precio_venta']));
+            $data = $request->only(['proveedor_id', 'nombre', 'codigo', 'descripcion', 'precio_compra', 'precio_venta']);
+            if ($request->hasFile('imagen')) {
+                $data['imagen'] = $request->file('imagen')->store('repuestos', 'public');
+            }
+            $repuesto = Repuesto::create($data);
 
             // Stock inicial en sucursal
             if ($request->filled('sucursal_id_inicial') && $request->stock_inicial > 0) {
@@ -105,7 +110,14 @@ class RepuestoController extends Controller
 
     public function update(UpdateRepuestoRequest $request, Repuesto $repuesto): RedirectResponse
     {
-        $repuesto->update($request->validated());
+        $data = $request->validated();
+        if ($request->hasFile('imagen')) {
+            if ($repuesto->imagen) {
+                Storage::disk('public')->delete($repuesto->imagen);
+            }
+            $data['imagen'] = $request->file('imagen')->store('repuestos', 'public');
+        }
+        $repuesto->update($data);
 
         return redirect()->route('repuestos.show', $repuesto)
             ->with('success', 'Repuesto actualizado correctamente.');
