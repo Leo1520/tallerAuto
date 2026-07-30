@@ -68,7 +68,7 @@
         </div>
 
         {{-- Stats --}}
-        <div class="px-5 py-3 bg-gray-900/40 border-t border-gray-700 flex items-center justify-between">
+        <div class="px-5 py-3 bg-gray-900/40 border-t border-gray-700 flex items-center gap-6">
             <div class="text-center">
                 <p class="text-lg font-bold text-gray-100">{{ $suc->mecanicos_activos }}</p>
                 <p class="text-xs text-gray-500">Mecánicos</p>
@@ -78,10 +78,13 @@
                 <p class="text-lg font-bold text-gray-100">{{ $suc->ordenes_activas }}</p>
                 <p class="text-xs text-gray-500">Órdenes activas</p>
             </div>
-            @if(auth()->user()->isAdmin())
-            <div class="w-px h-8 bg-gray-700"></div>
+        </div>
+
+        {{-- Acciones --}}
+        @if(auth()->user()->isAdmin())
+        <div class="px-5 py-3 border-t border-gray-700 flex items-center justify-end gap-2">
             <a href="{{ route('sucursales.edit', $suc) }}"
-               class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg transition-colors border border-blue-800/50">
+               class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-blue-300 hover:text-blue-200 hover:bg-blue-900/30 rounded-full transition-colors border border-blue-800/60">
                 <i class="bi bi-pencil" style="font-size:11px;"></i>
                 Editar
             </a>
@@ -92,13 +95,13 @@
                   data-confirm-ok="Sí, eliminar">
                 @csrf @method('DELETE')
                 <button type="submit"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
+                        class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-full transition-colors border border-red-900/50">
                     <i class="bi bi-trash" style="font-size:11px;"></i>
                     Eliminar
                 </button>
             </form>
-            @endif
         </div>
+        @endif
 
     </div>
     @empty
