@@ -100,6 +100,43 @@
     color: var(--pub-muted);
 }
 .empty-state i { font-size: 44px; opacity: .3; margin-bottom: 14px; display: block; }
+
+/* Lightbox */
+.lb-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.88); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    animation: lbIn .18s ease;
+}
+@keyframes lbIn { from { opacity:0; } to { opacity:1; } }
+.lb-img-wrap {
+    position: relative; max-width: 90vw; max-height: 86vh;
+    animation: lbScale .18s ease;
+}
+@keyframes lbScale { from { transform: scale(.94); opacity:0; } to { transform: scale(1); opacity:1; } }
+.lb-img-wrap img {
+    max-width: 90vw; max-height: 82vh;
+    object-fit: contain; border-radius: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.6);
+}
+.lb-caption {
+    margin-top: 12px; text-align: center;
+    color: #e2e8f0; font-size: 13px; font-weight: 600;
+}
+.lb-sub {
+    text-align: center; color: #94a3b8; font-size: 11px; margin-top: 3px;
+}
+.lb-close {
+    position: absolute; top: -14px; right: -14px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #fff; font-size: 16px;
+    transition: background .15s;
+}
+.lb-close:hover { background: rgba(215,25,32,.5); }
+.product-thumb-img { cursor: zoom-in; }
 </style>
 @endpush
 
@@ -218,7 +255,20 @@
         @else
         {{-- ── Productos / Repuestos ── --}}
         @if($repuestos->isNotEmpty())
-        <div class="grid-3">
+        <div class="grid-3" x-data="lightbox()">
+
+            {{-- Lightbox modal --}}
+            <template x-teleport="body">
+                <div x-show="open" class="lb-overlay" @click.self="close()" @keydown.escape.window="close()" x-cloak>
+                    <div class="lb-img-wrap">
+                        <button class="lb-close" @click="close()"><i class="bi bi-x-lg"></i></button>
+                        <img :src="src" :alt="name">
+                        <p class="lb-caption" x-text="name"></p>
+                        <p class="lb-sub" x-text="code"></p>
+                    </div>
+                </div>
+            </template>
+
             @foreach($repuestos as $rep)
             @php
                 $stockTotal = $rep->inventarios->sum('stock');
@@ -227,7 +277,9 @@
                 <div class="product-thumb" style="{{ $rep->imagen ? 'padding:0;' : '' }}">
                     @if($rep->imagen)
                         <img src="{{ asset('storage/' . $rep->imagen) }}" alt="{{ $rep->nombre }}"
-                             style="width:100%;height:100%;object-fit:cover;">
+                             class="product-thumb-img"
+                             style="width:100%;height:100%;object-fit:cover;"
+                             @click="show('{{ asset('storage/' . $rep->imagen) }}', '{{ addslashes($rep->nombre) }}', '{{ $rep->codigo }}')">
                     @else
                         <i class="bi bi-box-seam-fill" style="font-size:48px;color:#A78BFA;opacity:.5;"></i>
                     @endif
@@ -300,3 +352,27 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+function lightbox() {
+    return {
+        open: false,
+        src: '',
+        name: '',
+        code: '',
+        show(src, name, code) {
+            this.src  = src;
+            this.name = name;
+            this.code = code;
+            this.open = true;
+            document.body.style.overflow = 'hidden';
+        },
+        close() {
+            this.open = false;
+            document.body.style.overflow = '';
+        },
+    };
+}
+</script>
+@endpush
