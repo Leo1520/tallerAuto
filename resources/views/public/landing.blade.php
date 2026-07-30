@@ -1,288 +1,691 @@
 @extends('layouts.public')
-
 @section('title', 'Taller Pro — Taller Automotriz Profesional')
-@section('description', 'Mecánica general, mantenimiento, diagnóstico electrónico, chapa y pintura. Tu vehículo en las mejores manos.')
+@section('description', 'Mecánica general, mantenimiento, diagnóstico electrónico, chapa y pintura. Santa Cruz, Bolivia.')
 
 @push('styles')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
 <style>
-/* ── Hero ── */
-.hero {
-    min-height: calc(100vh - 64px);
-    display: flex; align-items: center;
-    position: relative; overflow: hidden;
-    padding: 80px 24px 60px;
+/* ── TOKEN OVERRIDES ── */
+:root {
+    --pub-bg:      #000;
+    --pub-surface: #0D0D0D;
+    --pub-card:    #111;
+    --pub-border:  #1c1c1c;
+    --pub-muted:   #5a5a5a;
+    --pub-text:    #fff;
 }
-.hero-bg {
-    position: absolute; inset: 0;
-    background:
-        radial-gradient(ellipse 80% 60% at 60% 50%, rgba(215,25,32,.08) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 80% at 10% 80%, rgba(215,25,32,.05) 0%, transparent 60%);
-}
-.hero-grid {
-    position: absolute; inset: 0; opacity: .03;
-    background-image: linear-gradient(var(--pub-border) 1px, transparent 1px),
-                      linear-gradient(90deg, var(--pub-border) 1px, transparent 1px);
-    background-size: 48px 48px;
-}
-.hero-inner {
-    max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
-}
-@media (max-width: 900px) { .hero-inner { grid-template-columns: 1fr; gap: 40px; } }
-.hero-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(215,25,32,.12); border: 1px solid rgba(215,25,32,.25);
-    color: #f87171; padding: 6px 14px; border-radius: 100px;
-    font-size: 12px; font-weight: 600; margin-bottom: 20px; letter-spacing: .04em;
-}
-.hero-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
-    display: inline-block; animation: pulse 2s infinite; }
-@keyframes pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50%      { opacity:.4; transform:scale(1.4); }
-}
-.hero h1 {
-    font-size: clamp(32px, 5vw, 58px); font-weight: 900; line-height: 1.1;
-    letter-spacing: -.03em; color: var(--pub-text); margin-bottom: 16px;
-}
-.hero h1 em { font-style: normal; color: var(--accent); }
-.hero-sub {
-    font-size: 16px; color: var(--pub-muted); line-height: 1.7; margin-bottom: 28px; max-width: 480px;
-}
-.hero-info { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
-.hero-info-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #94A3B8; }
-.hero-info-item i { color: var(--accent); font-size: 15px; }
-.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn-hero-primary {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 13px 26px; border-radius: 10px; font-size: 14px; font-weight: 700;
-    background: var(--accent); color: #fff; text-decoration: none;
-    transition: background .15s, box-shadow .15s; border: none; cursor: pointer;
-}
-.btn-hero-primary:hover { background: var(--accent-h); box-shadow: 0 6px 24px rgba(215,25,32,.4); }
-.btn-hero-outline {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
-    border: 1px solid var(--pub-border); color: var(--pub-text); text-decoration: none;
-    transition: .15s; background: transparent;
-}
-.btn-hero-outline:hover { background: rgba(255,255,255,.05); border-color: #475569; }
-.btn-whatsapp {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600;
-    background: #25D366; color: #fff; text-decoration: none; transition: .15s;
-}
-.btn-whatsapp:hover { background: #1ebe59; }
 
-/* ── Hero visual ── */
-.hero-visual {
-    display: flex; align-items: center; justify-content: center;
-}
-.hero-car-card {
-    background: var(--pub-card); border: 1px solid var(--pub-border);
-    border-radius: 20px; padding: 32px; position: relative; overflow: hidden;
-    box-shadow: 0 24px 80px rgba(0,0,0,.4);
-}
-.hero-car-card::before {
-    content: ''; position: absolute; top: -40px; right: -40px;
-    width: 200px; height: 200px; background: radial-gradient(circle, rgba(215,25,32,.12) 0%, transparent 70%);
-}
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
-.stat-item {
-    background: rgba(255,255,255,.04); border: 1px solid var(--pub-border);
-    border-radius: 12px; padding: 16px; text-align: center;
-}
-.stat-num { font-size: 28px; font-weight: 900; color: var(--pub-text); line-height: 1; }
-.stat-num span { color: var(--accent); }
-.stat-label { font-size: 11px; color: var(--pub-muted); margin-top: 4px; font-weight: 500; }
-
-/* ── Services ── */
-.services-grid {
+/* ── HERO ── */
+.tp-hero {
+    min-height: 100vh;
+    background: #000;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px; margin-top: 48px;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 80px 60px;
+    gap: 48px;
 }
-.service-card {
-    background: var(--pub-card); border: 1px solid var(--pub-border);
-    border-radius: 14px; padding: 24px 20px;
-    transition: transform .2s, border-color .2s, box-shadow .2s;
+.tp-hero::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+}
+@media (max-width: 1024px) { .tp-hero { padding: 80px 40px 60px; gap: 32px; } }
+@media (max-width: 800px) {
+    .tp-hero {
+        grid-template-columns: 1fr;
+        padding: 60px 24px 40px;
+        text-align: center;
+        gap: 0;
+    }
+    .tp-hero::before { display: none; }
+    .tp-cta-row { justify-content: center; }
+    .tp-info-col { align-items: center; }
+}
+
+/* Eyebrow */
+.tp-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+}
+.tp-eyebrow .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:.3; transform:scale(1.4); }
+}
+
+/* Main headline */
+.tp-headline {
+    font-family: 'Bebas Neue', 'Impact', 'Arial Black', sans-serif;
+    line-height: .90;
+    letter-spacing: .015em;
+    margin-bottom: 28px;
+}
+.tp-headline .line-taller {
+    display: block;
+    font-size: clamp(72px, 11vw, 148px);
+    color: #fff;
+}
+.tp-headline .line-pro {
+    display: block;
+    font-size: clamp(92px, 14vw, 190px);
+    color: var(--accent);
+    margin-left: -3px;
+    text-shadow: 0 0 100px rgba(215,25,32,.12);
+}
+
+/* Sub */
+.tp-sub {
+    font-size: 15px;
+    color: var(--pub-muted);
+    line-height: 1.75;
+    max-width: 400px;
+    margin-bottom: 28px;
+}
+@media (max-width: 800px) { .tp-sub { margin: 0 auto 24px; } }
+
+/* Info items */
+.tp-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 32px;
+}
+.tp-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: #666;
+}
+.tp-info-item i { color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+
+/* CTA buttons */
+.tp-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-tp-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px; font-weight: 700;
+    text-decoration: none;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    transition: background .15s, box-shadow .2s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-tp-primary:hover {
+    background: #ff2128;
+    box-shadow: 0 0 40px rgba(215,25,32,.45);
+    color: #fff;
+}
+.btn-tp-outline {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px;
+    background: transparent;
+    color: #bbb;
+    font-size: 12px; font-weight: 600;
+    text-decoration: none;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: 1px solid #2a2a2a;
+    transition: border-color .15s, color .15s;
+}
+.btn-tp-outline:hover { border-color: #555; color: #fff; }
+.btn-tp-wa {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 22px;
+    background: #25D366;
+    color: #fff;
+    font-size: 12px; font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    transition: background .15s;
+}
+.btn-tp-wa:hover { background: #1db954; color: #fff; }
+
+/* ── IMAGE REVEAL ── */
+.tp-hero-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.car-reveal-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+}
+.car-glow {
+    position: absolute;
+    inset: 10%;
+    background: radial-gradient(ellipse at center, rgba(215,25,32,.07) 0%, transparent 65%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 1s;
+}
+.car-reveal-wrap.show-built .car-glow {
+    opacity: .5;
+}
+.car-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: none;
+    transition: opacity .95s cubic-bezier(0.4, 0, 0.2, 1),
+                transform .95s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+}
+.car-built  { z-index: 1; opacity: 1; }
+.car-exploded { z-index: 2; opacity: 1; transform: scale(1); }
+.car-reveal-wrap.show-built .car-exploded {
+    opacity: 0;
+    transform: scale(1.06);
+}
+
+/* progress indicator */
+.reveal-progress {
+    position: absolute;
+    bottom: -28px;
+    left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+.rp-dot {
+    width: 20px; height: 2px;
+    background: #2a2a2a;
+    border-radius: 1px;
+    transition: background .3s;
+}
+.rp-dot.active { background: var(--accent); }
+
+/* ── STATS ── */
+.tp-stats {
+    background: #0D0D0D;
+    border-top: 1px solid #1c1c1c;
+    border-bottom: 1px solid #1c1c1c;
+}
+.tp-stats-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: #1c1c1c;
+    gap: 1px;
+}
+@media (max-width: 600px) { .tp-stats-inner { grid-template-columns: repeat(2, 1fr); } }
+.tp-stat {
+    background: #0D0D0D;
+    padding: 48px 32px;
+    text-align: center;
+}
+.tp-stat-num {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: clamp(44px, 5.5vw, 68px);
+    color: #fff;
+    line-height: 1;
+    letter-spacing: .02em;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+}
+.tp-stat-num .suffix { color: var(--accent); font-size: .85em; }
+.tp-stat-num .counter { display: inline-block; }
+.tp-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #3a3a3a;
+    margin-top: 10px;
+}
+
+/* ── SERVICES ── */
+.tp-services {
+    background: #000;
+    padding: 100px 24px;
+}
+.tp-services-inner { max-width: 1200px; margin: 0 auto; }
+
+.tp-section-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+}
+.tp-section-title {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: clamp(48px, 7vw, 96px);
+    color: #fff;
+    line-height: .92;
+    letter-spacing: .01em;
+    margin-bottom: 56px;
+}
+.tp-section-title em { font-style: normal; color: var(--accent); }
+
+.tp-services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    background: #1c1c1c;
+    gap: 1px;
+}
+.tp-service-card {
+    background: #000;
+    padding: 30px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: background .2s;
     cursor: default;
 }
-.service-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(215,25,32,.35);
-    box-shadow: 0 12px 40px rgba(0,0,0,.35), 0 0 0 1px rgba(215,25,32,.1);
+.tp-service-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
 }
-.service-icon {
-    width: 48px; height: 48px; border-radius: 12px;
-    background: rgba(215,25,32,.1); border: 1px solid rgba(215,25,32,.2);
+.tp-service-card:hover { background: #0a0a0a; }
+.tp-service-card:hover::after { transform: scaleX(1); }
+.tp-service-icon {
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+    opacity: .85;
+}
+.tp-service-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ddd;
+    line-height: 1.4;
+}
+
+/* ── WHY ── */
+.tp-why {
+    background: #0D0D0D;
+    padding: 100px 24px;
+    border-top: 1px solid #1c1c1c;
+    border-bottom: 1px solid #1c1c1c;
+}
+.tp-why-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+}
+@media (max-width: 900px) { .tp-why-inner { grid-template-columns: 1fr; gap: 48px; } }
+
+.tp-why-features { display: flex; flex-direction: column; gap: 0; }
+.tp-feature {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 0 20px;
+    padding: 28px 0;
+    border-bottom: 1px solid #1c1c1c;
+    align-items: start;
+}
+.tp-feature:first-child { border-top: 1px solid #1c1c1c; }
+.tp-feature-num {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    opacity: .5;
+    line-height: 1;
+    padding-top: 2px;
+}
+.tp-feature-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+.tp-feature-desc {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* ── STATEMENT ── */
+.tp-statement {
+    background: var(--accent);
+    padding: 90px 24px;
+    text-align: center;
+}
+.tp-statement-inner { max-width: 1000px; margin: 0 auto; }
+.tp-statement-text {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: clamp(28px, 4.5vw, 60px);
+    color: #fff;
+    line-height: 1.1;
+    letter-spacing: .02em;
+}
+.tp-statement-text .dim { opacity: .6; }
+.tp-statement-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,.6);
+    margin-top: 20px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* ── MAP ── */
+.tp-map-section {
+    background: #000;
+    padding: 100px 0 0;
+}
+.tp-map-header {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+    padding: 0 24px;
+}
+#landingMap { height: 480px; width: 100%; }
+.tp-branch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    background: #1c1c1c;
+    gap: 1px;
+    margin-top: 1px;
+}
+.tp-branch-card {
+    background: #000;
+    padding: 22px 24px;
+    cursor: pointer;
+    transition: background .15s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.tp-branch-card:hover { background: #0D0D0D; }
+.tp-branch-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(215,25,32,.1);
+    border: 1px solid rgba(215,25,32,.2);
     display: flex; align-items: center; justify-content: center;
-    color: var(--accent); font-size: 22px; margin-bottom: 14px;
+    flex-shrink: 0;
 }
-.service-name {
-    font-size: 14px; font-weight: 600; color: var(--pub-text); line-height: 1.4;
-}
+.tp-branch-icon i { color: var(--accent); font-size: 15px; }
+.tp-branch-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.tp-branch-addr { font-size: 12px; color: #555; }
 
-/* ── Stats bar ── */
-.stats-bar {
-    background: var(--pub-surface); border-top: 1px solid var(--pub-border);
-    border-bottom: 1px solid var(--pub-border);
-    padding: 40px 24px;
+/* ── CTA ── */
+.tp-cta-section {
+    background: #0D0D0D;
+    padding: 120px 24px;
+    text-align: center;
+    border-top: 1px solid #1c1c1c;
 }
-.stats-bar-inner {
-    max-width: 1200px; margin: 0 auto;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center;
+.tp-cta-title {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: clamp(52px, 8vw, 108px);
+    color: #fff;
+    line-height: .92;
+    margin-bottom: 28px;
+    letter-spacing: .01em;
 }
-@media (max-width: 600px) { .stats-bar-inner { grid-template-columns: repeat(2,1fr); } }
-.sbar-num { font-size: 36px; font-weight: 900; color: var(--pub-text); letter-spacing: -.02em; }
-.sbar-num span { color: var(--accent); }
-.sbar-label { font-size: 13px; color: var(--pub-muted); margin-top: 4px; }
+.tp-cta-title em { font-style: normal; color: var(--accent); }
+.tp-cta-sub {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 40px;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+}
+.tp-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.tp-cta-contacts {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid #1c1c1c;
+}
+.tp-contact-item { text-align: center; }
+.tp-contact-item i { font-size: 20px; color: var(--accent); display: block; margin-bottom: 8px; }
+.tp-contact-item p { font-size: 13px; color: #555; }
 
-/* ── Map ── */
-#landingMap { height: 460px; width: 100%; border-radius: 16px; overflow: hidden; }
+/* ── FOOTER ── */
+.tp-footer {
+    background: #000;
+    border-top: 1px solid #1c1c1c;
+    padding: 64px 24px 28px;
+}
+.tp-footer-inner { max-width: 1200px; margin: 0 auto; }
+.tp-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid #1c1c1c;
+    margin-bottom: 28px;
+}
+@media (max-width: 700px) { .tp-footer-grid { grid-template-columns: 1fr; gap: 32px; } }
+.tp-footer-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; margin-bottom: 14px;
+}
+.tp-footer-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+}
+.tp-footer-logo-icon i { color: #fff; font-size: 15px; }
+.tp-footer-logo-text {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: .06em;
+}
+.tp-footer-tagline { font-size: 13px; color: #3a3a3a; line-height: 1.7; max-width: 260px; margin-bottom: 20px; }
+.tp-footer-socials { display: flex; gap: 8px; }
+.tp-footer-social {
+    width: 34px; height: 34px;
+    border-radius: 7px;
+    background: #111;
+    border: 1px solid #1c1c1c;
+    display: flex; align-items: center; justify-content: center;
+    color: #444;
+    text-decoration: none;
+    transition: color .15s, border-color .15s;
+}
+.tp-footer-social:hover { color: #fff; border-color: #333; }
+.tp-footer-col-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #2a2a2a;
+    margin-bottom: 16px;
+}
+.tp-footer-link {
+    display: block; color: #3a3a3a; text-decoration: none;
+    font-size: 13px; padding: 4px 0; transition: color .15s;
+}
+.tp-footer-link:hover { color: #fff; }
+.tp-footer-contact-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px; color: #3a3a3a; padding: 4px 0;
+}
+.tp-footer-contact-item i { color: var(--accent); margin-top: 2px; flex-shrink: 0; }
 
-/* ── Footer ── */
-.pub-footer {
-    background: var(--pub-surface); border-top: 1px solid var(--pub-border);
-    padding: 48px 24px 28px;
+/* ── SCROLL REVEAL ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1);
 }
-.pub-footer-inner { max-width: 1200px; margin: 0 auto; }
-.footer-grid {
-    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; margin-bottom: 40px;
-}
-@media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr; gap: 32px; } }
-.footer-link {
-    display: block; color: var(--pub-muted); text-decoration: none; font-size: 13.5px;
-    padding: 4px 0; transition: color .15s;
-}
-.footer-link:hover { color: var(--pub-text); }
-.footer-contact { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--pub-muted); padding: 5px 0; }
-.footer-contact i { color: var(--accent); font-size: 15px; flex-shrink: 0; }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: .08s; }
+.reveal-d2 { transition-delay: .16s; }
+.reveal-d3 { transition-delay: .24s; }
+.reveal-d4 { transition-delay: .32s; }
+.reveal-d5 { transition-delay: .40s; }
+.reveal-d6 { transition-delay: .48s; }
 
-/* ── Divider ── */
-.red-line { height: 3px; background: linear-gradient(90deg, var(--accent) 0%, transparent 100%); }
+/* ── reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+    .reveal, .tp-feature, .car-layer { transition: none !important; }
+}
 </style>
 @endpush
 
 @section('content')
 
-{{-- ══════════ HERO ══════════ --}}
-<section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-inner">
-        <div>
-            <div class="hero-badge">
-                <span></span> Taller Automotriz Profesional
+{{-- ══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ --}}
+<section class="tp-hero">
+
+    {{-- Text column --}}
+    <div class="tp-hero-text">
+        <div class="tp-eyebrow">
+            <span class="dot"></span>
+            Taller Automotriz — Santa Cruz, Bolivia
+        </div>
+
+        <div class="tp-headline">
+            <span class="line-taller">TALLER</span>
+            <span class="line-pro">PRO</span>
+        </div>
+
+        <p class="tp-sub">
+            Mecánica general, diagnóstico electrónico y mantenimiento profesional.
+            Tu vehículo en manos que conocen cada pieza.
+        </p>
+
+        <div class="tp-info-col">
+            <div class="tp-info-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>Calle Primavera esq. Lluvia de Oro — 5to anillo Radial 26</span>
             </div>
-            <h1>
-                Nos encargamos<br>
-                del cuidado integral<br>
-                de <em>tu vehículo</em>
-            </h1>
-            <p class="hero-sub">
-                Servicio de calidad, diagnóstico preciso y atención personalizada. Tu auto en las mejores manos desde el primer día.
-            </p>
-            <div class="hero-info">
-                <div class="hero-info-item">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <span>Calle Primavera esq. Lluvia de Oro — 5to anillo Radial 26, Santa Cruz, Bolivia</span>
-                </div>
-                <div class="hero-info-item">
-                    <i class="bi bi-telephone-fill"></i>
-                    <span>78559066 / 704-07035</span>
-                </div>
-                <div class="hero-info-item">
-                    <i class="bi bi-clock-fill"></i>
-                    <span>Lun — Sáb: 8:00 am – 6:00 pm</span>
-                </div>
+            <div class="tp-info-item">
+                <i class="bi bi-telephone-fill"></i>
+                <span>78559066 / 704-07035</span>
             </div>
-            <div class="hero-actions">
-                <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" class="btn-hero-primary">
-                    <i class="bi bi-calendar-check"></i> Solicitar cita
-                </a>
-                <a href="https://wa.me/59178559066" target="_blank" class="btn-whatsapp">
-                    <i class="bi bi-whatsapp"></i> WhatsApp
-                </a>
-                <a href="#servicios" class="btn-hero-outline">
-                    Ver servicios <i class="bi bi-arrow-down"></i>
-                </a>
+            <div class="tp-info-item">
+                <i class="bi bi-clock-fill"></i>
+                <span>Lun — Sáb: 8:00 am – 6:00 pm</span>
             </div>
         </div>
 
-        <div class="hero-visual">
-            <div class="hero-car-card" style="width:100%; max-width:360px;">
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
-                    <div style="width:44px;height:44px;background:rgba(215,25,32,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                        <i class="bi bi-tools" style="color:var(--accent);font-size:20px;"></i>
-                    </div>
-                    <div>
-                        <p style="font-size:15px;font-weight:700;color:var(--pub-text);">Taller Pro</p>
-                        <p style="font-size:12px;color:var(--pub-muted);">Sistema automotriz</p>
-                    </div>
-                </div>
-                <div class="red-line" style="margin:16px 0;"></div>
-                <p style="font-size:12px;color:var(--pub-muted);margin-bottom:4px;">Estado del sistema</p>
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="width:8px;height:8px;background:#10B981;border-radius:50%;display:inline-block;box-shadow:0 0 6px #10B981;"></span>
-                    <span style="font-size:13px;font-weight:600;color:#10B981;">Operativo — Atendiendo ahora</span>
-                </div>
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">{{ $stats['ordenes_activas'] ?? 0 }}<span>+</span></div>
-                        <div class="stat-label">Órdenes activas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">{{ $stats['mecanicos'] ?? 0 }}<span>+</span></div>
-                        <div class="stat-label">Mecánicos</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">{{ $stats['clientes'] ?? 0 }}<span>+</span></div>
-                        <div class="stat-label">Clientes</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">{{ $sucursales->count() }}<span>+</span></div>
-                        <div class="stat-label">Sucursales</div>
-                    </div>
-                </div>
+        <div class="tp-cta-row">
+            <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" class="btn-tp-primary">
+                <i class="bi bi-calendar-check"></i> Solicitar cita
+            </a>
+            <a href="https://wa.me/59178559066" target="_blank" class="btn-tp-wa">
+                <i class="bi bi-whatsapp"></i> WhatsApp
+            </a>
+            <a href="#servicios" class="btn-tp-outline">
+                Ver servicios <i class="bi bi-arrow-down"></i>
+            </a>
+        </div>
+    </div>
+
+    {{-- Image reveal column --}}
+    <div class="tp-hero-visual">
+        <div class="car-reveal-wrap" id="carReveal">
+            <div class="car-glow"></div>
+            {{-- Imagen base: Defender ensamblado (siempre visible debajo) --}}
+            <img class="car-layer car-built"
+                 src="{{ asset('images/car-built.jpg') }}"
+                 alt="Defender ensamblado">
+            {{-- Imagen superior: vista explotada (se desvanece al revelar) --}}
+            <img class="car-layer car-exploded"
+                 src="{{ asset('images/car-exploded.jpg') }}"
+                 alt="Despiece automotriz">
+
+            <div class="reveal-progress">
+                <div class="rp-dot active" id="rpDot0"></div>
+                <div class="rp-dot" id="rpDot1"></div>
             </div>
         </div>
     </div>
+
 </section>
 
-{{-- ══════════ STATS BAR ══════════ --}}
-<div class="stats-bar">
-    <div class="stats-bar-inner">
-        <div>
-            <div class="sbar-num">10<span>+</span></div>
-            <div class="sbar-label">Años de experiencia</div>
+{{-- ══════════════════════════════════════════
+     STATS
+════════════════════════════════════════════ --}}
+<div class="tp-stats">
+    <div class="tp-stats-inner">
+        <div class="tp-stat">
+            <div class="tp-stat-num">
+                <span class="counter" data-target="10">0</span><span class="suffix">+</span>
+            </div>
+            <div class="tp-stat-label">Años de experiencia</div>
         </div>
-        <div>
-            <div class="sbar-num">5000<span>+</span></div>
-            <div class="sbar-label">Vehículos atendidos</div>
+        <div class="tp-stat">
+            <div class="tp-stat-num">
+                <span class="counter" data-target="5000">0</span><span class="suffix">+</span>
+            </div>
+            <div class="tp-stat-label">Vehículos atendidos</div>
         </div>
-        <div>
-            <div class="sbar-num">13<span>+</span></div>
-            <div class="sbar-label">Tipos de servicios</div>
+        <div class="tp-stat">
+            <div class="tp-stat-num">
+                <span class="counter" data-target="{{ $stats['mecanicos'] ?? 8 }}">0</span><span class="suffix">+</span>
+            </div>
+            <div class="tp-stat-label">Mecánicos expertos</div>
         </div>
-        <div>
-            <div class="sbar-num">98<span>%</span></div>
-            <div class="sbar-label">Satisfacción del cliente</div>
+        <div class="tp-stat">
+            <div class="tp-stat-num">
+                <span class="counter" data-target="98">0</span><span class="suffix">%</span>
+            </div>
+            <div class="tp-stat-label">Satisfacción del cliente</div>
         </div>
     </div>
 </div>
 
-{{-- ══════════ SERVICIOS ══════════ --}}
-<section class="pub-section" id="servicios">
-    <div class="pub-container">
-        <div style="text-align:center; max-width:600px; margin:0 auto 0;">
-            <div class="section-label">Nuestros Servicios</div>
-            <h2 class="section-title">Todo lo que tu vehículo necesita</h2>
-            <p class="section-sub" style="margin:0 auto;">
-                Contamos con técnicos especializados y equipos de diagnóstico de última generación para cada tipo de servicio.
-            </p>
+{{-- ══════════════════════════════════════════
+     SERVICES
+════════════════════════════════════════════ --}}
+<section class="tp-services" id="servicios">
+    <div class="tp-services-inner">
+        <div class="tp-section-eyebrow reveal">Lo que hacemos</div>
+        <div class="tp-section-title reveal">
+            TODO LO QUE<br>
+            TU AUTO <em>NECESITA</em>
         </div>
-        <div class="services-grid">
+
+        <div class="tp-services-grid">
             @foreach([
                 ['bi-wrench-adjustable',     'Mecánica General'],
                 ['bi-calendar2-check',       'Mantenimiento Preventivo'],
@@ -291,188 +694,202 @@
                 ['bi-cpu-fill',              'Diagnóstico Electrónico'],
                 ['bi-thermometer-snow',      'Aire Acondicionado'],
                 ['bi-brush-fill',            'Chapa y Pintura'],
-                ['bi-stars',                 'Detailing'],
+                ['bi-stars',                 'Detailing Profesional'],
                 ['bi-shield-shaded',         'Ceramic Coating'],
                 ['bi-sun-fill',              'Láminas Protección Solar'],
-                ['bi-wind',                  'Desinfección / Ozono UV'],
+                ['bi-wind',                  'Desinfección UV / Ozono'],
                 ['bi-box-arrow-in-down',     'Importación de Autopartes'],
                 ['bi-bicycle',               'Motos y ATVs'],
-            ] as [$icon, $name])
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="bi {{ $icon }}"></i>
-                </div>
-                <div class="service-name">{{ $name }}</div>
+            ] as $i => [$icon, $name])
+            <div class="tp-service-card reveal reveal-d{{ min($i % 6 + 1, 6) }}">
+                <i class="bi {{ $icon }} tp-service-icon"></i>
+                <div class="tp-service-name">{{ $name }}</div>
             </div>
             @endforeach
         </div>
     </div>
 </section>
 
-{{-- ══════════ NOSOTROS ══════════ --}}
-<section class="pub-section" id="nosotros" style="background:var(--pub-surface); padding-top:80px; padding-bottom:80px;">
-    <div class="pub-container">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;">
-            <div>
-                <div class="section-label">¿Por qué elegirnos?</div>
-                <h2 class="section-title">Expertos que cuidan tu inversión</h2>
-                <p style="font-size:15px; color:var(--pub-muted); line-height:1.8; margin-bottom:28px;">
-                    En Taller Pro combinamos tecnología de diagnóstico con años de experiencia para ofrecerte el mejor servicio automotriz de Santa Cruz.
-                </p>
-                <div style="display:flex;flex-direction:column;gap:16px;">
-                    @foreach([
-                        ['bi-patch-check-fill', 'Técnicos certificados', 'Personal capacitado en las últimas tecnologías automotrices.'],
-                        ['bi-lightning-charge-fill', 'Diagnóstico rápido', 'Equipos electrónicos de última generación para detección precisa.'],
-                        ['bi-shield-check', 'Garantía en trabajos', 'Todos nuestros servicios cuentan con garantía por escrito.'],
-                        ['bi-geo-alt-fill', 'Múltiples sucursales', 'Encuentra el punto más cercano a ti en Santa Cruz.'],
-                    ] as [$icon, $title, $desc])
-                    <div style="display:flex;align-items:flex-start;gap:14px;">
-                        <div style="width:40px;height:40px;border-radius:10px;background:rgba(215,25,32,.1);border:1px solid rgba(215,25,32,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="bi {{ $icon }}" style="color:var(--accent);font-size:16px;"></i>
-                        </div>
-                        <div>
-                            <p style="font-size:14px;font-weight:700;color:var(--pub-text);margin-bottom:3px;">{{ $title }}</p>
-                            <p style="font-size:13px;color:var(--pub-muted);line-height:1.5;">{{ $desc }}</p>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
+{{-- ══════════════════════════════════════════
+     WHY
+════════════════════════════════════════════ --}}
+<section class="tp-why" id="nosotros">
+    <div class="tp-why-inner">
+        <div>
+            <div class="tp-section-eyebrow reveal">¿Por qué elegirnos?</div>
+            <div class="tp-section-title reveal">
+                EXPERTOS<br>
+                EN CADA<br>
+                <em>DETALLE</em>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                @for($i = 0; $i < 4; $i++)
-                <div style="aspect-ratio:1;border-radius:14px;background:var(--pub-card);border:1px solid var(--pub-border);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--pub-muted);">
-                    <i class="bi bi-image" style="font-size:28px;opacity:.3;"></i>
-                    <span style="font-size:11px;opacity:.5;">Foto del taller</span>
-                </div>
-                @endfor
-            </div>
-        </div>
-    </div>
-</section>
-
-{{-- ══════════ MAPA DE SUCURSALES ══════════ --}}
-<section class="pub-section" id="mapa">
-    <div class="pub-container">
-        <div style="text-align:center; max-width:580px; margin:0 auto 40px;">
-            <div class="section-label">Sucursales</div>
-            <h2 class="section-title">Encuéntranos cerca de ti</h2>
-            <p class="section-sub" style="margin:0 auto;">
-                Tenemos múltiples puntos de atención en Santa Cruz. El mapa muestra tu ubicación y las sucursales activas.
+            <p class="reveal" style="font-size:14px; color:#555; line-height:1.8; max-width:380px;">
+                En Taller Pro combinamos tecnología de diagnóstico de última generación con más de una década de experiencia
+                para ofrecerte el servicio automotriz más completo de Santa Cruz.
             </p>
         </div>
 
-        <div id="landingMap"></div>
-
-        @if($sucursales->isNotEmpty())
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:20px;">
-            @foreach($sucursales as $suc)
-            <div onclick="centerMapTo({{ $suc->latitud }}, {{ $suc->longitud }}, {{ $loop->index }})"
-                 style="background:var(--pub-card);border:1px solid var(--pub-border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:.15s;"
-                 onmouseover="this.style.borderColor='rgba(215,25,32,.4)'" onmouseout="this.style.borderColor='var(--pub-border)'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;border-radius:9px;background:rgba(215,25,32,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="bi bi-geo-alt-fill" style="color:var(--accent);"></i>
-                    </div>
-                    <div>
-                        <p style="font-size:14px;font-weight:700;color:var(--pub-text);margin-bottom:2px;">{{ $suc->nombre }}</p>
-                        <p style="font-size:12px;color:var(--pub-muted);">{{ $suc->ciudad }}</p>
-                    </div>
+        <div class="tp-why-features">
+            @foreach([
+                ['01', 'Técnicos certificados', 'Personal capacitado en las últimas tecnologías automotrices, actualizado constantemente.'],
+                ['02', 'Diagnóstico de precisión', 'Equipos electrónicos de última generación para detección exacta de fallas.'],
+                ['03', 'Garantía por escrito', 'Todos nuestros servicios incluyen garantía documentada en tiempo y forma.'],
+                ['04', 'Transparencia total', 'Te explicamos qué se hará y por qué antes de comenzar cualquier trabajo.'],
+            ] as [$num, $title, $desc])
+            <div class="tp-feature reveal">
+                <div class="tp-feature-num">{{ $num }}</div>
+                <div>
+                    <div class="tp-feature-title">{{ $title }}</div>
+                    <div class="tp-feature-desc">{{ $desc }}</div>
                 </div>
-                @if($suc->direccion)
-                <p style="font-size:12px;color:var(--pub-muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--pub-border);">
-                    <i class="bi bi-pin-map" style="margin-right:4px;color:var(--accent);"></i>{{ $suc->direccion }}
-                </p>
-                @endif
-                @if($suc->telefono)
-                <p style="font-size:12px;color:var(--pub-muted);margin-top:6px;">
-                    <i class="bi bi-telephone" style="margin-right:4px;color:var(--accent);"></i>{{ $suc->telefono }}
-                </p>
-                @endif
             </div>
             @endforeach
         </div>
-        @endif
     </div>
 </section>
 
-{{-- ══════════ CONTACTO / CTA ══════════ --}}
-<section class="pub-section" id="contacto" style="background:var(--pub-surface);padding-top:80px;padding-bottom:80px;">
-    <div class="pub-container" style="text-align:center; max-width:640px; margin:0 auto;">
-        <div class="section-label">Contacto</div>
-        <h2 class="section-title">¿Listo para agendar tu cita?</h2>
-        <p class="section-sub" style="margin:0 auto 32px;">
-            Regístrate para agendar tu cita en línea, hacer seguimiento de tu vehículo y más. O contáctanos directamente.
+{{-- ══════════════════════════════════════════
+     STATEMENT
+════════════════════════════════════════════ --}}
+<div class="tp-statement">
+    <div class="tp-statement-inner">
+        <div class="tp-statement-text">
+            <span class="dim">TU VEHÍCULO ES UNA INVERSIÓN.</span>
+            CUÍDALA CON QUIENES LA ENTIENDEN.
+        </div>
+        <p class="tp-statement-sub">Más de 5000 vehículos atendidos — Santa Cruz de la Sierra</p>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════
+     SUCURSALES / MAPA
+════════════════════════════════════════════ --}}
+<section class="tp-map-section" id="mapa">
+    <div class="tp-map-header">
+        <div class="tp-section-eyebrow reveal">Ubicaciones</div>
+        <div class="tp-section-title reveal" style="margin-bottom:8px;">
+            CERCA DE <em>TI</em>
+        </div>
+        <p class="reveal" style="font-size:14px; color:#555; max-width:480px; line-height:1.7;">
+            Múltiples sucursales en Santa Cruz. Haz click en una tarjeta para ver la dirección exacta en el mapa.
         </p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" class="btn-hero-primary">
-                <i class="bi bi-calendar-plus"></i> Agendar cita
-            </a>
-            <a href="https://wa.me/59178559066" target="_blank" class="btn-whatsapp">
-                <i class="bi bi-whatsapp"></i> Escribir por WhatsApp
-            </a>
+    </div>
+
+    <div id="landingMap"></div>
+
+    @if($sucursales->isNotEmpty())
+    <div class="tp-branch-grid">
+        @foreach($sucursales as $suc)
+        <div class="tp-branch-card"
+             onclick="centerMapTo({{ $suc->latitud }}, {{ $suc->longitud }}, {{ $loop->index }})">
+            <div class="tp-branch-icon">
+                <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div>
+                <div class="tp-branch-name">{{ $suc->nombre }}</div>
+                <div class="tp-branch-addr">{{ $suc->ciudad }}{{ $suc->direccion ? ' — ' . Str::limit($suc->direccion, 40) : '' }}</div>
+            </div>
         </div>
-        <div style="margin-top:40px;display:flex;justify-content:center;gap:32px;flex-wrap:wrap;">
-            <div style="text-align:center;">
-                <i class="bi bi-telephone-fill" style="font-size:20px;color:var(--accent);"></i>
-                <p style="font-size:13px;color:var(--pub-muted);margin-top:6px;">78559066 / 704-07035</p>
-            </div>
-            <div style="text-align:center;">
-                <i class="bi bi-envelope-fill" style="font-size:20px;color:var(--accent);"></i>
-                <p style="font-size:13px;color:var(--pub-muted);margin-top:6px;">contacto@tallerpro.bo</p>
-            </div>
-            <div style="text-align:center;">
-                <i class="bi bi-clock-fill" style="font-size:20px;color:var(--accent);"></i>
-                <p style="font-size:13px;color:var(--pub-muted);margin-top:6px;">Lun–Sáb: 8:00 – 18:00</p>
-            </div>
+        @endforeach
+    </div>
+    @endif
+</section>
+
+{{-- ══════════════════════════════════════════
+     CTA
+════════════════════════════════════════════ --}}
+<section class="tp-cta-section" id="contacto">
+    <div class="tp-cta-title reveal">
+        AGENDA TU<br>
+        <em>CITA HOY</em>
+    </div>
+    <p class="tp-cta-sub reveal">
+        Regístrate, solicita tu cita en línea y haz seguimiento de tu vehículo desde cualquier dispositivo.
+    </p>
+    <div class="tp-cta-btns reveal">
+        <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" class="btn-tp-primary">
+            <i class="bi bi-calendar-plus"></i> Solicitar cita
+        </a>
+        <a href="{{ route('tienda') }}" class="btn-tp-outline">
+            <i class="bi bi-shop-window"></i> Ver tienda
+        </a>
+        <a href="https://wa.me/59178559066" target="_blank" class="btn-tp-wa">
+            <i class="bi bi-whatsapp"></i> Escribir por WhatsApp
+        </a>
+    </div>
+
+    <div class="tp-cta-contacts">
+        <div class="tp-contact-item">
+            <i class="bi bi-telephone-fill"></i>
+            <p>78559066 / 704-07035</p>
+        </div>
+        <div class="tp-contact-item">
+            <i class="bi bi-envelope-fill"></i>
+            <p>contacto@tallerpro.bo</p>
+        </div>
+        <div class="tp-contact-item">
+            <i class="bi bi-clock-fill"></i>
+            <p>Lun–Sáb: 8:00 – 18:00</p>
+        </div>
+        <div class="tp-contact-item">
+            <i class="bi bi-geo-alt-fill"></i>
+            <p>Santa Cruz de la Sierra, Bolivia</p>
         </div>
     </div>
 </section>
 
-{{-- ══════════ FOOTER ══════════ --}}
-<footer class="pub-footer">
-    <div class="pub-footer-inner">
-        <div class="footer-grid">
+{{-- ══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ --}}
+<footer class="tp-footer">
+    <div class="tp-footer-inner">
+        <div class="tp-footer-grid">
+
             <div>
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-                    <div style="width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                        <i class="bi bi-tools" style="color:#fff;font-size:15px;"></i>
+                <a href="{{ url('/') }}" class="tp-footer-logo">
+                    <div class="tp-footer-logo-icon">
+                        <i class="bi bi-tools"></i>
                     </div>
-                    <span style="font-size:17px;font-weight:800;color:var(--pub-text);">Taller Pro</span>
-                </div>
-                <p style="font-size:13px;color:var(--pub-muted);line-height:1.7;max-width:280px;">
-                    Tu taller automotriz de confianza en Santa Cruz de la Sierra, Bolivia.
+                    <span class="tp-footer-logo-text">TALLER PRO</span>
+                </a>
+                <p class="tp-footer-tagline">
+                    Tu taller automotriz de confianza en Santa Cruz de la Sierra, Bolivia. Más de 10 años cuidando tu inversión.
                 </p>
-                <div style="display:flex;gap:10px;margin-top:16px;">
-                    <a href="#" style="width:34px;height:34px;border-radius:8px;background:var(--pub-card);border:1px solid var(--pub-border);display:flex;align-items:center;justify-content:center;color:var(--pub-muted);text-decoration:none;transition:.15s;" onmouseover="this.style.color='var(--pub-text)'" onmouseout="this.style.color='var(--pub-muted)'">
-                        <i class="bi bi-facebook"></i>
-                    </a>
-                    <a href="#" style="width:34px;height:34px;border-radius:8px;background:var(--pub-card);border:1px solid var(--pub-border);display:flex;align-items:center;justify-content:center;color:var(--pub-muted);text-decoration:none;transition:.15s;" onmouseover="this.style.color='var(--pub-text)'" onmouseout="this.style.color='var(--pub-muted)'">
-                        <i class="bi bi-instagram"></i>
-                    </a>
-                    <a href="https://wa.me/59178559066" target="_blank" style="width:34px;height:34px;border-radius:8px;background:var(--pub-card);border:1px solid var(--pub-border);display:flex;align-items:center;justify-content:center;color:var(--pub-muted);text-decoration:none;transition:.15s;" onmouseover="this.style.color='#25D366'" onmouseout="this.style.color='var(--pub-muted)'">
+                <div class="tp-footer-socials">
+                    <a href="#" class="tp-footer-social"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="tp-footer-social"><i class="bi bi-instagram"></i></a>
+                    <a href="https://wa.me/59178559066" target="_blank" class="tp-footer-social" style="color:#25D366;border-color:#1a3a1a;">
                         <i class="bi bi-whatsapp"></i>
                     </a>
                 </div>
             </div>
+
             <div>
-                <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pub-muted);margin-bottom:14px;">Servicios</p>
+                <div class="tp-footer-col-title">Servicios</div>
                 @foreach(['Mecánica General','Mantenimiento','Diagnóstico Electrónico','Chapa y Pintura','Detailing','Aire Acondicionado'] as $s)
-                <a href="#servicios" class="footer-link">{{ $s }}</a>
+                <a href="#servicios" class="tp-footer-link">{{ $s }}</a>
                 @endforeach
             </div>
+
             <div>
-                <p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pub-muted);margin-bottom:14px;">Contacto</p>
-                <div class="footer-contact"><i class="bi bi-geo-alt-fill"></i>Calle Primavera esq. Lluvia de Oro, SCZ</div>
-                <div class="footer-contact"><i class="bi bi-telephone-fill"></i>78559066 / 704-07035</div>
-                <div class="footer-contact"><i class="bi bi-envelope-fill"></i>contacto@tallerpro.bo</div>
-                <div class="footer-contact"><i class="bi bi-clock-fill"></i>Lun–Sáb: 8:00 – 18:00</div>
+                <div class="tp-footer-col-title">Contacto</div>
+                <div class="tp-footer-contact-item">
+                    <i class="bi bi-geo-alt-fill"></i><span>Calle Primavera esq. Lluvia de Oro, SCZ</span>
+                </div>
+                <div class="tp-footer-contact-item">
+                    <i class="bi bi-telephone-fill"></i><span>78559066 / 704-07035</span>
+                </div>
+                <div class="tp-footer-contact-item">
+                    <i class="bi bi-envelope-fill"></i><span>contacto@tallerpro.bo</span>
+                </div>
+                <div class="tp-footer-contact-item">
+                    <i class="bi bi-clock-fill"></i><span>Lun–Sáb: 8:00 – 18:00</span>
+                </div>
             </div>
         </div>
-        <div style="border-top:1px solid var(--pub-border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-            <p style="font-size:12px;color:var(--pub-muted);">&copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados</p>
-            <div style="display:flex;gap:16px;">
-                <a href="{{ route('login') }}" style="font-size:12px;color:var(--pub-muted);text-decoration:none;">Panel administrativo</a>
-            </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <p style="font-size:12px;color:#222;">&copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados</p>
+            <a href="{{ route('login') }}" style="font-size:12px;color:#222;text-decoration:none;">Panel administrativo</a>
         </div>
     </div>
 </footer>
@@ -481,22 +898,103 @@
 
 @push('scripts')
 <script>
+/* ─── IMAGE REVEAL EFFECT ─── */
+(function() {
+    const wrap   = document.getElementById('carReveal');
+    if (!wrap) return;
+
+    const dot0   = document.getElementById('rpDot0');
+    const dot1   = document.getElementById('rpDot1');
+    let shown    = false; // false = exploded on top (default), true = built revealed
+    let timer    = null;
+    let paused   = false;
+
+    function setRevealed(val) {
+        shown = val;
+        wrap.classList.toggle('show-built', val);
+        dot0.classList.toggle('active', !val);
+        dot1.classList.toggle('active',  val);
+    }
+
+    function startCycle() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => {
+            if (!paused) setRevealed(!shown);
+        }, 3400);
+    }
+
+    /* Desktop hover: pause cycle and immediately reveal built car */
+    wrap.addEventListener('mouseenter', () => {
+        paused = true;
+        setRevealed(true);
+    });
+    wrap.addEventListener('mouseleave', () => {
+        paused = false;
+        // let cycle resume naturally
+    });
+
+    /* Start auto-cycle after 1.5s (let hero load first) */
+    setTimeout(() => startCycle(), 1500);
+})();
+
+/* ─── SCROLL REVEAL ─── */
+(function() {
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                obs.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+
+/* ─── STATS COUNTERS ─── */
+(function() {
+    const counters = document.querySelectorAll('.counter[data-target]');
+    if (!counters.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            const el     = e.target;
+            const target = parseInt(el.dataset.target, 10);
+            const duration = 1200;
+            const start  = performance.now();
+            obs.unobserve(el);
+
+            function tick(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                el.textContent = Math.round(ease * target).toLocaleString('es-BO');
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        });
+    }, { threshold: 0.5 });
+
+    counters.forEach(c => obs.observe(c));
+})();
+
+/* ─── GOOGLE MAPS ─── */
 const SUCURSALES = @json($sucursales);
-const GMAPS_KEY  = '{{ config('services.google.maps_key') }}';
 const MAP_STYLES = [
-    { elementType:'geometry', stylers:[{color:'#1d2433'}] },
-    { elementType:'labels.text.fill', stylers:[{color:'#8ec3b9'}] },
-    { elementType:'labels.text.stroke', stylers:[{color:'#1a3646'}] },
-    { featureType:'road', elementType:'geometry', stylers:[{color:'#304a7d'}] },
-    { featureType:'road', elementType:'labels.text.fill', stylers:[{color:'#98a5be'}] },
-    { featureType:'water', elementType:'geometry', stylers:[{color:'#0e1626'}] },
-    { featureType:'poi', elementType:'geometry', stylers:[{color:'#283d6a'}] },
-    { featureType:'poi', elementType:'labels.text.fill', stylers:[{color:'#6f9ba5'}] },
-    { featureType:'transit', elementType:'geometry', stylers:[{color:'#2f3948'}] },
-    { featureType:'administrative', elementType:'geometry.stroke', stylers:[{color:'#4b6878'}] },
+    { elementType:'geometry',            stylers:[{color:'#0a0a0a'}] },
+    { elementType:'labels.text.fill',    stylers:[{color:'#555'}] },
+    { elementType:'labels.text.stroke',  stylers:[{color:'#000'}] },
+    { featureType:'road', elementType:'geometry',         stylers:[{color:'#1a1a1a'}] },
+    { featureType:'road', elementType:'labels.text.fill', stylers:[{color:'#444'}] },
+    { featureType:'water',       elementType:'geometry',  stylers:[{color:'#000'}] },
+    { featureType:'poi',         elementType:'geometry',  stylers:[{color:'#111'}] },
+    { featureType:'poi',         elementType:'labels.text.fill', stylers:[{color:'#333'}] },
+    { featureType:'transit',     elementType:'geometry',  stylers:[{color:'#111'}] },
+    { featureType:'administrative', elementType:'geometry.stroke', stylers:[{color:'#222'}] },
 ];
 
-let map, markers = [], openInfoWindow = null;
+let map, markers = [], openIW = null;
 
 function initLandingMap() {
     const defaultCenter = SUCURSALES.length
@@ -512,21 +1010,16 @@ function initLandingMap() {
 
     const bounds = new google.maps.LatLngBounds();
 
-    // Geolocalización del usuario
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
-            const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
             new google.maps.Marker({
-                map, position: userPos, title: 'Tu ubicación',
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE, scale: 9,
-                    fillColor: '#4285F4', fillOpacity: 1,
-                    strokeColor: '#fff', strokeWeight: 2,
-                },
+                map, position: p, title: 'Tu ubicación',
+                icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor:'#4285F4', fillOpacity:1, strokeColor:'#fff', strokeWeight:2 },
                 zIndex: 0,
             });
-            bounds.extend(userPos);
-            if (SUCURSALES.length > 0) map.fitBounds(bounds, { padding: 60 });
+            bounds.extend(p);
+            if (SUCURSALES.length) map.fitBounds(bounds, { padding: 80 });
         }, () => {}, { timeout: 8000 });
     }
 
@@ -537,45 +1030,36 @@ function initLandingMap() {
         const marker = new google.maps.Marker({
             map, position: pos, title: suc.nombre,
             animation: google.maps.Animation.DROP,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE, scale: 11,
-                fillColor: '#D71920', fillOpacity: 1,
-                strokeColor: '#ffffff', strokeWeight: 2.5,
-            },
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor:'#D71920', fillOpacity:1, strokeColor:'#fff', strokeWeight:2.5 },
         });
 
-        const iwContent = `
-            <div style="min-width:200px;padding:14px 16px;font-family:system-ui,sans-serif;background:#1a2236;color:#f1f5f9;border-radius:10px;">
+        const iw = new google.maps.InfoWindow({
+            content: `<div style="min-width:200px;padding:14px 16px;font-family:system-ui,sans-serif;background:#111;color:#f1f5f9;border-radius:8px;">
                 <p style="font-weight:700;font-size:14px;margin:0 0 4px;">${suc.nombre}</p>
-                ${suc.ciudad ? `<p style="font-size:12px;color:#94a3b8;margin:0 0 4px;">${suc.ciudad}</p>` : ''}
-                ${suc.direccion ? `<p style="font-size:12px;color:#94a3b8;margin:0 0 10px;">${suc.direccion}</p>` : ''}
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${suc.latitud},${suc.longitud}"
-                   target="_blank"
-                   style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#D71920;color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600;">
-                    Cómo llegar
-                </a>
-            </div>`;
+                ${suc.ciudad ? `<p style="font-size:12px;color:#555;margin:0 0 8px;">${suc.ciudad}</p>` : ''}
+                ${suc.direccion ? `<p style="font-size:12px;color:#555;margin:0 0 12px;">${suc.direccion}</p>` : ''}
+                <a href="https://www.google.com/maps/dir/?api=1&destination=${suc.latitud},${suc.longitud}" target="_blank"
+                   style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#D71920;color:#fff;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;">
+                   Cómo llegar
+                </a></div>`,
+        });
 
-        const iw = new google.maps.InfoWindow({ content: iwContent });
         marker.addListener('click', () => {
-            if (openInfoWindow) openInfoWindow.close();
+            if (openIW) openIW.close();
             iw.open(map, marker);
-            openInfoWindow = iw;
+            openIW = iw;
         });
         markers.push({ marker, iw });
     });
 
-    if (SUCURSALES.length > 1) map.fitBounds(bounds, { padding: 60 });
+    if (SUCURSALES.length > 1) map.fitBounds(bounds, { padding: 80 });
 }
 
 function centerMapTo(lat, lng, idx) {
     map.panTo({ lat: parseFloat(lat), lng: parseFloat(lng) });
     map.setZoom(16);
-    if (openInfoWindow) openInfoWindow.close();
-    if (markers[idx]) {
-        markers[idx].iw.open(map, markers[idx].marker);
-        openInfoWindow = markers[idx].iw;
-    }
+    if (openIW) openIW.close();
+    if (markers[idx]) { markers[idx].iw.open(map, markers[idx].marker); openIW = markers[idx].iw; }
     document.getElementById('mapa').scrollIntoView({ behavior: 'smooth' });
 }
 </script>
