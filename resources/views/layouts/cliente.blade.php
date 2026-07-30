@@ -38,16 +38,11 @@
             background: rgba(11,17,32,.95);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--c-border);
-            height: 60px;
+            height: 90px;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; gap: 16px;
         }
         .c-topbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .c-topbar-logo-icon {
-            width: 34px; height: 34px; background: var(--c-accent); border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 3px 10px rgba(215,25,32,.35);
-        }
         .c-topbar-title { font-size: 16px; font-weight: 800; color: var(--c-text); }
         .c-topbar-title span { font-weight: 400; color: var(--c-muted); font-size: 13px; }
 
@@ -185,9 +180,8 @@
 {{-- Top bar --}}
 <header class="c-topbar">
     <a href="{{ route('landing') }}" class="c-topbar-logo">
-        <div class="c-topbar-logo-icon">
-            <i class="bi bi-tools" style="color:#fff; font-size:14px;"></i>
-        </div>
+        <img src="{{ asset('images/logo.png') }}" alt="SC-BOL"
+             style="width:80px;height:80px;object-fit:contain;flex-shrink:0;">
         <div>
             <div class="c-topbar-title">Taller Automotrices SC-BOL <span>· Mi cuenta</span></div>
         </div>

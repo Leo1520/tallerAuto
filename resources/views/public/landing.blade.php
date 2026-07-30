@@ -22,7 +22,7 @@
     min-height: 100vh;
     overflow: hidden;
     cursor: crosshair;
-    margin-top: -64px; /* pull up under fixed navbar */
+    margin-top: -90px; /* pull up under fixed navbar */
 }
 
 /* Image layers — full bleed */

@@ -43,7 +43,7 @@
         .pub-nav-inner {
             max-width: 1200px; margin: 0 auto;
             padding: 0 24px;
-            height: 64px;
+            height: 90px;
             display: flex; align-items: center; justify-content: space-between; gap: 24px;
         }
         .pub-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
@@ -116,7 +116,7 @@
     <div class="pub-nav-inner">
         <a href="{{ url('/') }}" class="pub-logo">
             <img src="{{ asset('images/logo.png') }}" alt="SC-BOL"
-                 style="height:42px;width:auto;object-fit:contain;">
+                 style="width:80px;height:80px;object-fit:contain;">
         </a>
 
         <ul class="pub-nav-links">
@@ -164,7 +164,7 @@
     </div>
 </nav>
 
-<div style="padding-top:64px;">
+<div style="padding-top:90px;">
     @yield('content')
 </div>
 
