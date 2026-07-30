@@ -1,4 +1,4 @@
-@extends('layouts.cliente')
+﻿@extends('layouts.cliente')
 
 @section('title', 'Inicio')
 
@@ -18,7 +18,7 @@
         <h1 style="font-size:20px;font-weight:800;color:var(--c-text);margin-bottom:2px;">
             {{ $saludo }}, {{ Str::words($nombre, 1, '') }}
         </h1>
-        <p style="font-size:13px;color:var(--c-muted);">Resumen de tu cuenta en Taller Pro.</p>
+        <p style="font-size:13px;color:var(--c-muted);">Resumen de tu cuenta en Taller Automotrices SC-BOL.</p>
     </div>
 </div>
 

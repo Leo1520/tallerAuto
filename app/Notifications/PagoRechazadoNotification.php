@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications;
 
@@ -31,6 +31,6 @@ class PagoRechazadoNotification extends Notification
             ->line("El comprobante de pago enviado para la orden **#{$orden?->numero}** no pudo ser validado.")
             ->line("**Motivo:** {$this->motivo}")
             ->line('Por favor comunícate con nosotros o acércate a la sucursal para regularizar el pago.')
-            ->salutation('El equipo de Taller Pro');
+            ->salutation('El equipo de Taller Automotrices SC-BOL');
     }
 }

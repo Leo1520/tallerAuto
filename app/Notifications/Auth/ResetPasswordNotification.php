@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications\Auth;
 
@@ -25,13 +25,13 @@ class ResetPasswordNotification extends Notification
         ], false));
 
         return (new MailMessage)
-            ->subject('Restablecer contraseña — Taller Pro')
+            ->subject('Restablecer contraseña — Taller Automotrices SC-BOL')
             ->greeting('¡Hola, ' . ($notifiable->persona?->nombre ?? $notifiable->email) . '!')
-            ->line('Recibimos una solicitud para restablecer la contraseña de tu cuenta en **Taller Pro**.')
+            ->line('Recibimos una solicitud para restablecer la contraseña de tu cuenta en **Taller Automotrices SC-BOL**.')
             ->line('Haz clic en el botón de abajo para crear una nueva contraseña.')
             ->action('🔑 Restablecer mi contraseña', $url)
             ->line('Este enlace expirará en **60 minutos**.')
             ->line('Si no solicitaste este cambio, no es necesario que hagas nada — tu contraseña no será modificada.')
-            ->salutation('El equipo de Taller Pro');
+            ->salutation('El equipo de Taller Automotrices SC-BOL');
     }
 }

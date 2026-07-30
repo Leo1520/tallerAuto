@@ -1,5 +1,5 @@
-@extends('layouts.auth')
-@section('title', 'Nueva contraseña — Taller Pro')
+﻿@extends('layouts.auth')
+@section('title', 'Nueva contraseña — Taller Automotrices SC-BOL')
 
 @section('content')
 
@@ -93,6 +93,6 @@
 </div>
 
 <p style="text-align:center; font-size:11px; color:var(--text-dim); margin-top:24px;">
-    &copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados
+    &copy; {{ date('Y') }} Taller Automotrices SC-BOL — Todos los derechos reservados
 </p>
 @endsection

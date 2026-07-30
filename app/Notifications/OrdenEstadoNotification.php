@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications;
 
@@ -26,7 +26,7 @@ class OrdenEstadoNotification extends Notification
         $cliente = $this->orden->vehiculo->cliente->persona->nombre;
 
         $msg = (new MailMessage)
-            ->subject("Orden {$numero} — {$estado} | Taller Pro")
+            ->subject("Orden {$numero} — {$estado} | Taller Automotrices SC-BOL")
             ->greeting("Hola {$cliente},");
 
         if ($estado === 'Listo') {
@@ -37,13 +37,13 @@ class OrdenEstadoNotification extends Notification
         } elseif ($estado === 'Entregado') {
             $msg->line("Tu vehículo **{$placa}** ha sido entregado exitosamente.")
                 ->line("**Orden:** {$numero}")
-                ->line('Gracias por confiar en Taller Pro. ¡Esperamos verte pronto!');
+                ->line('Gracias por confiar en Taller Automotrices SC-BOL. ¡Esperamos verte pronto!');
         } else {
             $msg->line("El estado de tu orden **{$numero}** ha cambiado a: **{$estado}**.")
                 ->line("Vehículo: **{$placa}**");
         }
 
-        return $msg->line('Taller Pro — Sistema de Gestión Automotriz');
+        return $msg->line('Taller Automotrices SC-BOL — Sistema de Gestión Automotriz');
     }
 
     public function toArray(object $notifiable): array

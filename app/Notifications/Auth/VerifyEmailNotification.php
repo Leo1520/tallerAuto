@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications\Auth;
 
@@ -24,14 +24,14 @@ class VerifyEmailNotification extends Notification
         $verifyUrl = $this->verificationUrl($notifiable);
 
         return (new MailMessage)
-            ->subject('Activa tu cuenta en Taller Pro')
+            ->subject('Activa tu cuenta en Taller Automotrices SC-BOL')
             ->greeting('¡Hola, ' . $notifiable->persona?->nombre . '!')
-            ->line('Gracias por registrarte en **Taller Pro**.')
+            ->line('Gracias por registrarte en **Taller Automotrices SC-BOL**.')
             ->line('Haz clic en el botón de abajo para verificar tu correo electrónico y activar tu cuenta.')
             ->action('✅ Activar mi cuenta', $verifyUrl)
             ->line('Este enlace expirará en **60 minutos**.')
-            ->line('Si no creaste una cuenta en Taller Pro, puedes ignorar este correo.')
-            ->salutation('El equipo de Taller Pro');
+            ->line('Si no creaste una cuenta en Taller Automotrices SC-BOL, puedes ignorar este correo.')
+            ->salutation('El equipo de Taller Automotrices SC-BOL');
     }
 
     protected function verificationUrl(object $notifiable): string

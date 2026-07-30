@@ -1,5 +1,5 @@
-@extends('layouts.cliente')
-@section('title', 'Solicitar producto — Taller Pro')
+﻿@extends('layouts.cliente')
+@section('title', 'Solicitar producto — Taller Automotrices SC-BOL')
 
 @section('content')
 <div style="max-width:560px;margin:0 auto;padding:24px 16px 100px;">

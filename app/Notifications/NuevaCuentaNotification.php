@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications;
 
@@ -24,12 +24,12 @@ class NuevaCuentaNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Nueva cuenta registrada — Taller Pro')
+            ->subject('Nueva cuenta registrada — Taller Automotrices SC-BOL')
             ->greeting('Nuevo usuario registrado')
             ->line("**{$this->nombre}** ({$this->email}) acaba de crear una cuenta.")
             ->line('El usuario espera que le asignes un rol para poder acceder al sistema.')
             ->action('Ir a Gestión de Usuarios', route('usuarios.index'))
-            ->line('Este mensaje fue generado automáticamente por Taller Pro.');
+            ->line('Este mensaje fue generado automáticamente por Taller Automotrices SC-BOL.');
     }
 
     public function toArray(object $notifiable): array

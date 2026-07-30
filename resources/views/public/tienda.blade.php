@@ -1,7 +1,7 @@
-@extends('layouts.public')
+﻿@extends('layouts.public')
 
-@section('title', 'Tienda — Taller Pro')
-@section('description', 'Servicios automotrices y repuestos disponibles en Taller Pro.')
+@section('title', 'Tienda — Taller Automotrices SC-BOL')
+@section('description', 'Servicios automotrices y repuestos disponibles en Taller Automotrices SC-BOL.')
 
 @push('styles')
 <style>
@@ -144,7 +144,7 @@
 
 {{-- Hero / Tabs --}}
 <div class="tienda-hero">
-    <div class="section-label" style="justify-content:center;">Taller Pro</div>
+    <div class="section-label" style="justify-content:center;">Taller Automotrices SC-BOL</div>
     <h1 class="section-title" style="margin-bottom:6px;">Tienda</h1>
     <p class="section-sub" style="margin:0 auto 24px;">Servicios y productos disponibles en nuestras sucursales.</p>
 

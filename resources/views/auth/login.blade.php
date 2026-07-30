@@ -1,5 +1,5 @@
-@extends('layouts.auth')
-@section('title', 'Iniciar sesion — Taller Pro')
+﻿@extends('layouts.auth')
+@section('title', 'Iniciar sesion — Taller Automotrices SC-BOL')
 
 @section('content')
 
@@ -9,7 +9,7 @@
         <i class="bi bi-tools" style="color:#fff;font-size:18px;"></i>
     </div>
     <div>
-        <p style="font-size:18px;font-weight:800;color:var(--a-text);letter-spacing:-.01em;line-height:1.1;">Taller Pro</p>
+        <p style="font-size:18px;font-weight:800;color:var(--a-text);letter-spacing:-.01em;line-height:1.1;">Taller Automotrices SC-BOL</p>
         <p style="font-size:11px;color:var(--a-muted);text-transform:uppercase;letter-spacing:.04em;">Sistema automotriz</p>
     </div>
 </div>
@@ -108,6 +108,6 @@
 </div>
 
 <p style="text-align:center; font-size:11px; color:var(--a-dim); margin-top:22px;">
-    &copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados
+    &copy; {{ date('Y') }} Taller Automotrices SC-BOL — Todos los derechos reservados
 </p>
 @endsection

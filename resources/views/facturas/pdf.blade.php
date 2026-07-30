@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -74,7 +74,7 @@
     {{-- Header --}}
     <div class="header">
         <div class="brand">
-            <h1>Taller Pro</h1>
+            <h1>Taller Automotrices SC-BOL</h1>
             <p>{{ $factura->orden->sucursal->nombre ?? 'Sucursal Principal' }}</p>
             <p>{{ $factura->orden->sucursal->direccion ?? '' }}</p>
             <p>Cochabamba, Bolivia</p>
@@ -232,7 +232,7 @@
 
     {{-- Footer --}}
     <div class="footer">
-        <span>Taller Pro — Sistema de Gestión Automotriz</span>
+        <span>Taller Automotrices SC-BOL — Sistema de Gestión Automotriz</span>
         <span>Generado: {{ now()->format('d/m/Y H:i') }}</span>
         <span>Este documento es válido como comprobante de servicio</span>
     </div>

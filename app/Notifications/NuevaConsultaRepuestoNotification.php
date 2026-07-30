@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications;
 
@@ -32,6 +32,6 @@ class NuevaConsultaRepuestoNotification extends Notification
             ->line("**Cantidad solicitada:** {$this->cantidad}")
             ->line("**Precio unitario:** Bs " . number_format($this->repuesto->precio_venta, 2))
             ->line('Revisa el panel de administración para gestionar esta solicitud.')
-            ->salutation('Taller Pro');
+            ->salutation('Taller Automotrices SC-BOL');
     }
 }

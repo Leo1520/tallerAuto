@@ -1,5 +1,5 @@
-@extends('layouts.auth')
-@section('title', 'Activa tu cuenta — Taller Pro')
+﻿@extends('layouts.auth')
+@section('title', 'Activa tu cuenta — Taller Automotrices SC-BOL')
 
 @section('content')
 
@@ -24,7 +24,7 @@
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;text-align:left;margin-bottom:24px;">
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
             <i class="bi bi-1-circle-fill" style="color:var(--accent);font-size:16px;flex-shrink:0;margin-top:1px;"></i>
-            <p style="font-size:13px;color:var(--a-muted);">Abre tu bandeja de entrada y busca el correo de <strong style="color:var(--a-text);">Taller Pro</strong>.</p>
+            <p style="font-size:13px;color:var(--a-muted);">Abre tu bandeja de entrada y busca el correo de <strong style="color:var(--a-text);">Taller Automotrices SC-BOL</strong>.</p>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
             <i class="bi bi-2-circle-fill" style="color:var(--accent);font-size:16px;flex-shrink:0;margin-top:1px;"></i>
@@ -47,6 +47,6 @@
 </div>
 
 <p style="text-align:center; font-size:11px; color:var(--a-dim); margin-top:22px;">
-    &copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados
+    &copy; {{ date('Y') }} Taller Automotrices SC-BOL — Todos los derechos reservados
 </p>
 @endsection

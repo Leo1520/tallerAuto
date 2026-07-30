@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -11,7 +11,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         $personaId = DB::table('persona')->insertGetId([
-            'nombre'     => 'Administrador Taller Pro',
+            'nombre'     => 'Administrador Taller Automotrices SC-BOL',
             'telefono'   => '70000000',
             'email'      => 'admin@tallerpro.bo',
             'activo'     => true,

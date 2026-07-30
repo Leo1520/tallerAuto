@@ -1,5 +1,5 @@
-@extends('layouts.auth')
-@section('title', 'Crear cuenta — Taller Pro')
+﻿@extends('layouts.auth')
+@section('title', 'Crear cuenta — Taller Automotrices SC-BOL')
 
 @section('content')
 
@@ -7,7 +7,7 @@
     <div style="width:38px;height:38px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-tools" style="color:#fff;font-size:17px;"></i>
     </div>
-    <span style="font-size:19px;font-weight:700;color:var(--text-primary);">Taller Pro</span>
+    <span style="font-size:19px;font-weight:700;color:var(--text-primary);">Taller Automotrices SC-BOL</span>
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -138,6 +138,6 @@
 </div>
 
 <p style="text-align:center; font-size:11px; color:var(--text-dim); margin-top:24px;">
-    &copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados
+    &copy; {{ date('Y') }} Taller Automotrices SC-BOL — Todos los derechos reservados
 </p>
 @endsection

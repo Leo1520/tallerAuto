@@ -1,5 +1,5 @@
-@extends('layouts.auth')
-@section('title', 'Cuenta Pendiente — Taller Pro')
+﻿@extends('layouts.auth')
+@section('title', 'Cuenta Pendiente — Taller Automotrices SC-BOL')
 
 @section('content')
 
@@ -41,7 +41,7 @@
 </div>
 
 <p style="text-align:center;font-size:11px;color:var(--text-dim);margin-top:24px;">
-    &copy; {{ date('Y') }} Taller Pro — Sistema de gestión automotriz
+    &copy; {{ date('Y') }} Taller Automotrices SC-BOL — Sistema de gestión automotriz
 </p>
 
 @endsection

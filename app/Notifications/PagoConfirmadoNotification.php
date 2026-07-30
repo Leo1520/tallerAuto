@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications;
 
@@ -35,8 +35,8 @@ class PagoConfirmadoNotification extends Notification
             $mail->line("Tu factura **{$factura->numero}** ha sido emitida.");
         }
 
-        $mail->line('Gracias por confiar en Taller Pro.')
-             ->salutation('El equipo de Taller Pro');
+        $mail->line('Gracias por confiar en Taller Automotrices SC-BOL.')
+             ->salutation('El equipo de Taller Automotrices SC-BOL');
 
         return $mail;
     }

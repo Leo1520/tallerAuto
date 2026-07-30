@@ -1,5 +1,5 @@
-@extends('layouts.public')
-@section('title', 'Taller Pro — Taller Automotriz Profesional')
+﻿@extends('layouts.public')
+@section('title', 'Taller Automotrices SC-BOL — Taller Automotriz Profesional')
 @section('description', 'Mecánica general, mantenimiento, diagnóstico electrónico, chapa y pintura. Santa Cruz, Bolivia.')
 
 @push('styles')

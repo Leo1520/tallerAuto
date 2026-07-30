@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Notifications;
 
@@ -25,7 +25,7 @@ class OrdenAsignadaNotification extends Notification
         $cliente = $orden->vehiculo->cliente->persona->nombre;
 
         return (new MailMessage)
-            ->subject("Nueva orden asignada {$orden->numero} — Taller Pro")
+            ->subject("Nueva orden asignada {$orden->numero} — Taller Automotrices SC-BOL")
             ->greeting("Hola {$notifiable->nombre},")
             ->line("Se te ha asignado la orden **{$orden->numero}**.")
             ->line("**Vehículo:** {$placa}")
@@ -35,7 +35,7 @@ class OrdenAsignadaNotification extends Notification
                 $m->line("**Entrega estimada:** " . $orden->fecha_entrega_estimada->format('d/m/Y H:i'))
             )
             ->action('Ver orden en el sistema', route('ordenes.show', $orden))
-            ->line('Taller Pro — Sistema de Gestión Automotriz');
+            ->line('Taller Automotrices SC-BOL — Sistema de Gestión Automotriz');
     }
 
     public function toArray(object $notifiable): array
