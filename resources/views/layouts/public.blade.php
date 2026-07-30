@@ -115,10 +115,8 @@
 <nav class="pub-nav" id="pubNav">
     <div class="pub-nav-inner">
         <a href="{{ url('/') }}" class="pub-logo">
-            <div class="pub-logo-icon">
-                <i class="bi bi-tools" style="color:#fff; font-size:16px;"></i>
-            </div>
-            <span class="pub-logo-text">Taller Pro</span>
+            <img src="{{ asset('images/logo.png') }}" alt="SC-BOL"
+                 style="height:42px;width:auto;object-fit:contain;">
         </a>
 
         <ul class="pub-nav-links">

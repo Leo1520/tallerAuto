@@ -512,37 +512,38 @@
     color: #fff;
     letter-spacing: .06em;
 }
-.tp-footer-tagline { font-size: 13px; color: #3a3a3a; line-height: 1.7; max-width: 260px; margin-bottom: 20px; }
+.tp-footer-tagline { font-size: 13px; color: #888; line-height: 1.7; max-width: 260px; margin-bottom: 20px; }
 .tp-footer-socials { display: flex; gap: 8px; }
 .tp-footer-social {
     width: 34px; height: 34px;
     border-radius: 7px;
-    background: #111;
-    border: 1px solid #1c1c1c;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
     display: flex; align-items: center; justify-content: center;
-    color: #444;
+    color: #aaa;
     text-decoration: none;
-    transition: color .15s, border-color .15s;
+    font-size: 15px;
+    transition: color .15s, border-color .15s, background .15s;
 }
-.tp-footer-social:hover { color: #fff; border-color: #333; }
+.tp-footer-social:hover { color: #fff; border-color: #444; background: #222; }
 .tp-footer-col-title {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: #2a2a2a;
+    color: #666;
     margin-bottom: 16px;
 }
 .tp-footer-link {
-    display: block; color: #3a3a3a; text-decoration: none;
-    font-size: 13px; padding: 4px 0; transition: color .15s;
+    display: block; color: #888; text-decoration: none;
+    font-size: 13px; padding: 5px 0; transition: color .15s;
 }
 .tp-footer-link:hover { color: #fff; }
 .tp-footer-contact-item {
-    display: flex; align-items: flex-start; gap: 8px;
-    font-size: 13px; color: #3a3a3a; padding: 4px 0;
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; color: #888; padding: 5px 0;
 }
-.tp-footer-contact-item i { color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+.tp-footer-contact-item i { color: var(--accent); margin-top: 2px; flex-shrink: 0; font-size: 14px; }
 
 /* ── SCROLL REVEAL ── */
 .reveal {
@@ -591,12 +592,12 @@
     <div class="hero-content">
         <div class="tp-eyebrow">
             <span class="dot"></span>
-            Taller Automotriz — Santa Cruz, Bolivia
+            Taller Automotrices — Santa Cruz, Bolivia
         </div>
 
         <div class="tp-headline">
-            <span class="line-taller">TALLER</span>
-            <span class="line-pro">PRO</span>
+            <span class="line-taller">SC-BOL</span>
+            <span class="line-pro" style="font-size:clamp(48px,7vw,100px);line-height:1.1;letter-spacing:.04em;">AUTOMOTRICES</span>
         </div>
 
         <p class="tp-sub">
@@ -607,11 +608,11 @@
         <div class="tp-info-col">
             <div class="tp-info-item">
                 <i class="bi bi-geo-alt-fill"></i>
-                <span>Calle Primavera esq. Lluvia de Oro — 5to anillo Radial 26</span>
+                <span>Av. Paraguá 4to anillo, Santa Cruz de la Sierra, Bolivia</span>
             </div>
             <div class="tp-info-item">
                 <i class="bi bi-telephone-fill"></i>
-                <span>78559066 / 704-07035</span>
+                <span>75678420</span>
             </div>
             <div class="tp-info-item">
                 <i class="bi bi-clock-fill"></i>
@@ -623,7 +624,7 @@
             <a href="{{ auth()->check() ? route('cliente.inicio') : route('register') }}" class="btn-tp-primary">
                 <i class="bi bi-calendar-check"></i> Solicitar cita
             </a>
-            <a href="https://wa.me/59178559066" target="_blank" class="btn-tp-wa">
+            <a href="https://wa.me/59175678420" target="_blank" class="btn-tp-wa">
                 <i class="bi bi-whatsapp"></i> WhatsApp
             </a>
             <a href="#servicios" class="btn-tp-outline">
@@ -641,13 +642,13 @@
     <div class="tp-stats-inner">
         <div class="tp-stat">
             <div class="tp-stat-num">
-                <span class="counter" data-target="10">0</span><span class="suffix">+</span>
+                <span class="counter" data-target="5">0</span><span class="suffix">+</span>
             </div>
             <div class="tp-stat-label">Años de experiencia</div>
         </div>
         <div class="tp-stat">
             <div class="tp-stat-num">
-                <span class="counter" data-target="5000">0</span><span class="suffix">+</span>
+                <span class="counter" data-target="800">0</span><span class="suffix">+</span>
             </div>
             <div class="tp-stat-label">Vehículos atendidos</div>
         </div>
@@ -715,8 +716,8 @@
                 <em>DETALLE</em>
             </div>
             <p class="reveal" style="font-size:14px; color:#555; line-height:1.8; max-width:380px;">
-                En Taller Pro combinamos tecnología de diagnóstico de última generación con más de una década de experiencia
-                para ofrecerte el servicio automotriz más completo de Santa Cruz.
+                En Taller Automotrices SC-BOL combinamos tecnología de diagnóstico de última generación
+                con un equipo apasionado por los vehículos, para ofrecerte el servicio automotriz más completo de Santa Cruz.
             </p>
         </div>
 
@@ -748,7 +749,7 @@
             <span class="dim">TU VEHÍCULO ES UNA INVERSIÓN.</span>
             CUÍDALA CON QUIENES LA ENTIENDEN.
         </div>
-        <p class="tp-statement-sub">Más de 5000 vehículos atendidos — Santa Cruz de la Sierra</p>
+        <p class="tp-statement-sub">Taller Automotrices SC-BOL — Av. Paraguá 4to anillo, Santa Cruz de la Sierra</p>
     </div>
 </div>
 
@@ -804,7 +805,7 @@
         <a href="{{ route('tienda') }}" class="btn-tp-outline">
             <i class="bi bi-shop-window"></i> Ver tienda
         </a>
-        <a href="https://wa.me/59178559066" target="_blank" class="btn-tp-wa">
+        <a href="https://wa.me/59175678420" target="_blank" class="btn-tp-wa">
             <i class="bi bi-whatsapp"></i> Escribir por WhatsApp
         </a>
     </div>
@@ -812,11 +813,11 @@
     <div class="tp-cta-contacts">
         <div class="tp-contact-item">
             <i class="bi bi-telephone-fill"></i>
-            <p>78559066 / 704-07035</p>
+            <p>75678420</p>
         </div>
         <div class="tp-contact-item">
             <i class="bi bi-envelope-fill"></i>
-            <p>contacto@tallerpro.bo</p>
+            <p>contacto@scbol.bo</p>
         </div>
         <div class="tp-contact-item">
             <i class="bi bi-clock-fill"></i>
@@ -824,7 +825,7 @@
         </div>
         <div class="tp-contact-item">
             <i class="bi bi-geo-alt-fill"></i>
-            <p>Santa Cruz de la Sierra, Bolivia</p>
+            <p>Av. Paraguá 4to anillo, Santa Cruz</p>
         </div>
     </div>
 </section>
@@ -837,19 +838,18 @@
         <div class="tp-footer-grid">
 
             <div>
-                <a href="{{ url('/') }}" class="tp-footer-logo">
-                    <div class="tp-footer-logo-icon">
-                        <i class="bi bi-tools"></i>
-                    </div>
-                    <span class="tp-footer-logo-text">TALLER PRO</span>
+                <a href="{{ url('/') }}" style="display:inline-block;margin-bottom:14px;">
+                    <img src="{{ asset('images/logo.png') }}" alt="Taller Automotrices SC-BOL"
+                         style="height:72px;width:auto;object-fit:contain;">
                 </a>
                 <p class="tp-footer-tagline">
-                    Tu taller automotriz de confianza en Santa Cruz de la Sierra, Bolivia. Más de 10 años cuidando tu inversión.
+                    Tu taller automotriz de confianza en Santa Cruz de la Sierra, Bolivia.<br>
+                    Av. Paraguá 4to anillo — desde 2023.
                 </p>
                 <div class="tp-footer-socials">
                     <a href="#" class="tp-footer-social"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="tp-footer-social"><i class="bi bi-instagram"></i></a>
-                    <a href="https://wa.me/59178559066" target="_blank" class="tp-footer-social" style="color:#25D366;border-color:#1a3a1a;">
+                    <a href="https://wa.me/59175678420" target="_blank" class="tp-footer-social" style="color:#25D366;border-color:#1a3a1a;">
                         <i class="bi bi-whatsapp"></i>
                     </a>
                 </div>
@@ -865,13 +865,13 @@
             <div>
                 <div class="tp-footer-col-title">Contacto</div>
                 <div class="tp-footer-contact-item">
-                    <i class="bi bi-geo-alt-fill"></i><span>Calle Primavera esq. Lluvia de Oro, SCZ</span>
+                    <i class="bi bi-geo-alt-fill"></i><span>Av. Paraguá 4to anillo, Santa Cruz</span>
                 </div>
                 <div class="tp-footer-contact-item">
-                    <i class="bi bi-telephone-fill"></i><span>78559066 / 704-07035</span>
+                    <i class="bi bi-telephone-fill"></i><span>75678420</span>
                 </div>
                 <div class="tp-footer-contact-item">
-                    <i class="bi bi-envelope-fill"></i><span>contacto@tallerpro.bo</span>
+                    <i class="bi bi-envelope-fill"></i><span>contacto@scbol.bo</span>
                 </div>
                 <div class="tp-footer-contact-item">
                     <i class="bi bi-clock-fill"></i><span>Lun–Sáb: 8:00 – 18:00</span>
@@ -879,11 +879,9 @@
             </div>
         </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-            <p style="font-size:12px;color:#222;">&copy; {{ date('Y') }} Taller Pro — Todos los derechos reservados</p>
-            <a href="{{ route('login') }}" style="font-size:12px;color:#222;text-decoration:none;">Panel administrativo</a>
+        <div style="text-align:center;">
+            <p style="font-size:12px;color:#555;">&copy; {{ date('Y') }} Taller Automotrices SC-BOL — Todos los derechos reservados</p>
         </div>
-    </div>
 </footer>
 
 @endsection
@@ -1042,16 +1040,23 @@
 /* ─── GOOGLE MAPS ─── */
 const SUCURSALES = @json($sucursales);
 const MAP_STYLES = [
-    { elementType:'geometry',            stylers:[{color:'#0a0a0a'}] },
-    { elementType:'labels.text.fill',    stylers:[{color:'#555'}] },
-    { elementType:'labels.text.stroke',  stylers:[{color:'#000'}] },
-    { featureType:'road', elementType:'geometry',         stylers:[{color:'#1a1a1a'}] },
-    { featureType:'road', elementType:'labels.text.fill', stylers:[{color:'#444'}] },
-    { featureType:'water',       elementType:'geometry',  stylers:[{color:'#000'}] },
-    { featureType:'poi',         elementType:'geometry',  stylers:[{color:'#111'}] },
-    { featureType:'poi',         elementType:'labels.text.fill', stylers:[{color:'#333'}] },
-    { featureType:'transit',     elementType:'geometry',  stylers:[{color:'#111'}] },
-    { featureType:'administrative', elementType:'geometry.stroke', stylers:[{color:'#222'}] },
+    { elementType:'geometry',           stylers:[{color:'#1a1f2e'}] },
+    { elementType:'labels.text.fill',   stylers:[{color:'#9aa0b0'}] },
+    { elementType:'labels.text.stroke', stylers:[{color:'#1a1f2e'}] },
+    { featureType:'administrative',       elementType:'geometry',            stylers:[{color:'#2c3347'}] },
+    { featureType:'administrative.country', elementType:'labels.text.fill', stylers:[{color:'#9aa0b0'}] },
+    { featureType:'administrative.locality', elementType:'labels.text.fill',stylers:[{color:'#c4c8d4'}] },
+    { featureType:'poi',                  elementType:'labels',              stylers:[{visibility:'off'}] },
+    { featureType:'road',                 elementType:'geometry',            stylers:[{color:'#2c3a54'}] },
+    { featureType:'road',                 elementType:'geometry.stroke',     stylers:[{color:'#1a2438'}] },
+    { featureType:'road',                 elementType:'labels.text.fill',    stylers:[{color:'#8a92a6'}] },
+    { featureType:'road.highway',         elementType:'geometry',            stylers:[{color:'#3a4a6b'}] },
+    { featureType:'road.highway',         elementType:'geometry.stroke',     stylers:[{color:'#2c3a54'}] },
+    { featureType:'road.highway',         elementType:'labels.text.fill',    stylers:[{color:'#b0bbd0'}] },
+    { featureType:'transit',              elementType:'geometry',            stylers:[{color:'#2a3248'}] },
+    { featureType:'water',                elementType:'geometry',            stylers:[{color:'#0d1b2e'}] },
+    { featureType:'water',                elementType:'labels.text.fill',    stylers:[{color:'#3a5070'}] },
+    { featureType:'landscape.natural',    elementType:'geometry',            stylers:[{color:'#1e2538'}] },
 ];
 
 let map, markers = [], openIW = null;
