@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         $personaId = DB::table('persona')->insertGetId([
             'nombre'     => 'Administrador Taller Automotrices SC-BOL',
             'telefono'   => '70000000',
-            'email'      => 'admin@tallerpro.bo',
+            'email'      => 'leonardopenaanez@gmail.com',
             'activo'     => true,
             'created_at' => now(),
             'updated_at' => now(),
@@ -21,7 +21,7 @@ class AdminSeeder extends Seeder
 
         $userId = DB::table('users')->insertGetId([
             'persona_id'        => $personaId,
-            'email'             => 'admin@tallerpro.bo',
+            'email'             => 'leonardopenaanez@gmail.com',
             'email_verified_at' => now(),
             'password'          => Hash::make('Admin1234!'),
             'created_at'        => now(),

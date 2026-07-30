@@ -86,7 +86,7 @@ Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->gr
 Route::middleware([
         'auth',
         'verified',
-        'role:Administrador,Recepcionista,Mecánico,Cajero,Bodega,Supervisor',
+        'role:Admin,Recepcion,Mecanico,Bodega,Contador',
     ])
     ->prefix('admin')
     ->group(function () {

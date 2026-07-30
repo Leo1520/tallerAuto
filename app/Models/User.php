@@ -71,7 +71,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isAdmin(): bool
     {
-        return $this->hasRole('Administrador');
+        return $this->hasRole('Admin');
     }
 
     // ─── Accessor: nombre desde persona ───────────────────────
