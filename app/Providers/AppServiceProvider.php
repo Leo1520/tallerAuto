@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Adjunto;
+use App\Policies\AdjuntoPolicy;
 use App\Policies\InventarioPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(InventarioPolicy::class, InventarioPolicy::class);
+        Gate::policy(Adjunto::class, AdjuntoPolicy::class);
 
         ResetPassword::createUrlUsing(function ($notifiable, $token) {
             return route('password.reset', [

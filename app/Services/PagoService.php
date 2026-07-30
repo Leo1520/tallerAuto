@@ -56,6 +56,13 @@ class PagoService
     public function confirmarPago(Pago $pago, User $cajero): void
     {
         DB::transaction(function () use ($pago, $cajero) {
+            // Releer con bloqueo exclusivo para prevenir doble confirmación concurrente.
+            $pago = Pago::lockForUpdate()->findOrFail($pago->id);
+
+            if ($pago->estado === 'Confirmado') {
+                throw new \RuntimeException('Este pago ya fue confirmado anteriormente.');
+            }
+
             $pago->update([
                 'estado'             => 'Confirmado',
                 'fecha_confirmacion' => now(),

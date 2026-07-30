@@ -48,12 +48,6 @@ class Pago extends Model
         return $this->hasOne(MovimientoCaja::class);
     }
 
-    public function esStripe(): bool
-    {
-        return str_contains(strtolower($this->metodoPago?->nombre ?? ''), 'stripe')
-            || str_contains(strtolower($this->metodoPago?->nombre ?? ''), 'tarjeta');
-    }
-
     public function esQr(): bool
     {
         return str_contains(strtolower($this->metodoPago?->nombre ?? ''), 'qr');

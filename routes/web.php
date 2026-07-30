@@ -82,7 +82,12 @@ Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->gr
 });
 
 // ─── Área administrativa ──────────────────────────────────────
-Route::middleware(['auth', 'verified'])
+// Solo roles de personal: clientes nunca llegan aquí aunque estén verificados.
+Route::middleware([
+        'auth',
+        'verified',
+        'role:Administrador,Recepcionista,Mecánico,Cajero,Bodega,Supervisor',
+    ])
     ->prefix('admin')
     ->group(function () {
 
@@ -116,7 +121,7 @@ Route::middleware(['auth', 'verified'])
     Route::get('/pagos/revision',               [PagoController::class, 'revisionIndex'])->name('pagos.revision.index');
     Route::get('/pagos/efectivo',               [PagoController::class, 'efectivoCreate'])->name('pagos.efectivo');
     Route::post('/pagos',                       [PagoController::class, 'store'])->name('pagos.store');
-    Route::post('/pagos/stripe/intent',         [PagoController::class, 'crearIntent'])->name('pagos.intent');
+    // Stripe eliminado — PAYMENT_DRIVER=manual_qr
     Route::post('/pagos/efectivo',              [PagoController::class, 'efectivoStore'])->name('pagos.efectivo.store');
     // Pagos — con parámetro {pago}
     Route::get('/pagos/{pago}/revision',        [PagoController::class, 'revisionShow'])->name('pagos.revision.show');
@@ -160,5 +165,4 @@ Route::middleware(['auth', 'verified'])
     Route::delete('/adjuntos/{adjunto}',         [AdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
 });
 
-// ─── Webhook Stripe (sin CSRF ni auth) ───────────────────────
-Route::post('/stripe/webhook', [PagoController::class, 'webhook'])->name('stripe.webhook');
+// Stripe webhook eliminado — se usa PAYMENT_DRIVER=manual_qr

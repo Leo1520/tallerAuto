@@ -18,10 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
 
-        // El webhook de Stripe envía su propia firma, no necesita CSRF
-        $middleware->validateCsrfTokens(except: [
-            'stripe/webhook',
-        ]);
+        // Sin excepciones CSRF — Stripe eliminado (PAYMENT_DRIVER=manual_qr)
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

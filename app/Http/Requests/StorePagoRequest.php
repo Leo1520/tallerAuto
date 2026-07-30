@@ -19,7 +19,6 @@ class StorePagoRequest extends FormRequest
             'monto'           => ['required', 'numeric', 'min:0.01'],
             'referencia'      => ['nullable', 'string', 'max:100'],
             'observaciones'   => ['nullable', 'string', 'max:500'],
-            'payment_intent'  => ['nullable', 'string', 'max:255'],
         ];
     }
 
