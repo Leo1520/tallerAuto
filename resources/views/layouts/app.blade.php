@@ -23,15 +23,15 @@
     :style="sidebarOpen ? 'width:260px' : 'width:64px'"
 >
     {{-- ── Brand ── --}}
-    <div class="flex items-center gap-3 px-4 py-5 border-b border-gray-600 flex-shrink-0" style="min-height:68px;">
-        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-             style="background:#D71920; box-shadow:0 4px 12px rgba(215,25,32,.35);">
-            <i class="bi bi-tools text-white" style="font-size:16px;"></i>
-        </div>
+    <div class="flex flex-col items-center border-b border-gray-600 flex-shrink-0 overflow-hidden"
+         style="padding: 20px 12px 16px;">
+        <img src="{{ asset('images/logo.png') }}" alt="SC-BOL"
+             style="width:150px;height:150px;object-fit:contain;flex-shrink:0;">
         <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-150"
-             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-            <p class="font-bold text-gray-100 text-base leading-tight tracking-tight">Taller Automotrices SC-BOL</p>
-            <p class="text-gray-400 text-xs">Sistema automotriz</p>
+             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             style="text-align:center;margin-top:10px;">
+            <p class="font-bold text-gray-100 leading-tight tracking-tight" style="font-size:13px;">Taller Automotrices SC-BOL</p>
+            <p class="text-gray-400" style="font-size:11px;margin-top:2px;">Sistema automotriz</p>
         </div>
     </div>
 
