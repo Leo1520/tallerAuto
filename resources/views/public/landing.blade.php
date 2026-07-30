@@ -22,6 +22,7 @@
     min-height: 100vh;
     overflow: hidden;
     cursor: crosshair;
+    margin-top: -64px; /* pull up under fixed navbar */
 }
 
 /* Image layers — full bleed */
@@ -92,16 +93,16 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 100px 72px 72px;
+    padding: 128px 72px 72px; /* 128 = 64 navbar + 64 breathing room */
     max-width: 680px;
-    pointer-events: none; /* let mouse events pass to hero for reveal */
+    pointer-events: none;
 }
 .hero-content a,
 .hero-content button { pointer-events: auto; }
 
 @media (max-width: 800px) {
-    .hero-content { padding: 100px 24px 60px; max-width: 100%; }
-    .hero-hint { right: 24px; }
+    .hero-content { padding: 120px 24px 60px; max-width: 100%; }
+    .hero-hint { right: 24px; bottom: 24px; }
     .tp-cta-row { flex-wrap: wrap; }
 }
 
@@ -889,76 +890,109 @@
 
 @push('scripts')
 <script>
-/* ─── HERO CURSOR REVEAL (scratch-card effect) ─── */
+/* ─── HERO REVEAL — cursor + auto random spotlight ─── */
 (function() {
-    const hero    = document.getElementById('heroSection');
+    const hero     = document.getElementById('heroSection');
     const topLayer = document.getElementById('heroTop');
-    const hint    = document.getElementById('heroHint');
+    const hint     = document.getElementById('heroHint');
     if (!hero || !topLayer) return;
 
-    const RADIUS = 200; // px — hole size
+    const RADIUS   = 220;   // spotlight hole radius (px)
+    const LERP     = 0.055; // smoothing factor — lower = slower/smoother
 
+    // Current rendered position (lerped)
+    let curX = 0, curY = 0;
+    // Target position
+    let tgtX = 0, tgtY = 0;
+
+    let cursorActive = false; // true while cursor is inside hero
+    let raf;
+
+    /* ── Apply CSS mask ── */
     function applyMask(x, y, r) {
-        const mask = `radial-gradient(circle ${r}px at ${x}px ${y}px, transparent 0%, transparent 70%, black 100%)`;
+        const mask = `radial-gradient(circle ${r}px at ${x}px ${y}px,
+            transparent 0%,
+            transparent 55%,
+            rgba(0,0,0,0.6) 75%,
+            black 100%)`;
         topLayer.style.webkitMaskImage = mask;
-        topLayer.style.maskImage = mask;
+        topLayer.style.maskImage       = mask;
     }
 
     function clearMask() {
         topLayer.style.webkitMaskImage = 'none';
-        topLayer.style.maskImage = 'none';
+        topLayer.style.maskImage       = 'none';
     }
 
-    /* ── Desktop: follow cursor ── */
+    /* ── Pick a new random target anywhere in the hero ── */
+    function pickTarget() {
+        const W = hero.offsetWidth;
+        const H = hero.offsetHeight;
+        // Bias toward the image area (right half) but allow full range
+        tgtX = W  * (0.15 + Math.random() * 0.75);
+        tgtY = H  * (0.15 + Math.random() * 0.70);
+    }
+
+    /* ── Smooth render loop (lerp toward target) ── */
+    function tick() {
+        curX += (tgtX - curX) * LERP;
+        curY += (tgtY - curY) * LERP;
+        applyMask(curX, curY, RADIUS);
+        raf = requestAnimationFrame(tick);
+    }
+
+    /* ── Auto-pick new targets every 2.2s ── */
+    let autoTimer;
+    function startAutoTargets() {
+        pickTarget();
+        autoTimer = setInterval(pickTarget, 2200);
+    }
+    function stopAutoTargets() {
+        clearInterval(autoTimer);
+    }
+
+    /* ── Init: start auto-spotlight immediately ── */
+    // Seed initial position at center of image area
+    curX = tgtX = hero.offsetWidth  * 0.70;
+    curY = tgtY = hero.offsetHeight * 0.50;
+    startAutoTargets();
+    tick();
+
+    /* ── Desktop: cursor takes over, overrides auto target ── */
     const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
     if (!isTouch) {
         hero.addEventListener('mousemove', (e) => {
             const rect = hero.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            hero.classList.add('revealing');
-            applyMask(x, y, RADIUS);
+            tgtX = e.clientX - rect.left;
+            tgtY = e.clientY - rect.top;
+            if (!cursorActive) {
+                cursorActive = true;
+                stopAutoTargets();
+                hint.style.opacity = '0';
+            }
         });
 
         hero.addEventListener('mouseleave', () => {
-            hero.classList.remove('revealing');
-            clearMask();
+            cursorActive = false;
+            hint.style.opacity = '';
+            // Resume auto-targeting
+            startAutoTargets();
         });
-    }
+    } else {
+        /* Mobile hint & touch drag */
+        hint.innerHTML = '<i class="bi bi-hand-index-fill"></i> Desliza para descubrir';
 
-    /* ── Mobile / no cursor: animate the reveal circle automatically ── */
-    if (isTouch) {
-        hint.innerHTML = '<i class="bi bi-hand-index-fill"></i> Toca para descubrir';
-
-        let raf;
-        let t = 0;
-        const W = () => hero.offsetWidth;
-        const H = () => hero.offsetHeight;
-
-        function autoAnimate() {
-            t += 0.007;
-            // Lemniscate-style path so it sweeps the whole image
-            const x = W() * (0.5 + 0.38 * Math.cos(t));
-            const y = H() * (0.5 + 0.30 * Math.sin(t * 1.3));
-            applyMask(x, y, RADIUS * 1.2);
-            raf = requestAnimationFrame(autoAnimate);
-        }
-
-        autoAnimate();
-
-        /* Pause on touch and follow finger */
         hero.addEventListener('touchmove', (e) => {
-            cancelAnimationFrame(raf);
-            hero.classList.add('revealing');
-            const rect = hero.getBoundingClientRect();
+            const rect  = hero.getBoundingClientRect();
             const touch = e.touches[0];
-            applyMask(touch.clientX - rect.left, touch.clientY - rect.top, RADIUS * 1.4);
+            tgtX = touch.clientX - rect.left;
+            tgtY = touch.clientY - rect.top;
+            hint.style.opacity = '0';
         }, { passive: true });
 
         hero.addEventListener('touchend', () => {
-            hero.classList.remove('revealing');
-            autoAnimate();
+            hint.style.opacity = '';
         });
     }
 })();
