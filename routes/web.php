@@ -68,7 +68,6 @@ Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->gr
     Route::get('/citas/nueva',                     [PortalController::class, 'citasCreate'])->name('citas.create');
     Route::post('/citas',                          [PortalController::class, 'citasStore'])->name('citas.store');
     Route::patch('/citas/{cita}/cancelar',         [PortalController::class, 'citasCancel'])->name('citas.cancel');
-    Route::get('/vehiculos',                       [PortalController::class, 'vehiculosIndex'])->name('vehiculos.index');
     Route::get('/ordenes',                         [PortalController::class, 'ordenesIndex'])->name('ordenes.index');
     Route::get('/ordenes/{orden}',                 [PortalController::class, 'ordenShow'])->name('ordenes.show');
     // Consulta de repuesto desde la tienda

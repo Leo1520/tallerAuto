@@ -200,9 +200,6 @@
         <a href="{{ route('cliente.citas.index') }}" class="c-nav-link {{ str_starts_with($currentRoute, 'cliente.citas') ? 'active' : '' }}">
             <i class="bi bi-calendar-check"></i> Mis Citas
         </a>
-        <a href="{{ route('cliente.vehiculos.index') }}" class="c-nav-link {{ str_starts_with($currentRoute, 'cliente.vehiculos') ? 'active' : '' }}">
-            <i class="bi bi-car-front"></i> Vehículos
-        </a>
         <a href="{{ route('cliente.ordenes.index') }}" class="c-nav-link {{ str_starts_with($currentRoute, 'cliente.ordenes') ? 'active' : '' }}">
             <i class="bi bi-clipboard2-check"></i> Mis Órdenes
         </a>
@@ -266,9 +263,6 @@
         </a>
         <a href="{{ route('cliente.citas.index') }}" class="c-mob-nav-item {{ str_starts_with($currentRoute, 'cliente.citas') ? 'active' : '' }}">
             <i class="bi bi-calendar-check-fill"></i> Citas
-        </a>
-        <a href="{{ route('cliente.vehiculos.index') }}" class="c-mob-nav-item {{ str_starts_with($currentRoute, 'cliente.vehiculos') ? 'active' : '' }}">
-            <i class="bi bi-car-front-fill"></i> Vehículos
         </a>
         <a href="{{ route('cliente.ordenes.index') }}" class="c-mob-nav-item {{ str_starts_with($currentRoute, 'cliente.ordenes') ? 'active' : '' }}">
             <i class="bi bi-clipboard2-check-fill"></i> Órdenes

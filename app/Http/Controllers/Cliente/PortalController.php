@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Cliente;
 use App\Http\Controllers\Controller;
 use App\Models\Cita;
 use App\Models\Cliente;
+use App\Models\Marca;
+use App\Models\Modelo;
 use App\Models\OrdenServicio;
 use App\Models\Servicio;
 use App\Models\Sucursal;
@@ -80,12 +82,18 @@ class PortalController extends Controller
         $cliente    = $this->clienteActual();
         $sucursales = Sucursal::orderBy('nombre')->get();
         $servicios  = Servicio::where('activo', true)->orderBy('nombre')->get();
+        $marcas     = Marca::where('activo', true)->with(['modelos' => fn($q) => $q->where('activo', true)->orderBy('nombre')])->orderBy('nombre')->get();
+        $marcasJson = $marcas->map(fn($m) => [
+            'id'      => $m->id,
+            'nombre'  => $m->nombre,
+            'modelos' => $m->modelos->map(fn($mo) => ['id' => $mo->id, 'nombre' => $mo->nombre])->values(),
+        ])->values()->toJson();
         $vehiculos  = $cliente
             ? Vehiculo::where('cliente_id', $cliente->id)->where('activo', true)->with('modelo.marca')->get()
             : collect();
         $servicioId = $request->query('servicio_id');
 
-        return view('cliente.citas.create', compact('cliente', 'sucursales', 'servicios', 'vehiculos', 'servicioId'));
+        return view('cliente.citas.create', compact('cliente', 'sucursales', 'servicios', 'marcas', 'marcasJson', 'vehiculos', 'servicioId'));
     }
 
     public function citasStore(Request $request): RedirectResponse
@@ -93,24 +101,75 @@ class PortalController extends Controller
         $cliente = $this->clienteActual();
 
         if (! $cliente) {
-            return back()->with('error', 'No tienes un perfil de cliente activo.');
+            return back()->with('error', 'No tienes un perfil de cliente activo. Contacta al taller.');
         }
 
-        $data = $request->validate([
-            'sucursal_id' => 'required|exists:sucursales,id',
-            'vehiculo_id' => 'nullable|exists:vehiculos,id',
-            'servicio_id' => 'nullable|exists:servicios,id',
-            'fecha'       => 'required|date|after_or_equal:today',
-            'hora'        => 'required',
-            'notas'       => 'nullable|string|max:500',
-        ], [
+        $nuevoVehiculo = $request->input('nuevo_vehiculo') === '1';
+
+        $rules = [
+            'sucursal_id'    => 'required|exists:sucursales,id',
+            'servicio_id'    => 'nullable|exists:servicios,id',
+            'fecha'          => 'required|date|after_or_equal:today',
+            'hora'           => 'required',
+            'notas'          => 'nullable|string|max:500',
+            'nuevo_vehiculo' => 'required|in:0,1',
+        ];
+
+        if ($nuevoVehiculo) {
+            $rules += [
+                'marca_id'     => 'required|exists:marcas,id',
+                'modelo_id'    => 'required|exists:modelos,id',
+                'placa'        => 'required|string|max:20',
+                'ano'          => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+                'color'        => 'nullable|string|max:50',
+                'kilometraje'  => 'nullable|integer|min:0',
+                'vin'          => 'nullable|string|max:17',
+            ];
+        } else {
+            $rules['vehiculo_id'] = 'required|exists:vehiculos,id';
+        }
+
+        $data = $request->validate($rules, [
             'fecha.after_or_equal' => 'La fecha debe ser hoy o en el futuro.',
+            'marca_id.required'    => 'Selecciona la marca del vehículo.',
+            'modelo_id.required'   => 'Selecciona el modelo del vehículo.',
+            'placa.required'       => 'La placa es obligatoria.',
+            'vehiculo_id.required' => 'Selecciona un vehículo.',
         ]);
 
-        $data['cliente_id'] = $cliente->id;
-        $data['estado']     = 'pendiente';
+        if ($nuevoVehiculo) {
+            $modelo = Modelo::where('id', $data['modelo_id'])
+                ->where('marca_id', $data['marca_id'])
+                ->firstOrFail();
 
-        Cita::create($data);
+            $vehiculo = Vehiculo::create([
+                'cliente_id'  => $cliente->id,
+                'modelo_id'   => $modelo->id,
+                'placa'       => strtoupper($data['placa']),
+                'ano'         => $data['ano'] ?? null,
+                'color'       => $data['color'] ?? null,
+                'kilometraje' => $data['kilometraje'] ?? null,
+                'vin'         => isset($data['vin']) ? strtoupper($data['vin']) : null,
+                'activo'      => true,
+            ]);
+            $vehiculoId = $vehiculo->id;
+        } else {
+            $vehiculo = Vehiculo::where('id', $data['vehiculo_id'])
+                ->where('cliente_id', $cliente->id)
+                ->firstOrFail();
+            $vehiculoId = $vehiculo->id;
+        }
+
+        Cita::create([
+            'cliente_id'  => $cliente->id,
+            'sucursal_id' => $data['sucursal_id'],
+            'servicio_id' => $data['servicio_id'] ?? null,
+            'vehiculo_id' => $vehiculoId,
+            'fecha'       => $data['fecha'],
+            'hora'        => $data['hora'],
+            'notas'       => $data['notas'] ?? null,
+            'estado'      => 'pendiente',
+        ]);
 
         return redirect()->route('cliente.citas.index')
             ->with('success', 'Cita agendada correctamente. Te confirmaremos por correo.');
