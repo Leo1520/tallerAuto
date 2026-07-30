@@ -101,6 +101,18 @@
             {{-- Registrar movimiento rápido --}}
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Registrar movimiento</h2>
+
+                @if($errors->any())
+                <div class="flex items-start gap-2 p-3 mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
+                    <i class="bi bi-exclamation-circle-fill flex-shrink-0 mt-0.5"></i>
+                    <ul class="list-disc list-inside space-y-0.5">
+                        @foreach($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
                 <form method="POST" action="{{ route('inventario.movimiento') }}" class="flex flex-wrap gap-3 items-end">
                     @csrf
                     <input type="hidden" name="repuesto_id" value="{{ $repuesto->id }}">
@@ -108,30 +120,45 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tipo</label>
                         <select name="tipo" required
-                                class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Entrada">Entrada</option>
-                            <option value="Salida">Salida</option>
-                            <option value="Ajuste">Ajuste</option>
+                                class="px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $errors->has('tipo') ? 'border-red-500' : 'border-gray-300 dark:border-gray-600' }}">
+                            <option value="Entrada" {{ old('tipo', 'Entrada') === 'Entrada' ? 'selected' : '' }}>Entrada</option>
+                            <option value="Salida" {{ old('tipo') === 'Salida' ? 'selected' : '' }}>Salida</option>
+                            <option value="Ajuste" {{ old('tipo') === 'Ajuste' ? 'selected' : '' }}>Ajuste</option>
                         </select>
+                        @error('tipo')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Sucursal</label>
                         <select name="sucursal_id" required
-                                class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $errors->has('sucursal_id') ? 'border-red-500' : 'border-gray-300 dark:border-gray-600' }}">
                             @foreach($repuesto->inventarios as $inv)
-                                <option value="{{ $inv->sucursal_id }}">{{ $inv->sucursal->nombre }}</option>
+                                <option value="{{ $inv->sucursal_id }}" {{ old('sucursal_id') == $inv->sucursal_id ? 'selected' : '' }}>
+                                    {{ $inv->sucursal->nombre }}
+                                </option>
                             @endforeach
                         </select>
+                        @error('sucursal_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Cantidad</label>
-                        <input type="number" name="cantidad" min="1" value="1" required
-                               class="w-24 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="number" name="cantidad" min="1" value="{{ old('cantidad', 1) }}" required
+                               class="w-24 px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $errors->has('cantidad') ? 'border-red-500' : 'border-gray-300 dark:border-gray-600' }}">
+                        @error('cantidad')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Motivo</label>
-                        <input type="text" name="motivo" placeholder="Ej: Compra a proveedor, Uso en orden..."
-                               class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" name="motivo" value="{{ old('motivo') }}"
+                               placeholder="Ej: Compra a proveedor, Uso en orden..."
+                               class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 {{ $errors->has('motivo') ? 'border-red-500' : 'border-gray-300 dark:border-gray-600' }}">
+                        @error('motivo')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <button type="submit"
                             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">

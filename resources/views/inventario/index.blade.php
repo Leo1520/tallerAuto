@@ -17,6 +17,20 @@
 
 @section('content')
 
+@if(session('error') || $errors->any())
+<div class="flex items-start gap-3 p-4 mb-4 bg-red-900/20 border border-red-800 rounded-xl text-sm text-red-400">
+    <i class="bi bi-exclamation-circle-fill flex-shrink-0 mt-0.5" style="font-size:15px;"></i>
+    <div>
+        @if(session('error'))
+            {{ session('error') }}
+        @endif
+        @foreach($errors->all() as $err)
+            <div>{{ $err }}</div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 @if($alertasBajoStock > 0)
 <div class="flex items-center gap-3 p-4 mb-5 bg-red-900/20 border border-red-800 rounded-xl text-sm text-red-400">
     <i class="bi bi-exclamation-triangle-fill flex-shrink-0" style="font-size:16px;"></i>
@@ -129,11 +143,11 @@
                             <input type="hidden" name="sucursal_id" value="{{ $inv->sucursal_id }}">
                             <select name="tipo" x-model="tipo"
                                     class="px-2 py-1 text-xs bg-gray-900 border border-gray-600 text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-600">
-                                <option value="Entrada">Entrada</option>
-                                <option value="Salida">Salida</option>
-                                <option value="Ajuste">Ajuste</option>
+                                <option value="Entrada" {{ old('tipo') === 'Entrada' || !old('tipo') ? 'selected' : '' }}>Entrada</option>
+                                <option value="Salida" {{ old('tipo') === 'Salida' ? 'selected' : '' }}>Salida</option>
+                                <option value="Ajuste" {{ old('tipo') === 'Ajuste' ? 'selected' : '' }}>Ajuste</option>
                             </select>
-                            <input type="number" name="cantidad" value="1" min="1"
+                            <input type="number" name="cantidad" value="{{ old('cantidad', 1) }}" min="1"
                                    class="w-16 px-2 py-1 text-xs text-center bg-gray-900 border border-gray-600 text-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-600">
                             <button type="submit"
                                     :class="tipo === 'Salida' ? 'bg-red-600 hover:bg-red-700' : (tipo === 'Ajuste' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700')"
