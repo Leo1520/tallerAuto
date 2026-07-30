@@ -171,8 +171,9 @@ nav[role="navigation"] span[aria-current="page"] > span {
 
 /* ── Dark overrides for legacy light-theme views ────────── */
 /* Scoped to .dark ancestor so auth views (inline CSS) are unaffected */
-.dark .bg-white   { background-color: #1E293B; }
-.dark .bg-gray-50 { background-color: #1a2842; }
+/* !important needed to override Bootstrap's own !important rules */
+.dark .bg-white   { background-color: #1E293B !important; }
+.dark .bg-gray-50 { background-color: #1a2842 !important; }
 
 .dark .divide-y > * + * { border-color: #1e3352; }
 .dark .divide-gray-50  > * + * { border-color: #1e3352; }
