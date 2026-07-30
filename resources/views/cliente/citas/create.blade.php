@@ -236,8 +236,8 @@ input[type=radio].veh-radio:checked + .veh-card {
                     </div>
                 </div>
 
-                {{-- Color + Kilometraje + VIN --}}
-                <div class="f-grid-3">
+                {{-- Color + Combustible --}}
+                <div class="f-grid-2">
                     <div>
                         <label class="f-label">Color</label>
                         <input type="text" name="color"
@@ -248,6 +248,23 @@ input[type=radio].veh-radio:checked + .veh-card {
                             <p class="f-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</p>
                         @enderror
                     </div>
+                    <div>
+                        <label class="f-label">Tipo de combustible</label>
+                        <select name="combustible"
+                                class="f-select {{ $errors->has('combustible') ? 'error' : '' }}">
+                            <option value="">— Selecciona —</option>
+                            @foreach(['Gasolina','Diesel','Gas Natural','Eléctrico','Híbrido'] as $c)
+                                <option value="{{ $c }}" {{ old('combustible') === $c ? 'selected' : '' }}>{{ $c }}</option>
+                            @endforeach
+                        </select>
+                        @error('combustible')
+                            <p class="f-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Kilometraje + VIN --}}
+                <div class="f-grid-2">
                     <div>
                         <label class="f-label">Kilometraje</label>
                         <input type="number" name="kilometraje"

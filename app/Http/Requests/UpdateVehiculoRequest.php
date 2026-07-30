@@ -23,6 +23,7 @@ class UpdateVehiculoRequest extends FormRequest
             'vin'         => ['required', 'string', 'size:17', Rule::unique('vehiculos', 'vin')->ignore($vehiculo->id)],
             'ano'         => ['required', 'integer', 'min:1900', 'max:' . (date('Y') + 1)],
             'color'       => ['nullable', 'string', 'max:30'],
+            'combustible' => ['nullable', 'in:Gasolina,Diesel,Gas Natural,Eléctrico,Híbrido'],
             'kilometraje' => ['nullable', 'integer', 'min:0'],
             'activo'      => ['boolean'],
         ];

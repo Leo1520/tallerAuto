@@ -167,7 +167,7 @@
     <div class="c-card">
         <div class="c-card-header">
             <span class="c-card-title"><i class="bi bi-car-front" style="color:#34D399;margin-right:6px;"></i>Mis vehículos</span>
-            <a href="{{ route('cliente.vehiculos.index') }}" class="btn-outline" style="padding:6px 12px;font-size:12px;">Ver todos</a>
+            <a href="{{ route('cliente.citas.create') }}" class="btn-outline" style="padding:6px 12px;font-size:12px;">Nueva cita</a>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
             @foreach($vehiculos as $v)

@@ -83,6 +83,17 @@
             </div>
 
             <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de combustible</label>
+                <select name="combustible"
+                        class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+                    <option value="">— Sin especificar —</option>
+                    @foreach(['Gasolina','Diesel','Gas Natural','Eléctrico','Híbrido'] as $c)
+                        <option value="{{ $c }}" {{ old('combustible', $vehiculo->combustible) === $c ? 'selected' : '' }}>{{ $c }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Placa <span class="text-red-400">*</span></label>
                 <input type="text" name="placa" value="{{ old('placa', $vehiculo->placa) }}" required
                        class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono uppercase rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 {{ $errors->has('placa') ? 'border-red-500' : 'border-gray-600' }}">

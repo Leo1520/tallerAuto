@@ -122,6 +122,7 @@ class PortalController extends Controller
                 'placa'        => 'required|string|max:20',
                 'ano'          => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
                 'color'        => 'nullable|string|max:50',
+                'combustible'  => 'nullable|in:Gasolina,Diesel,Gas Natural,Eléctrico,Híbrido',
                 'kilometraje'  => 'nullable|integer|min:0',
                 'vin'          => 'nullable|string|max:17',
             ];
@@ -148,6 +149,7 @@ class PortalController extends Controller
                 'placa'       => strtoupper($data['placa']),
                 'ano'         => $data['ano'] ?? null,
                 'color'       => $data['color'] ?? null,
+                'combustible' => $data['combustible'] ?? null,
                 'kilometraje' => $data['kilometraje'] ?? null,
                 'vin'         => isset($data['vin']) ? strtoupper($data['vin']) : null,
                 'activo'      => true,
