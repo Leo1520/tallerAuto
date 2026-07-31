@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ConsultaRepuesto;
 use App\Models\User;
 use App\Notifications\ConsultaAtendidaNotification;
+use App\Notifications\ConsultaPagoConfirmadoNotification;
+use App\Notifications\ConsultaPagoRechazadoNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ConsultaAdminController extends Controller
@@ -26,9 +29,10 @@ class ConsultaAdminController extends Controller
             ->withQueryString();
 
         $stats = [
-            'pendientes' => ConsultaRepuesto::where('estado', 'Pendiente')->count(),
-            'atendidas'  => ConsultaRepuesto::where('estado', 'Atendida')->count(),
-            'total'      => ConsultaRepuesto::count(),
+            'pendientes'   => ConsultaRepuesto::where('estado', 'Pendiente')->count(),
+            'atendidas'    => ConsultaRepuesto::where('estado', 'Atendida')->count(),
+            'en_revision'  => ConsultaRepuesto::where('pago_estado', 'En revisión')->count(),
+            'total'        => ConsultaRepuesto::count(),
         ];
 
         return view('consultas.index', compact('consultas', 'stats'));
@@ -44,38 +48,112 @@ class ConsultaAdminController extends Controller
     {
         $request->validate([
             'estado' => 'required|in:Pendiente,Atendida,Cancelada',
+            'qr'     => 'nullable|file|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
 
         $estadoAnterior = $consultaRepuesto->estado;
-        $consultaRepuesto->update(['estado' => $request->estado]);
 
-        // Notificar al cliente solo cuando se marca como Atendida (no en cada cambio)
+        $datos = ['estado' => $request->estado];
+
+        // Generar token si aún no tiene
+        $datos['token'] = $consultaRepuesto->token ?? Str::random(48);
+
+        // Guardar QR si se adjuntó uno nuevo
+        if ($request->hasFile('qr')) {
+            $datos['qr_path'] = $request->file('qr')
+                ->store("qr_consultas/{$consultaRepuesto->id}", 'public');
+        }
+
+        $consultaRepuesto->update($datos);
+
         if ($request->estado === 'Atendida' && $estadoAnterior !== 'Atendida') {
             $consultaRepuesto->load('repuesto');
             $this->notificarCliente($consultaRepuesto);
         }
 
         return back()->with('success', 'Estado actualizado.' .
-            ($request->estado === 'Atendida' ? ' Se envió confirmación al cliente.' : '')
+            ($request->estado === 'Atendida' ? ' Se envió el QR de pago al cliente.' : '')
         );
     }
 
+    // ─── Admin confirma pago del cliente ─────────────────────────────────
+
+    public function confirmarPago(Request $request, ConsultaRepuesto $consultaRepuesto): RedirectResponse
+    {
+        abort_unless(
+            auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'),
+            403
+        );
+        abort_unless($consultaRepuesto->pago_estado === 'En revisión', 422, 'No hay comprobante pendiente.');
+
+        $consultaRepuesto->update([
+            'pago_estado' => 'Confirmado',
+            'pago_notas'  => $request->notas,
+        ]);
+
+        // Notificar al cliente
+        $consultaRepuesto->load('repuesto');
+        $this->notificarPago($consultaRepuesto, 'confirmado');
+
+        return back()->with('success', 'Pago confirmado. Se notificó al cliente.');
+    }
+
+    // ─── Admin rechaza pago del cliente ──────────────────────────────────
+
+    public function rechazarPago(Request $request, ConsultaRepuesto $consultaRepuesto): RedirectResponse
+    {
+        abort_unless(
+            auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'),
+            403
+        );
+        abort_unless($consultaRepuesto->pago_estado === 'En revisión', 422, 'No hay comprobante pendiente.');
+
+        $request->validate(['notas' => 'required|string|max:500']);
+
+        $consultaRepuesto->update([
+            'pago_estado' => 'Rechazado',
+            'pago_notas'  => $request->notas,
+        ]);
+
+        $consultaRepuesto->load('repuesto');
+        $this->notificarPago($consultaRepuesto, 'rechazado');
+
+        return back()->with('warning', 'Pago rechazado. Se notificó al cliente.');
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────
+
     private function notificarCliente(ConsultaRepuesto $consulta): void
     {
-        // 1. Intentar notificar por cuenta de usuario si existe
-        if ($consulta->cliente?->persona?->email) {
-            $user = User::where('email', $consulta->cliente->persona->email)->first();
-            if ($user) {
-                $user->notify(new ConsultaAtendidaNotification($consulta));
-                return;
-            }
-        }
+        $email = $consulta->email
+            ?? $consulta->cliente?->persona?->email;
 
-        // 2. Usar el email guardado en la consulta como fallback
-        $email = $consulta->email ?? $consulta->cliente?->persona?->email;
-        if ($email) {
+        if (! $email) return;
+
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            $user->notify(new ConsultaAtendidaNotification($consulta));
+        } else {
             Notification::route('mail', $email)
                 ->notify(new ConsultaAtendidaNotification($consulta));
+        }
+    }
+
+    private function notificarPago(ConsultaRepuesto $consulta, string $tipo): void
+    {
+        $email = $consulta->email ?? $consulta->cliente?->persona?->email;
+        if (! $email) return;
+
+        $notif = $tipo === 'confirmado'
+            ? new ConsultaPagoConfirmadoNotification($consulta)
+            : new ConsultaPagoRechazadoNotification($consulta);
+
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $user->notify($notif);
+        } else {
+            Notification::route('mail', $email)->notify($notif);
         }
     }
 }

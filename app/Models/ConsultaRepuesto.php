@@ -13,6 +13,7 @@ class ConsultaRepuesto extends Model
     protected $fillable = [
         'repuesto_id', 'cliente_id', 'nombre', 'telefono',
         'email', 'cantidad', 'notas', 'estado',
+        'token', 'qr_path', 'comprobante_path', 'pago_estado', 'pago_notas',
     ];
 
     protected $casts = [

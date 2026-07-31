@@ -20,6 +20,7 @@ use App\Http\Controllers\CitaAdminController;
 use App\Http\Controllers\ConsultaAdminController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Cliente\ConsultaController;
+use App\Http\Controllers\Cliente\ConsultaPagoController;
 use App\Http\Controllers\Cliente\PortalController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\LandingController;
@@ -77,6 +78,11 @@ Route::middleware(['auth', 'verified'])->prefix('cliente')->name('cliente.')->gr
     Route::get('/consultas/enviada',                    [ConsultaController::class, 'enviada'])->name('consultas.enviada');
     Route::get('/consultas/repuesto/{repuesto}',        [ConsultaController::class, 'repuestoForm'])->name('consultas.repuesto');
     Route::post('/consultas/repuesto/{repuesto}',       [ConsultaController::class, 'repuestoStore'])->name('consultas.repuesto.store');
+
+    // Pago de consulta vía QR
+    Route::get('/consultas/pagar/{token}',              [ConsultaPagoController::class, 'show'])->name('consultas.pago.show');
+    Route::post('/consultas/pagar/{token}',             [ConsultaPagoController::class, 'store'])->name('consultas.pago.store');
+    Route::get('/consultas/pago-enviado/{token}',       [ConsultaPagoController::class, 'enviado'])->name('consultas.pago.enviado');
 
     // Pago QR desde el portal cliente
     Route::get('/pago/enviado',                    [PagoController::class, 'pagoEnviado'])->name('pagar.enviado');
@@ -173,9 +179,11 @@ Route::middleware([
     Route::patch('/citas/{cita}',       [CitaAdminController::class, 'update'])->name('citas.update');
 
     // Consultas de repuesto
-    Route::get('/consultas',                              [ConsultaAdminController::class, 'index'])->name('consultas.index');
-    Route::get('/consultas/{consultaRepuesto}',           [ConsultaAdminController::class, 'show'])->name('consultas.show');
-    Route::patch('/consultas/{consultaRepuesto}',         [ConsultaAdminController::class, 'update'])->name('consultas.update');
+    Route::get('/consultas',                                          [ConsultaAdminController::class, 'index'])->name('consultas.index');
+    Route::get('/consultas/{consultaRepuesto}',                       [ConsultaAdminController::class, 'show'])->name('consultas.show');
+    Route::patch('/consultas/{consultaRepuesto}',                     [ConsultaAdminController::class, 'update'])->name('consultas.update');
+    Route::post('/consultas/{consultaRepuesto}/confirmar-pago',       [ConsultaAdminController::class, 'confirmarPago'])->name('consultas.pago.confirmar');
+    Route::post('/consultas/{consultaRepuesto}/rechazar-pago',        [ConsultaAdminController::class, 'rechazarPago'])->name('consultas.pago.rechazar');
 
     // Notificaciones (campana)
     Route::get('/notificaciones/resumen', [NotificacionController::class, 'resumen'])->name('notificaciones.resumen');
