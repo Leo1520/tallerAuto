@@ -191,7 +191,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 (function () {
     const input   = document.getElementById('searchInput');
     const select  = document.getElementById('ciudadSelect');

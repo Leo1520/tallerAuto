@@ -174,7 +174,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 const INIT_LAT   = {{ old('latitud',  $sucursal->latitud  ?? -17.7833) }};
 const INIT_LNG   = {{ old('longitud', $sucursal->longitud ?? -63.1821) }};
 const HAS_COORDS = {{ ($sucursal->latitud && $sucursal->longitud) ? 'true' : 'false' }};

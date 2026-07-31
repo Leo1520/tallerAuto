@@ -182,7 +182,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 const INIT_LAT = {{ old('latitud', -17.7833) }};
 const INIT_LNG = {{ old('longitud', -63.1821) }};
 const HAS_OLD  = {{ old('latitud') ? 'true' : 'false' }};

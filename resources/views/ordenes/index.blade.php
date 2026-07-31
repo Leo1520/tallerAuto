@@ -175,7 +175,7 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 (function () {
     const input   = document.getElementById('searchInput');
     const spinner = document.getElementById('searchSpinner');

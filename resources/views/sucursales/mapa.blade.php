@@ -101,7 +101,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 const SUCURSALES = @json($sucursales);
 
 const MAP_STYLES = [

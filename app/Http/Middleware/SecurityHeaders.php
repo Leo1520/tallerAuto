@@ -42,23 +42,24 @@ class SecurityHeaders
             // Origen seguro por defecto para cualquier recurso no listado.
             "default-src 'self'",
 
-            // Scripts: origen propio + nonce para inline + CDN de Bootstrap.
-            // Alpine.js está bundleado localmente por Vite (no CDN).
-            "script-src 'self' 'nonce-{$nonce}' https://cdn.jsdelivr.net",
+            // Scripts: origen propio + nonce para inline + CDN + Google Maps.
+            // 'unsafe-eval' es requerido por Alpine.js v3 — evalúa expresiones x-data/x-on
+            // con new AsyncFunction() internamente. Sin esto Alpine no puede funcionar.
+            "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com",
 
-            // Estilos: 'unsafe-inline' es necesario por los bindings :style de Alpine.js
-            // y los bloques <style> de los layouts. Se añade nonce igualmente para los
-            // <style> explícitos del layout.
-            "style-src 'self' 'unsafe-inline' 'nonce-{$nonce}' https://cdn.jsdelivr.net",
+            // Estilos: 'unsafe-inline' para los bindings :style de Alpine.js y bloques <style>.
+            // IMPORTANTE: NO incluir nonce aquí — según la spec W3C CSP Level 2+, cuando un nonce
+            // está presente en style-src, el browser ignora 'unsafe-inline', bloqueando Alpine :style.
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
 
-            // Fuentes: jsDelivr (Bootstrap Icons WOFF2) + Bunny Fonts (Instrument Sans).
-            "font-src 'self' https://cdn.jsdelivr.net https://fonts.bunny.net",
+            // Fuentes: jsDelivr (Bootstrap Icons) + Bunny Fonts + Google Fonts (gstatic).
+            "font-src 'self' https://cdn.jsdelivr.net https://fonts.bunny.net https://fonts.gstatic.com",
 
-            // Imágenes: self + data URIs (QR, previews) + blob (canvas exports).
-            "img-src 'self' data: blob:",
+            // Imágenes: self + data URIs (QR, previews) + blob + tiles de Google Maps.
+            "img-src 'self' data: blob: https://maps.gstatic.com https://*.googleapis.com",
 
-            // Fetch/XHR: solo el propio servidor (notificaciones, AJAX).
-            "connect-src 'self'",
+            // Fetch/XHR: self + CDN (source maps en DevTools) + Google Maps API.
+            "connect-src 'self' https://cdn.jsdelivr.net https://maps.googleapis.com",
 
             // Prohibir plugins Flash/Java/etc.
             "object-src 'none'",

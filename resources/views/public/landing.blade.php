@@ -887,7 +887,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 /* ─── HERO REVEAL — cursor + auto random spotlight ─── */
 (function() {
     const hero     = document.getElementById('heroSection');

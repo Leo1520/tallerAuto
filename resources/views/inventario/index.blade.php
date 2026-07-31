@@ -178,7 +178,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 function editarStockMinimo(invId, actual, url) {
     const nuevo = prompt('Nuevo stock mínimo (actual: ' + actual + '):', actual);
     if (nuevo === null || nuevo.trim() === '') return;

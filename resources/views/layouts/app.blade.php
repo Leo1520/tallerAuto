@@ -249,13 +249,11 @@
         </div>
         <div style="padding:0 1.5rem 1.5rem;display:flex;gap:.75rem;">
             <button id="tpConfirmCancel"
-                    style="flex:1;padding:.625rem 1rem;font-size:.875rem;font-weight:600;color:#e2e8f0;background:#334155;border:none;border-radius:.75rem;cursor:pointer;"
-                    onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'">
+                    style="flex:1;padding:.625rem 1rem;font-size:.875rem;font-weight:600;color:#e2e8f0;background:#334155;border:none;border-radius:.75rem;cursor:pointer;">
                 Cancelar
             </button>
             <button id="tpConfirmOk"
-                    style="flex:1;padding:.625rem 1rem;font-size:.875rem;font-weight:600;color:#fff;background:#D71920;border:none;border-radius:.75rem;cursor:pointer;"
-                    onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                    style="flex:1;padding:.625rem 1rem;font-size:.875rem;font-weight:600;color:#fff;background:#D71920;border:none;border-radius:.75rem;cursor:pointer;">
                 Eliminar
             </button>
         </div>
@@ -307,6 +305,14 @@
         modal.style.display = 'none';
         pendingForm = null;
     }
+
+    // Hover del botón cancelar (estático, siempre gris)
+    btnCancel.onmouseover = function() { btnCancel.style.background = '#475569'; };
+    btnCancel.onmouseout  = function() { btnCancel.style.background = '#334155'; };
+
+    // Hover inicial del botón ok (se sobreescribe en openModal según tipo)
+    btnOk.onmouseover = function() { btnOk.style.background = '#b81218'; };
+    btnOk.onmouseout  = function() { btnOk.style.background = '#D71920'; };
 
     btnOk.addEventListener('click', function () {
         if (pendingForm) {

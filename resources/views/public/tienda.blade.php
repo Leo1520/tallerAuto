@@ -354,7 +354,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 function lightbox() {
     return {
         open: false,

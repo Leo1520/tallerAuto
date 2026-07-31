@@ -155,7 +155,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 (function () {
     const input   = document.getElementById('searchInput');
     const spinner = document.getElementById('searchSpinner');

@@ -428,7 +428,7 @@ input[type=radio].veh-radio:checked + .veh-card {
 @endsection
 
 @push('scripts')
-<script>
+<script @nonce>
 // ─── Datos para Alpine ────────────────────────────────────────────────────────
 const MARCAS_DATA = {!! $marcasJson !!};
 

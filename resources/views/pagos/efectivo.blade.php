@@ -148,7 +148,7 @@
 </div>
 
 @push('scripts')
-<script>
+<script @nonce>
     // Búsqueda de orden si no viene preseleccionada
     const input   = document.getElementById('buscarOrden');
     const hidden  = document.getElementById('ordenIdInput');
