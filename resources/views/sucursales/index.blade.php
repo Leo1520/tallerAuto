@@ -11,8 +11,7 @@
         Ver mapa
     </a>
     <a href="{{ route('sucursales.create') }}"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
-       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors btn-taller-red">
         <span class="relative inline-flex items-center" style="font-size:15px;">
                 <i class="bi bi-building-fill"></i>
                 <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
@@ -94,7 +93,7 @@
                   data-confirm-title="Eliminar sucursal"
                   data-confirm-ok="Sí, eliminar">
                 @csrf @method('DELETE')
-                <button type="button" onclick="tpOpen(this.form)"
+                <button type="button" data-confirm-open
                         class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-full transition-colors border border-red-900/50">
                     <i class="bi bi-trash" style="font-size:11px;"></i>
                     Eliminar
@@ -119,3 +118,16 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
+@endpush
+
+@push('scripts')
+<script @nonce>
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-confirm-open]');
+    if (btn) { e.preventDefault(); tpOpen(btn.closest('form')); }
+});
+</script>
+@endpush

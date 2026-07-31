@@ -70,7 +70,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         @foreach($sucursales as $suc)
         <div class="bg-gray-800 rounded-xl border border-gray-700 px-5 py-4 flex items-center gap-4 cursor-pointer hover:border-red-700 transition-colors"
-             onclick="centerMap({{ $suc->latitud }}, {{ $suc->longitud }}, {{ $loop->index }})"
+             data-center-lat="{{ $suc->latitud }}" data-center-lng="{{ $suc->longitud }}" data-center-idx="{{ $loop->index }}"
              title="Centrar en mapa">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                  style="background:rgba(215,25,32,.15);">
@@ -191,6 +191,18 @@ function centerMap(lat, lng, index) {
         openInfoWindow = markers[index].infoWindow;
     }
 }
+</script>
+<script @nonce>
+document.addEventListener('click', function (e) {
+    const card = e.target.closest('[data-center-lat]');
+    if (card) {
+        centerMap(
+            parseFloat(card.dataset.centerLat),
+            parseFloat(card.dataset.centerLng),
+            parseInt(card.dataset.centerIdx)
+        );
+    }
+});
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&callback=initMap" async defer></script>
 @endpush
