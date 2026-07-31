@@ -5,32 +5,32 @@
 @section('content')
 
 {{-- Stats --}}
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.2);">
-            <i class="bi bi-hourglass-split" style="color:#facc15;font-size:18px;"></i>
+<div class="grid grid-cols-3 gap-3 mb-5">
+    <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.2);">
+            <i class="bi bi-hourglass-split" style="color:#facc15;font-size:16px;"></i>
         </div>
-        <div>
-            <p class="text-xs text-gray-500">Pendientes</p>
-            <p class="text-xl font-bold text-gray-100">{{ $stats['pendientes'] }}</p>
-        </div>
-    </div>
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.2);">
-            <i class="bi bi-calendar2-check" style="color:#34d399;font-size:18px;"></i>
-        </div>
-        <div>
-            <p class="text-xs text-gray-500">Confirmadas (próximas)</p>
-            <p class="text-xl font-bold text-gray-100">{{ $stats['confirmadas'] }}</p>
+        <div class="min-w-0">
+            <p class="text-xs text-gray-300 truncate">Pendientes</p>
+            <p class="text-lg font-bold text-gray-100 leading-tight">{{ $stats['pendientes'] }}</p>
         </div>
     </div>
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.2);">
-            <i class="bi bi-calendar-day" style="color:#60a5fa;font-size:18px;"></i>
+    <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center" style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.2);">
+            <i class="bi bi-calendar2-check" style="color:#34d399;font-size:16px;"></i>
         </div>
-        <div>
-            <p class="text-xs text-gray-500">Citas hoy</p>
-            <p class="text-xl font-bold text-gray-100">{{ $stats['hoy'] }}</p>
+        <div class="min-w-0">
+            <p class="text-xs text-gray-300 truncate">Confirmadas (próximas)</p>
+            <p class="text-lg font-bold text-gray-100 leading-tight">{{ $stats['confirmadas'] }}</p>
+        </div>
+    </div>
+    <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center" style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.2);">
+            <i class="bi bi-calendar-day" style="color:#60a5fa;font-size:16px;"></i>
+        </div>
+        <div class="min-w-0">
+            <p class="text-xs text-gray-300 truncate">Citas hoy</p>
+            <p class="text-lg font-bold text-gray-100 leading-tight">{{ $stats['hoy'] }}</p>
         </div>
     </div>
 </div>
@@ -72,6 +72,12 @@
 
 {{-- Tabla --}}
 <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+    <div class="px-6 py-3 border-b border-gray-700 flex items-center justify-between">
+        <p class="text-sm text-gray-400">
+            <span class="font-semibold text-gray-200">{{ $citas->total() }}</span>
+            {{ $citas->total() == 1 ? 'cita' : 'citas' }} encontradas
+        </p>
+    </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-gray-300">
             <thead>
@@ -93,15 +99,21 @@
                     <td class="px-4 py-3 font-medium text-gray-200">
                         {{ $cita->cliente?->persona?->nombre ?? '—' }}
                     </td>
-                    <td class="px-4 py-3 text-gray-400 text-xs">
+                    <td class="px-4 py-3 text-xs">
                         @if($cita->vehiculo)
-                            {{ $cita->vehiculo->modelo?->marca?->nombre }} {{ $cita->vehiculo->modelo?->nombre }}<br>
-                            <span class="font-mono">{{ $cita->vehiculo->placa }}</span>
+                            <p class="text-gray-200 font-medium">{{ $cita->vehiculo->modelo?->marca?->nombre }} {{ $cita->vehiculo->modelo?->nombre }}</p>
+                            <p class="text-gray-500 font-mono mt-0.5">{{ $cita->vehiculo->placa }}</p>
                         @else
-                            —
+                            <span class="text-gray-600 italic">Sin vehículo</span>
                         @endif
                     </td>
-                    <td class="px-4 py-3 text-gray-400">{{ $cita->servicio?->nombre ?? 'No especificado' }}</td>
+                    <td class="px-4 py-3 text-sm">
+                        @if($cita->servicio)
+                            <span class="text-gray-300">{{ $cita->servicio->nombre }}</span>
+                        @else
+                            <span class="text-gray-600 italic text-xs">Sin especificar</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3">
                         <span class="font-medium text-gray-200">{{ $cita->fecha?->format('d/m/Y') }}</span><br>
                         <span class="text-xs text-gray-500">{{ substr($cita->hora, 0, 5) }}</span>
