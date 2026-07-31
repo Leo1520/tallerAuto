@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePagoRequest;
+use App\Models\Auditoria;
 use App\Models\MetodoPago;
 use App\Models\OrdenServicio;
 use App\Models\Pago;
@@ -39,6 +40,33 @@ class PagoController extends Controller
         $pendientesRevision = Pago::where('estado', 'En revisión')->count();
 
         return view('pagos.index', compact('pagos', 'metodos', 'totalConfirmado', 'pendientesRevision'));
+    }
+
+    // ─── Admin: detalle de un pago con trail de auditoría ────────────────
+
+    public function show(Pago $pago): View
+    {
+        abort_unless(
+            auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'),
+            403
+        );
+
+        $pago->load([
+            'orden.vehiculo.cliente.persona',
+            'metodoPago',
+            'user.persona',
+            'confirmadoPor.persona',
+            'comprobante',
+            'movimientoCaja.user.persona',
+        ]);
+
+        $auditLog = Auditoria::with('user.persona')
+            ->where('tabla', 'pagos')
+            ->where('registro_id', $pago->id)
+            ->orderBy('created_at')
+            ->get();
+
+        return view('pagos.show', compact('pago', 'auditLog'));
     }
 
     // ─── Admin: formulario registro manual ───────────────────────────────

@@ -127,6 +127,7 @@ Route::middleware([
 
     // Pagos — rutas estáticas PRIMERO (antes de {pago} para evitar conflictos)
     Route::get('/pagos',                        [PagoController::class, 'index'])->name('pagos.index');
+    // ↓ Estática — debe ir ANTES de /pagos/{pago} para que 'historial' no sea capturado como ID
     Route::get('/pagos/nuevo',                  [PagoController::class, 'create'])->name('pagos.create');
     Route::get('/pagos/revision',               [PagoController::class, 'revisionIndex'])->name('pagos.revision.index');
     Route::get('/pagos/efectivo',               [PagoController::class, 'efectivoCreate'])->name('pagos.efectivo');
@@ -134,6 +135,7 @@ Route::middleware([
     // Stripe eliminado — PAYMENT_DRIVER=manual_qr
     Route::post('/pagos/efectivo',              [PagoController::class, 'efectivoStore'])->name('pagos.efectivo.store');
     // Pagos — con parámetro {pago}
+    Route::get('/pagos/{pago}',                 [PagoController::class, 'show'])->name('pagos.show');
     Route::get('/pagos/{pago}/revision',        [PagoController::class, 'revisionShow'])->name('pagos.revision.show');
     Route::post('/pagos/{pago}/confirmar',      [PagoController::class, 'confirmar'])->name('pagos.confirmar');
     Route::post('/pagos/{pago}/validar',        [PagoController::class, 'cajeroValidar'])->name('pagos.validar');
@@ -148,10 +150,12 @@ Route::middleware([
     Route::get('/facturas/{factura}/pdf',  [FacturaController::class, 'pdf'])->name('facturas.pdf');
 
     // Reportes
-    Route::get('/reportes',           [ReporteController::class, 'index'])->name('reportes.index');
-    Route::get('/reportes/ventas',    [ReporteController::class, 'ventas'])->name('reportes.ventas');
-    Route::get('/reportes/mecanicos', [ReporteController::class, 'mecanicos'])->name('reportes.mecanicos');
-    Route::get('/reportes/repuestos', [ReporteController::class, 'repuestos'])->name('reportes.repuestos');
+    Route::get('/reportes',              [ReporteController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/ventas',       [ReporteController::class, 'ventas'])->name('reportes.ventas');
+    Route::get('/reportes/mecanicos',    [ReporteController::class, 'mecanicos'])->name('reportes.mecanicos');
+    Route::get('/reportes/repuestos',    [ReporteController::class, 'repuestos'])->name('reportes.repuestos');
+    Route::get('/reportes/caja',         [ReporteController::class, 'caja'])->name('reportes.caja');
+    Route::get('/reportes/auditoria',    [ReporteController::class, 'auditoria'])->name('reportes.auditoria');
 
     // Usuarios
     Route::resource('usuarios', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);

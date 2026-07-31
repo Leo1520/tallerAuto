@@ -50,6 +50,30 @@
                     <dt class="col-sm-4 text-muted fw-normal">Enviado por</dt>
                     <dd class="col-sm-8">{{ $pago->user->persona?->nombre ?? $pago->user->email }}</dd>
                     @endif
+
+                    {{-- Bloque de confirmación — visible si ya fue confirmado --}}
+                    @if($pago->estado === 'Confirmado' && $pago->fecha_confirmacion)
+                    <dt class="col-sm-4 fw-semibold" style="color:#4ade80;">Confirmado</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge" style="background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.25);border-radius:6px;font-size:11px;padding:3px 8px;">
+                            {{ $pago->fecha_confirmacion->format('d/m/Y H:i:s') }}
+                        </span>
+                    </dd>
+                    @if($pago->confirmadoPor)
+                    <dt class="col-sm-4 text-muted fw-normal">Confirmado por</dt>
+                    <dd class="col-sm-8 fw-semibold">
+                        {{ $pago->confirmadoPor->persona?->nombre ?? $pago->confirmadoPor->email }}
+                    </dd>
+                    @endif
+                    @if($pago->confirmado_ip)
+                    <dt class="col-sm-4 text-muted fw-normal">IP</dt>
+                    <dd class="col-sm-8 font-monospace" style="font-size:12px;">{{ $pago->confirmado_ip }}</dd>
+                    @endif
+                    @if($pago->metodo_confirmacion)
+                    <dt class="col-sm-4 text-muted fw-normal">Canal</dt>
+                    <dd class="col-sm-8">{{ $pago->metodo_confirmacion }}</dd>
+                    @endif
+                    @endif
                 </dl>
             </div>
         </div>

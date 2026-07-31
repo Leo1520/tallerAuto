@@ -15,6 +15,7 @@ class Pago extends Model
         'orden_id', 'metodo_pago_id', 'user_id', 'monto', 'moneda',
         'estado', 'referencia', 'transaccion_externa', 'webhook_verificado',
         'fecha_confirmacion', 'observaciones',
+        'confirmado_por_id', 'confirmado_ip', 'metodo_confirmacion',
     ];
 
     protected $casts = [
@@ -46,6 +47,11 @@ class Pago extends Model
     public function movimientoCaja(): HasOne
     {
         return $this->hasOne(MovimientoCaja::class);
+    }
+
+    public function confirmadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'confirmado_por_id');
     }
 
     public function esQr(): bool

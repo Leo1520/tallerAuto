@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Auditoria;
 use App\Models\DetalleOrdenRepuesto;
 use App\Models\Mecanico;
+use App\Models\MovimientoCaja;
 use App\Models\OrdenServicio;
 use App\Models\Pago;
 use App\Models\Sucursal;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -95,6 +98,75 @@ class ReporteController extends Controller
         return view('reportes.ventas', compact(
             'ventas', 'resumen', 'porMetodo', 'sucursales',
             'desde', 'hasta', 'agrupar', 'sucursalId'
+        ));
+    }
+
+    // ─── Reporte: Libro de caja ──────────────────────────────────────────
+    public function caja(Request $request): View
+    {
+        $this->autorizarReportes();
+
+        $desde = $request->fecha_desde ?? now()->startOfMonth()->format('Y-m-d');
+        $hasta = $request->fecha_hasta ?? now()->format('Y-m-d');
+        $tipo  = $request->tipo; // Ingreso | Egreso | null=todos
+
+        $movimientos = MovimientoCaja::with([
+            'user.persona',
+            'pago.metodoPago',
+            'pago.confirmadoPor.persona',
+            'pago.orden.vehiculo.cliente.persona',
+        ])
+        ->whereBetween('created_at', ["{$desde} 00:00:00", "{$hasta} 23:59:59"])
+        ->when($tipo, fn($q, $t) => $q->where('tipo', $t))
+        ->orderByDesc('created_at')
+        ->paginate(50)
+        ->withQueryString();
+
+        $resumen = DB::table('movimientos_caja')
+            ->whereBetween('created_at', ["{$desde} 00:00:00", "{$hasta} 23:59:59"])
+            ->selectRaw("
+                SUM(CASE WHEN tipo='Ingreso' THEN monto ELSE 0 END) as total_ingresos,
+                SUM(CASE WHEN tipo='Egreso'  THEN monto ELSE 0 END) as total_egresos,
+                COUNT(*) as total_movimientos
+            ")
+            ->first();
+
+        return view('reportes.caja', compact('movimientos', 'resumen', 'desde', 'hasta', 'tipo'));
+    }
+
+    // ─── Reporte: Historial de auditoría de pagos ────────────────────────
+    public function auditoria(Request $request): View
+    {
+        $this->autorizarReportes();
+
+        $desde      = $request->fecha_desde ?? now()->startOfMonth()->format('Y-m-d');
+        $hasta      = $request->fecha_hasta ?? now()->format('Y-m-d');
+        $operacion  = $request->operacion;
+        $userId     = $request->user_id;
+
+        $logs = Auditoria::with('user.persona')
+            ->where('tabla', 'pagos')
+            ->whereBetween('created_at', ["{$desde} 00:00:00", "{$hasta} 23:59:59"])
+            ->when($operacion, fn($q, $op) => $q->where('tipo_operacion', $op))
+            ->when($userId,    fn($q, $id) => $q->where('user_id', $id))
+            ->orderByDesc('created_at')
+            ->paginate(50)
+            ->withQueryString();
+
+        $operaciones = Auditoria::where('tabla', 'pagos')
+            ->distinct()
+            ->pluck('tipo_operacion')
+            ->filter()
+            ->sort()
+            ->values();
+
+        $usuarios = User::with('persona')
+            ->whereHas('auditorias', fn($q) => $q->where('tabla', 'pagos'))
+            ->orderBy('email')
+            ->get();
+
+        return view('reportes.auditoria', compact(
+            'logs', 'desde', 'hasta', 'operacion', 'userId', 'operaciones', 'usuarios'
         ));
     }
 

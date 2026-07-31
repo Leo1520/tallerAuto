@@ -64,9 +64,12 @@ class PagoService
             }
 
             $pago->update([
-                'estado'             => 'Confirmado',
-                'fecha_confirmacion' => now(),
-                'user_id'            => $cajero->id,
+                'estado'               => 'Confirmado',
+                'fecha_confirmacion'   => now(),
+                'user_id'              => $cajero->id,
+                'confirmado_por_id'    => $cajero->id,
+                'confirmado_ip'        => request()->ip(),
+                'metodo_confirmacion'  => $this->resolverMetodoConfirmacion($pago),
             ]);
 
             $pago->loadMissing(['orden', 'metodoPago']);
@@ -104,15 +107,18 @@ class PagoService
             $cambio = round($montoRecibido - $monto, 2);
 
             $pago = Pago::create([
-                'orden_id'           => $orden->id,
-                'metodo_pago_id'     => $metodo->id,
-                'user_id'            => $cajero->id,
-                'monto'              => $monto,
-                'moneda'             => 'BOB',
-                'estado'             => 'Confirmado',
-                'fecha_confirmacion' => now(),
-                'observaciones'      => "Efectivo recibido: Bs " . number_format($montoRecibido, 2)
-                                      . " | Cambio entregado: Bs " . number_format($cambio, 2),
+                'orden_id'             => $orden->id,
+                'metodo_pago_id'       => $metodo->id,
+                'user_id'              => $cajero->id,
+                'monto'                => $monto,
+                'moneda'               => 'BOB',
+                'estado'               => 'Confirmado',
+                'fecha_confirmacion'   => now(),
+                'confirmado_por_id'    => $cajero->id,
+                'confirmado_ip'        => request()->ip(),
+                'metodo_confirmacion'  => 'Efectivo',
+                'observaciones'        => "Efectivo recibido: Bs " . number_format($montoRecibido, 2)
+                                        . " | Cambio entregado: Bs " . number_format($cambio, 2),
             ]);
 
             $pago->loadMissing(['metodoPago']);
@@ -170,6 +176,18 @@ class PagoService
             'ip'         => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+    }
+
+    // ─── Helper: canal de confirmación ───────────────────────────────────
+
+    private function resolverMetodoConfirmacion(Pago $pago): string
+    {
+        $nombre = strtolower($pago->metodoPago?->nombre ?? '');
+        if (str_contains($nombre, 'qr'))       return 'QR-cajero';
+        if (str_contains($nombre, 'efectivo')) return 'Efectivo';
+        if (str_contains($nombre, 'tarjeta'))  return 'Tarjeta';
+        if (str_contains($nombre, 'transfer')) return 'Transferencia';
+        return 'Manual';
     }
 
     // ─── Helper: usuario cliente de la orden ─────────────────────────────

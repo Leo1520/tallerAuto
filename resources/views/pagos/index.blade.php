@@ -183,9 +183,9 @@
                                     <i class="bi bi-eye" style="font-size:11px;"></i> Revisar
                                 </a>
                                 @else
-                                <a href="{{ route('ordenes.show', $pago->orden) }}"
+                                <a href="{{ route('pagos.show', $pago) }}"
                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors border border-gray-600">
-                                    <i class="bi bi-eye" style="font-size:11px;"></i> Ver orden
+                                    <i class="bi bi-eye" style="font-size:11px;"></i> Detalle
                                 </a>
                                 @endif
                             </div>
