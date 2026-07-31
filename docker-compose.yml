@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: leo1520/taller-pro:latest
+    image: leo1520/taller-automotrices-sc-bol:latest
     container_name: taller_app
     restart: unless-stopped
     ports:
@@ -28,8 +28,8 @@ services:
     environment:
       MYSQL_DATABASE:      db_taller
       MYSQL_USER:          taller
-      MYSQL_PASSWORD:      "${DB_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_PASSWORD: taller123456
+      MYSQL_ROOT_PASSWORD: root123456
     volumes:
       - db_data:/var/lib/mysql
     ports:

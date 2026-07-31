@@ -93,7 +93,7 @@ COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 COPY docker/php/php.ini        $PHP_INI_DIR/conf.d/app.ini
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh      /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 80
 
