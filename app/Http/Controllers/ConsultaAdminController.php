@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConsultaRepuesto;
+use App\Models\User;
+use App\Notifications\ConsultaAtendidaNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class ConsultaAdminController extends Controller
@@ -42,8 +46,36 @@ class ConsultaAdminController extends Controller
             'estado' => 'required|in:Pendiente,Atendida,Cancelada',
         ]);
 
+        $estadoAnterior = $consultaRepuesto->estado;
         $consultaRepuesto->update(['estado' => $request->estado]);
 
-        return back()->with('success', 'Estado de la solicitud actualizado.');
+        // Notificar al cliente solo cuando se marca como Atendida (no en cada cambio)
+        if ($request->estado === 'Atendida' && $estadoAnterior !== 'Atendida') {
+            $consultaRepuesto->load('repuesto');
+            $this->notificarCliente($consultaRepuesto);
+        }
+
+        return back()->with('success', 'Estado actualizado.' .
+            ($request->estado === 'Atendida' ? ' Se envió confirmación al cliente.' : '')
+        );
+    }
+
+    private function notificarCliente(ConsultaRepuesto $consulta): void
+    {
+        // 1. Intentar notificar por cuenta de usuario si existe
+        if ($consulta->cliente?->persona?->email) {
+            $user = User::where('email', $consulta->cliente->persona->email)->first();
+            if ($user) {
+                $user->notify(new ConsultaAtendidaNotification($consulta));
+                return;
+            }
+        }
+
+        // 2. Usar el email guardado en la consulta como fallback
+        $email = $consulta->email ?? $consulta->cliente?->persona?->email;
+        if ($email) {
+            Notification::route('mail', $email)
+                ->notify(new ConsultaAtendidaNotification($consulta));
+        }
     }
 }
