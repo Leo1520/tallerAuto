@@ -5,8 +5,7 @@
 @section('header-actions')
     @can('create', App\Models\Vehiculo::class)
         <a href="{{ route('vehiculos.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-           style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors btn-taller-red">
             <span class="relative inline-flex items-center" style="font-size:15px;">
                 <i class="bi bi-car-front-fill"></i>
                 <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
@@ -104,7 +103,7 @@
                             <div class="flex items-center gap-1.5 mt-0.5">
                                 <p class="text-xs text-gray-500 font-mono">{{ $vehiculo->vin }}</p>
                                 <button type="button" title="Copiar VIN"
-                                        onclick="copiarVin(this, '{{ $vehiculo->vin }}')"
+                                        data-vin="{{ $vehiculo->vin }}"
                                         class="text-gray-600 hover:text-blue-400 transition-colors flex-shrink-0">
                                     <i class="bi bi-clipboard" style="font-size:11px;"></i>
                                 </button>
@@ -144,7 +143,7 @@
                                 <form method="POST" action="{{ route('vehiculos.destroy', $vehiculo) }}"
                                       data-confirm="¿Eliminar el vehículo {{ $vehiculo->placa }}? Esta acción no se puede deshacer.">
                                     @csrf @method('DELETE')
-                                    <button type="button" onclick="tpOpen(this.form)"
+                                    <button type="button" data-confirm-open
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
                                         <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
                                     </button>
@@ -213,5 +212,16 @@ window.copiarVin = function(btn, vin) {
         }, 1500);
     });
 };
+
+document.addEventListener('click', function(e) {
+    var vinBtn = e.target.closest('[data-vin]');
+    if (vinBtn) { copiarVin(vinBtn, vinBtn.dataset.vin); return; }
+    var btn = e.target.closest('[data-confirm-open]');
+    if (btn) { e.preventDefault(); tpOpen(btn.closest('form')); }
+});
 </script>
+@endpush
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
 @endpush

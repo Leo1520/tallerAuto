@@ -4,8 +4,7 @@
 
 @section('header-actions')
     <a href="{{ route('repuestos.create') }}"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors btn-taller-red">
         <span class="relative inline-flex items-center" style="font-size:15px;">
                 <i class="bi bi-box-seam-fill"></i>
                 <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
@@ -137,7 +136,7 @@
                                 <form method="POST" action="{{ route('repuestos.destroy', $repuesto) }}"
                                       data-confirm="¿Eliminar el repuesto {{ $repuesto->nombre }}? Solo es posible si no tiene stock disponible.">
                                     @csrf @method('DELETE')
-                                    <button type="button" onclick="tpOpen(this.form)"
+                                    <button type="button" data-confirm-open
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
                                         <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
                                     </button>
@@ -188,6 +187,15 @@
     input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(buscar, 250); });
     document.querySelectorAll('#filtroForm select').forEach(s => s.addEventListener('change', buscar));
     document.getElementById('bajoStock').addEventListener('change', buscar);
+
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-confirm-open]');
+        if (btn) { e.preventDefault(); tpOpen(btn.closest('form')); }
+    });
 })();
 </script>
+@endpush
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
 @endpush

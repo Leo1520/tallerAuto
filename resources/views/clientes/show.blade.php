@@ -16,8 +16,7 @@
     @endcan
     @can('create', App\Models\Vehiculo::class)
     <a href="{{ route('vehiculos.create', ['cliente_id' => $cliente->id]) }}"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors btn-taller-red">
         <span class="relative inline-flex items-center" style="font-size:15px;">
             <i class="bi bi-car-front-fill"></i>
             <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
@@ -137,3 +136,7 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
+@endpush

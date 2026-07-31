@@ -145,8 +145,7 @@
             Cancelar
         </a>
         <button type="submit"
-                class="px-6 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors"
-                style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                class="px-6 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors btn-taller-red">
             <i class="bi bi-check-lg me-1"></i> Crear usuario
         </button>
     </div>
@@ -154,3 +153,7 @@
 </form>
 </div>
 @endsection
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
+@endpush

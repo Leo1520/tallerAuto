@@ -26,11 +26,14 @@
                 Cancelar
             </a>
             <button type="submit"
-                    class="px-5 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-                    style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                    class="px-5 py-2 text-sm font-semibold text-white rounded-lg transition-colors btn-taller-red">
                 Guardar cambios
             </button>
         </div>
     </form>
 </div>
 @endsection
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
+@endpush

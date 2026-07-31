@@ -157,8 +157,7 @@
 
             {{-- Acciones --}}
             <button type="submit"
-                    class="w-full px-6 py-3 text-white font-semibold rounded-lg transition-colors"
-                    style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                    class="w-full px-6 py-3 text-white font-semibold rounded-lg transition-colors btn-taller-red">
                 <i class="bi bi-floppy me-2"></i> Guardar Cambios
             </button>
             <a href="{{ route('repuestos.show', $repuesto) }}"
@@ -171,3 +170,7 @@
 </form>
 
 @endsection
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
+@endpush

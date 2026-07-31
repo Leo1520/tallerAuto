@@ -40,11 +40,11 @@
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-wide">Permisos por módulo</h2>
         <div class="flex gap-2">
-            <button type="button" onclick="toggleAll(true)"
+            <button type="button" data-toggle-all="1"
                     class="px-2.5 py-1 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors border border-gray-600">
                 Marcar todos
             </button>
-            <button type="button" onclick="toggleAll(false)"
+            <button type="button" data-toggle-all="0"
                     class="px-2.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-200 rounded-lg transition-colors">
                 Quitar todos
             </button>
@@ -89,7 +89,7 @@
                 <div class="flex items-center gap-2">
                     <input type="checkbox" class="modulo-check w-4 h-4 rounded text-red-600 border-gray-500 bg-gray-700 focus:ring-red-600 cursor-pointer"
                            data-modulo="{{ $modulo }}"
-                           onchange="toggleModulo('{{ $modulo }}', this.checked)">
+                           data-modulo-master="1">
                     <span class="text-sm font-semibold text-gray-200">
                         {{ $moduloNombres[$modulo] ?? ucfirst($modulo) }}
                     </span>
@@ -186,5 +186,15 @@
             mc.checked = state;
         });
     };
+
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-toggle-all]');
+        if (btn) { toggleAll(btn.dataset.toggleAll === '1'); }
+    });
+
+    document.addEventListener('change', function(e) {
+        var el = e.target.closest('[data-modulo-master]');
+        if (el) { toggleModulo(el.dataset.modulo, el.checked); }
+    });
 })();
 </script>

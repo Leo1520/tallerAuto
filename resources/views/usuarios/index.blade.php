@@ -5,7 +5,7 @@
 @section('header-actions')
     <a href="{{ route('usuarios.create') }}"
        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+       class="btn-taller-red"
         <i class="bi bi-person-plus-fill" style="font-size:15px;"></i> Nuevo usuario
     </a>
 @endsection
@@ -195,4 +195,8 @@
     document.querySelectorAll('#filtroForm select').forEach(s => s.addEventListener('change', buscar));
 })();
 </script>
+@endpush
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
 @endpush
