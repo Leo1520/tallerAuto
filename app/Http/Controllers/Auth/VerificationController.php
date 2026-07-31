@@ -35,30 +35,27 @@ class VerificationController extends Controller
     // Activar cuenta — ruta pública, firma validada manualmente
     public function verify(Request $request, string $id, string $hash): RedirectResponse
     {
-        $user = User::find($id);
-
-        // Si el usuario no existe, redirigir al login con mensaje genérico
-        if (! $user) {
-            return redirect()->route('login')
-                ->with('status', 'El enlace de activación no es válido. Intenta registrarte de nuevo.');
-        }
-
-        // Si ya está verificado, redirigir directo al login — sin error
-        if ($user->hasVerifiedEmail()) {
-            return redirect()->route('login', ['email' => $user->email])
-                ->with('status', 'Tu cuenta ya estaba activa. Ingresa tu contraseña.');
-        }
-
-        // Validar firma de la URL
+        // SECURITY: Validar firma ANTES de cualquier lookup en DB.
+        // Sin esto, un atacante puede enumerar emails enviando hashes falsos
+        // y observando si el redirect incluye el email real del usuario.
         if (! $request->hasValidSignature()) {
             return redirect()->route('login')
-                ->with('error', 'El enlace de activación expiró o no es válido. Solicita uno nuevo al iniciar sesión.');
+                ->with('status', 'El enlace de activación no es válido o expiró. Solicita uno nuevo al iniciar sesión.');
         }
 
-        // Validar hash del email
-        if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        $user = User::find($id);
+
+        // Respuesta idéntica para: usuario inexistente, hash de email incorrecto.
+        // No revelar si el ID existe en la base de datos.
+        if (! $user || ! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
             return redirect()->route('login')
-                ->with('error', 'El enlace de activación no es válido.');
+                ->with('status', 'El enlace de activación no es válido o expiró. Solicita uno nuevo al iniciar sesión.');
+        }
+
+        // Ya verificado — no incluir el email en la URL de redirect.
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('login')
+                ->with('status', 'Tu cuenta ya está activa. Ingresa tu contraseña para continuar.');
         }
 
         $user->markEmailAsVerified();
@@ -72,7 +69,8 @@ class VerificationController extends Controller
             }
         }
 
-        return redirect()->route('login', ['email' => $user->email])
+        // No incluir el email en la URL — el usuario ya lo conoce.
+        return redirect()->route('login')
             ->with('status', '¡Cuenta activada! Ingresa tu contraseña para continuar.');
     }
 

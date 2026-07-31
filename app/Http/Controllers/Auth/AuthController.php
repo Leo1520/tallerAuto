@@ -109,7 +109,8 @@ class AuthController extends Controller
             'email'             => 'required|email|max:100|unique:users,email|unique:persona,email',
             'password'          => 'required|string|min:8|confirmed',
         ], [
-            'email.unique'       => 'Este correo ya está registrado.',
+            // SECURITY: Mensaje genérico — no confirmar si el email existe.
+            'email.unique'       => 'No fue posible completar el registro. Intenta con otro correo o inicia sesión si ya tienes una cuenta.',
             'password.min'       => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
@@ -168,11 +169,11 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        $status = Password::sendResetLink($request->only('email'));
+        // SECURITY: No revelar si el email existe.
+        // Se llama de todas formas para no crear diferencia de tiempo observable.
+        Password::sendResetLink($request->only('email'));
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', 'Te enviamos un enlace de recuperación a tu correo.')
-            : back()->withErrors(['email' => 'No encontramos una cuenta con ese correo.']);
+        return back()->with('status', 'Si existe una cuenta con ese correo recibirás el enlace de recuperación en breve.');
     }
 
     // ─── Restablecer contraseña ──────────────────────────────────

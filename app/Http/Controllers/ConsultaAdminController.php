@@ -11,6 +11,7 @@ use App\Notifications\ConsultaPagoConfirmadoNotification;
 use App\Notifications\ConsultaPagoRechazadoNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -86,36 +87,58 @@ class ConsultaAdminController extends Controller
             auth()->user()->isAdmin() || auth()->user()->hasPermission('pagos.confirmar'),
             403
         );
-        abort_unless($consultaRepuesto->pago_estado === 'En revisión', 422, 'No hay comprobante pendiente.');
 
-        $consultaRepuesto->load('repuesto');
+        $consulta = null;
 
-        // Calcular monto: precio_venta × cantidad
-        $monto = round($consultaRepuesto->cantidad * ($consultaRepuesto->repuesto->precio_venta ?? 0), 2);
+        try {
+            DB::transaction(function () use ($request, $consultaRepuesto, &$consulta) {
+                // Releer con lock exclusivo de fila — la segunda petición concurrente
+                // esperará aquí hasta que la primera confirme y haga COMMIT.
+                // Cuando la segunda obtenga el lock, el estado ya será 'Confirmado'
+                // y el guard de abajo la rechazará controladamente.
+                $consulta = ConsultaRepuesto::lockForUpdate()->findOrFail($consultaRepuesto->id);
 
-        $consultaRepuesto->update([
-            'pago_estado' => 'Confirmado',
-            'pago_notas'  => $request->notas,
-            'monto'       => $monto,
-        ]);
+                if ($consulta->pago_estado !== 'En revisión') {
+                    throw new \RuntimeException('No hay comprobante pendiente o el pago ya fue procesado.');
+                }
 
-        // Descontar stock del inventario
-        InventarioSucursal::where('repuesto_id', $consultaRepuesto->repuesto_id)
-            ->orderByDesc('stock')
-            ->first()
-            ?->decrement('stock', $consultaRepuesto->cantidad);
+                $consulta->load('repuesto');
+                $monto = round($consulta->cantidad * ($consulta->repuesto->precio_venta ?? 0), 2);
 
-        // Registrar ingreso en caja
-        MovimientoCaja::create([
-            'pago_id'   => null,
-            'user_id'   => auth()->id(),
-            'tipo'      => 'Ingreso',
-            'concepto'  => "Venta tienda: {$consultaRepuesto->repuesto->nombre} × {$consultaRepuesto->cantidad} (Consulta #{$consultaRepuesto->id})",
-            'monto'     => $monto,
-            'referencia'=> "consulta_{$consultaRepuesto->id}",
-        ]);
+                $consulta->update([
+                    'pago_estado'        => 'Confirmado',
+                    'pago_notas'         => $request->notas,
+                    'monto'              => $monto,
+                    'pago_confirmado_at' => now(),
+                ]);
 
-        $this->notificarPago($consultaRepuesto, 'confirmado');
+                // Descontar stock del inventario
+                InventarioSucursal::where('repuesto_id', $consulta->repuesto_id)
+                    ->orderByDesc('stock')
+                    ->first()
+                    ?->decrement('stock', $consulta->cantidad);
+
+                // Registrar ingreso en caja.
+                // El índice UNIQUE en movimientos_caja.referencia actúa como
+                // red de seguridad final si el lock falla por algún motivo.
+                MovimientoCaja::create([
+                    'pago_id'    => null,
+                    'user_id'    => auth()->id(),
+                    'tipo'       => 'Ingreso',
+                    'concepto'   => "Venta tienda: {$consulta->repuesto->nombre} × {$consulta->cantidad} (Consulta #{$consulta->id})",
+                    'monto'      => $monto,
+                    'referencia' => "consulta_{$consulta->id}",
+                ]);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Violación del índice UNIQUE en referencia — segunda petición concurrente.
+            return back()->with('error', 'El pago ya fue confirmado por otro administrador.');
+        }
+
+        // Notificación FUERA de la transacción: un fallo de email no revierte el pago.
+        $this->notificarPago($consulta, 'confirmado');
 
         return back()->with('success', 'Pago confirmado y stock actualizado. Se notificó al cliente.');
     }

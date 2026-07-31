@@ -14,12 +14,14 @@ class ConsultaRepuesto extends Model
         'repuesto_id', 'cliente_id', 'nombre', 'telefono',
         'email', 'cantidad', 'monto', 'notas', 'estado',
         'token', 'qr_path', 'comprobante_path', 'pago_estado', 'pago_notas',
+        'pago_confirmado_at',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'cantidad'   => 'integer',
-        'monto'      => 'decimal:2',
+        'created_at'         => 'datetime',
+        'pago_confirmado_at' => 'datetime',
+        'cantidad'           => 'integer',
+        'monto'              => 'decimal:2',
     ];
 
     public function montoTotal(): float
