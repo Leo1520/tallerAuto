@@ -15,12 +15,12 @@
         </a>
         <a href="{{ route('pagos.efectivo') }}"
            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-           style="background:#059669;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+           style="background:#059669;" class="btn-efectivo-hover"
             <i class="bi bi-cash"></i> Cobro efectivo
         </a>
         <a href="{{ route('pagos.create') }}"
            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-           style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+           class="btn-taller-red"
             <span class="relative inline-flex items-center" style="font-size:15px;">
                     <i class="bi bi-wallet-fill"></i>
                     <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
@@ -164,7 +164,7 @@
                                       data-confirm-title="Confirmar pago"
                                       data-confirm-ok="Sí, confirmar">
                                     @csrf
-                                    <button type="button" onclick="tpOpen(this.form)"
+                                    <button type="button" data-confirm-open
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-green-300 bg-green-900/30 hover:bg-green-900/50 rounded-lg transition-colors border border-green-800/50">
                                         <i class="bi bi-check-lg" style="font-size:11px;"></i> Confirmar
                                     </button>
@@ -172,7 +172,7 @@
                                 <form method="POST" action="{{ route('pagos.anular', $pago) }}"
                                       data-confirm="¿Anular el pago #{{ $pago->id }}? Esta acción no se puede deshacer.">
                                     @csrf
-                                    <button type="button" onclick="tpOpen(this.form)"
+                                    <button type="button" data-confirm-open
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-orange-300 bg-orange-900/20 hover:bg-orange-900/40 rounded-lg transition-colors border border-orange-900/50">
                                         <i class="bi bi-x-circle" style="font-size:11px;"></i> Anular
                                     </button>
@@ -203,3 +203,19 @@
 </div>
 
 @endsection
+
+@push('styles')
+<style>
+.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}
+.btn-efectivo-hover:hover{background:#047857 !important}
+</style>
+@endpush
+
+@push('scripts')
+<script @nonce>
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-confirm-open]');
+    if (btn) { e.preventDefault(); tpOpen(btn.closest('form')); }
+});
+</script>
+@endpush

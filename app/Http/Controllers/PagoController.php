@@ -73,13 +73,22 @@ class PagoController extends Controller
 
     public function create(Request $request): View
     {
-        $orden = OrdenServicio::with(['vehiculo.cliente.persona', 'pagos'])
-            ->findOrFail($request->orden_id);
+        $metodos = MetodoPago::where('activo', true)->orderBy('nombre')->get();
 
-        $metodos   = MetodoPago::where('activo', true)->orderBy('nombre')->get();
-        $pendiente = $orden->total - $orden->pagos->where('estado', 'Confirmado')->sum('monto');
+        if ($request->filled('orden_id')) {
+            $orden     = OrdenServicio::with(['vehiculo.cliente.persona', 'pagos'])
+                ->findOrFail($request->orden_id);
+            $pendiente = $orden->total - $orden->pagos->where('estado', 'Confirmado')->sum('monto');
+            return view('pagos.create', compact('orden', 'metodos', 'pendiente'));
+        }
 
-        return view('pagos.create', compact('orden', 'metodos', 'pendiente'));
+        // Sin orden: se muestra formulario con selector de orden y monto editable
+        $ordenes = OrdenServicio::with('vehiculo.cliente.persona')
+            ->whereNotIn('estado', ['Entregado', 'Cancelado'])
+            ->orderByDesc('id')
+            ->get();
+
+        return view('pagos.create', compact('metodos', 'ordenes'));
     }
 
     // ─── Admin: registrar pago manual (siempre queda Pendiente) ──────────

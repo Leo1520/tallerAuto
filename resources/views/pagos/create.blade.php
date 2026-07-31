@@ -42,6 +42,32 @@
             </div>
         </div>
     </div>
+    @else
+    {{-- Sin orden preseleccionada: selector de orden con autocompletado de monto --}}
+    <div class="bg-gray-800 border border-gray-700 rounded-xl">
+        <div class="px-6 py-3 border-b border-gray-700 bg-gray-900/30 rounded-t-xl">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                <i class="bi bi-receipt" style="color:#D71920;"></i> Seleccionar orden
+            </p>
+        </div>
+        <div class="p-6">
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">
+                Orden de servicio <span class="text-red-400">*</span>
+            </label>
+            <select id="selectOrden" name="orden_id" required
+                    class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+                <option value="" data-monto="" style="background:#111827;">Seleccionar orden...</option>
+                @foreach($ordenes as $o)
+                    @php $pend = round($o->total - $o->pagos->where('estado','Confirmado')->sum('monto'), 2); @endphp
+                    @if($pend > 0)
+                    <option value="{{ $o->id }}" data-monto="{{ $pend }}" style="background:#111827;">
+                        {{ $o->numero }} — {{ $o->vehiculo->cliente->persona->nombre }} — Pendiente: Bs {{ number_format($pend, 2) }}
+                    </option>
+                    @endif
+                @endforeach
+            </select>
+        </div>
+    </div>
     @endisset
 
     {{-- Formulario de pago --}}
@@ -80,12 +106,22 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1.5">
-                        Monto (Bs)
+                        Monto (Bs) @isset($orden)<span class="text-xs text-gray-500">(pendiente)</span>@endisset
                     </label>
-                    <p class="w-full px-3 py-2.5 bg-gray-800/60 border border-gray-700 text-gray-100 rounded-lg text-sm font-semibold">
-                        Bs {{ number_format($pendiente, 2) }}
-                    </p>
-                    <input type="hidden" name="monto" value="{{ $pendiente }}">
+                    @isset($orden)
+                        {{-- Orden conocida: monto fijo = pendiente --}}
+                        <p class="w-full px-3 py-2.5 bg-gray-800/60 border border-gray-700 text-gray-100 rounded-lg text-sm font-semibold">
+                            Bs {{ number_format($pendiente, 2) }}
+                        </p>
+                        <input type="hidden" name="monto" value="{{ $pendiente }}">
+                    @else
+                        {{-- Sin orden: monto editable (se autocompleta al elegir orden) --}}
+                        <input type="number" id="inputMonto" name="monto" step="0.01" min="0.01" required
+                               value="{{ old('monto') }}"
+                               placeholder="0.00"
+                               class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('monto') ? 'border-red-500' : 'border-gray-600' }}">
+                        @error('monto')<p class="mt-1 text-xs text-red-400">{{ $message }}</p>@enderror
+                    @endisset
                 </div>
             </div>
 
@@ -134,6 +170,22 @@ function pagoForm(metodos) {
             this.requiereReferencia = m ? !!m.requiere_referencia : false;
         }
     };
+}
+
+// Auto-rellenar monto al seleccionar orden (solo cuando no hay orden preseleccionada)
+const selOrden = document.getElementById('selectOrden');
+const inputMonto = document.getElementById('inputMonto');
+if (selOrden && inputMonto) {
+    selOrden.addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+        const monto = opt.dataset.monto;
+        if (monto) {
+            inputMonto.value = monto;
+            inputMonto.focus();
+        } else {
+            inputMonto.value = '';
+        }
+    });
 }
 </script>
 @endsection
