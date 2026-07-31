@@ -116,8 +116,16 @@
 
                         <td class="px-6 py-3.5">
                             @if ($cliente->numero_documento)
-                                <p class="text-xs text-gray-500">{{ $cliente->tipo_documento }}</p>
-                                <p class="text-sm font-mono text-gray-300">{{ $cliente->numero_documento }}</p>
+                                @php
+                                    $tipo = $cliente->tipo_documento ?? '';
+                                    $num  = $cliente->numero_documento;
+                                    // Normalizar: quitar prefijo si ya lo trae el número guardado
+                                    if ($tipo && preg_match('/^' . preg_quote($tipo, '/') . '-?/i', $num)) {
+                                        $num = preg_replace('/^' . preg_quote($tipo, '/') . '-?/i', '', $num);
+                                    }
+                                    $docDisplay = $tipo ? "{$tipo}-{$num}" : $num;
+                                @endphp
+                                <p class="text-sm font-mono text-gray-300">{{ $docDisplay }}</p>
                             @else
                                 <span class="text-gray-600">—</span>
                             @endif
