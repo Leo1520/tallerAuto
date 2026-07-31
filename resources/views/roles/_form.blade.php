@@ -124,7 +124,7 @@
     </div>
 </div>
 
-<script>
+<script @nonce>
 (function() {
     // Sync estado visual de labels al cargar
     document.querySelectorAll('.perm-check').forEach(function(cb) {

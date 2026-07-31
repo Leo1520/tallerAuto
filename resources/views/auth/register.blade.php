@@ -9,7 +9,7 @@
     </div>
     <span style="font-size:19px;font-weight:700;color:var(--text-primary);">Taller Automotrices SC-BOL</span>
 </div>
-<script>
+<script @nonce>
     document.addEventListener('DOMContentLoaded', function() {
         var el = document.getElementById('mobile-brand-reg');
         if (el) el.style.display = window.innerWidth >= 1024 ? 'none' : 'flex';

@@ -12,37 +12,76 @@
 
 @section('content')
 
-<div class="max-w-2xl mx-auto" x-data="vehiculoForm({{ $marcas->toJson() }})">
+@php
+$clientesData = $clientes->map(function ($c) {
+    $cTipo = $c->tipo_documento ?? '';
+    $cNum  = $c->numero_documento ?? '';
+    if ($cTipo && $cNum && preg_match('/^' . preg_quote($cTipo, '/') . '-?/i', $cNum)) {
+        $cNum = preg_replace('/^' . preg_quote($cTipo, '/') . '-?/i', '', $cNum);
+    }
+    $cDoc = $cNum ? ' — ' . ($cTipo ? "{$cTipo}-{$cNum}" : $cNum) : '';
+    return ['id' => $c->id, 'label' => $c->persona->nombre . $cDoc];
+})->values();
+@endphp
+
+<div class="max-w-2xl mx-auto" x-data="vehiculoForm({{ $marcas->toJson() }}, {{ $clientesData->toJson() }})">
 <form method="POST" action="{{ route('vehiculos.store') }}" class="space-y-4">
     @csrf
 
     {{-- Propietario --}}
-    <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-        <div class="px-6 py-3 border-b border-gray-700 bg-gray-900/30">
+    <div class="bg-gray-800 border border-gray-700 rounded-xl">
+        <div class="px-6 py-3 border-b border-gray-700 bg-gray-900/30 rounded-t-xl">
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                 <i class="bi bi-person" style="color:#D71920;"></i> Propietario
             </p>
         </div>
         <div class="p-6">
-            <label class="block text-sm font-medium text-gray-300 mb-1.5">Cliente <span class="text-red-400">*</span></label>
-            <select name="cliente_id" required
-                    class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 {{ $errors->has('cliente_id') ? 'border-red-500' : 'border-gray-600' }}">
-                <option value="">Seleccionar cliente...</option>
-                @foreach ($clientes as $c)
-                    @php
-                        $cTipo = $c->tipo_documento ?? '';
-                        $cNum  = $c->numero_documento ?? '';
-                        if ($cTipo && $cNum && preg_match('/^' . preg_quote($cTipo, '/') . '-?/i', $cNum)) {
-                            $cNum = preg_replace('/^' . preg_quote($cTipo, '/') . '-?/i', '', $cNum);
-                        }
-                        $cDoc = $cNum ? ' — ' . ($cTipo ? "{$cTipo}-{$cNum}" : $cNum) : '';
-                    @endphp
-                    <option value="{{ $c->id }}" {{ old('cliente_id', $clienteSeleccionado?->id) == $c->id ? 'selected' : '' }}>
-                        {{ $c->persona->nombre }}{{ $cDoc }}
-                    </option>
-                @endforeach
-            </select>
-            @error('cliente_id') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+            <label class="block text-sm font-medium text-gray-300 mb-1.5">
+                Cliente <span class="text-red-400">*</span>
+            </label>
+
+            {{-- Buscador con dropdown --}}
+            <div class="relative" @click.outside="clienteOpen = false">
+                <div class="relative">
+                    <input type="text"
+                           x-model="clienteBusqueda"
+                           @focus="clienteOpen = true"
+                           @input="clienteOpen = true; clienteId = ''"
+                           @keydown.escape="clienteOpen = false"
+                           placeholder="Buscar por nombre o documento..."
+                           autocomplete="off"
+                           class="w-full px-3 py-2.5 pr-8 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('cliente_id') ? 'border-red-500' : 'border-gray-600' }}">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                        <i class="bi bi-search" style="font-size:12px;"></i>
+                    </span>
+                </div>
+
+                <input type="hidden" name="cliente_id" :value="clienteId">
+
+                <div x-show="clienteOpen"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     class="absolute z-50 w-full mt-1 bg-gray-900 border border-gray-600 rounded-lg shadow-xl overflow-hidden"
+                     style="max-height:220px;overflow-y:auto;">
+
+                    <template x-if="clientesFiltrados.length === 0">
+                        <div class="px-4 py-3 text-sm text-gray-500 text-center">Sin resultados</div>
+                    </template>
+
+                    <template x-for="c in clientesFiltrados" :key="c.id">
+                        <div @click="clienteId = c.id; clienteBusqueda = c.label; clienteOpen = false"
+                             :class="clienteId == c.id ? 'bg-red-900/30 text-red-300' : 'text-gray-200 hover:bg-gray-700'"
+                             class="px-3 py-2.5 text-sm cursor-pointer border-b border-gray-700/50 last:border-0 transition-colors">
+                            <span x-text="c.label"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            @error('cliente_id')
+                <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+            @enderror
         </div>
     </div>
 
@@ -139,9 +178,9 @@
            class="px-5 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
             Cancelar
         </a>
-        <button type="submit"
+        <button type="submit" id="btnRegistrarVehiculo"
                 class="px-6 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors"
-                style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                style="background:#D71920;">
             <i class="bi bi-check-lg me-1"></i> Registrar vehículo
         </button>
     </div>
@@ -149,9 +188,10 @@
 </form>
 </div>
 
-<script>
-function vehiculoForm(marcas) {
+<script @nonce>
+function vehiculoForm(marcas, clientes) {
     return {
+        // — Marca / Modelo —
         marcaId: '{{ old('marca_id', '') }}',
         modeloId: '{{ old('modelo_id', '') }}',
         marcas: marcas,
@@ -161,8 +201,41 @@ function vehiculoForm(marcas) {
             this.modelosFiltrados = marca ? marca.modelos : [];
             this.modeloId = '';
         },
+
+        // — Cliente —
+        clienteId: '{{ old('cliente_id', $clienteSeleccionado?->id ?? '') }}',
+        clienteBusqueda: '',
+        clienteOpen: false,
+        clientes: clientes,
+        clientesFiltrados: [],
+
         init() {
             if (this.marcaId) this.filtrarModelos();
+
+            // Inicializar lista completa de clientes
+            this.clientesFiltrados = this.clientes;
+
+            // Prellenar etiqueta si hay cliente preseleccionado
+            if (this.clienteId) {
+                const c = this.clientes.find(c => String(c.id) === String(this.clienteId));
+                if (c) { this.clienteBusqueda = c.label; }
+            }
+
+            // Filtrar reactivamente al escribir en el buscador
+            this.$watch('clienteBusqueda', (val) => {
+                if (!val) {
+                    this.clientesFiltrados = this.clientes;
+                } else {
+                    const q = val.toLowerCase();
+                    this.clientesFiltrados = this.clientes.filter(c => c.label.toLowerCase().includes(q));
+                }
+            });
+
+            const btn = document.getElementById('btnRegistrarVehiculo');
+            if (btn) {
+                btn.addEventListener('mouseover', function () { this.style.background = '#b81218'; });
+                btn.addEventListener('mouseout',  function () { this.style.background = '#D71920'; });
+            }
         }
     };
 }

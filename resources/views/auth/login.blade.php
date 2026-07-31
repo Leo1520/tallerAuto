@@ -13,7 +13,7 @@
         <p style="font-size:11px;color:var(--a-muted);text-transform:uppercase;letter-spacing:.04em;">Sistema automotriz</p>
     </div>
 </div>
-<script>
+<script @nonce>
     document.addEventListener('DOMContentLoaded', function() {
         var el = document.getElementById('mob-brand');
         if (el) el.style.display = window.innerWidth >= 1024 ? 'none' : 'flex';

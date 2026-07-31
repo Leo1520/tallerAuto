@@ -176,7 +176,7 @@
 </div>
 
 @if($stockTotal > 0)
-<script>
+<script @nonce>
 const precioUnit  = {{ (float) $repuesto->precio_venta }};
 const stockMaximo = {{ (int) $stockTotal }};
 function cambiarCantidad(delta) {

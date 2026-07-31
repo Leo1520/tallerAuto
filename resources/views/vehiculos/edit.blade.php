@@ -147,7 +147,7 @@
 </form>
 </div>
 
-<script>
+<script @nonce>
 function vehiculoForm(marcas, marcaInicial, modeloInicial) {
     return {
         marcaId: marcaInicial,

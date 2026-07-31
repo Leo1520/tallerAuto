@@ -210,7 +210,7 @@ $badgeEstado = [
 </div>
 
 {{-- ── Charts JS ────────────────────────────────────────── --}}
-<script>
+<script @nonce>
 document.addEventListener('DOMContentLoaded', function () {
     Chart.defaults.color = '#64748B';
     Chart.defaults.borderColor = '#1e3352';

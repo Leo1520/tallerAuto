@@ -214,7 +214,7 @@
     </form>
 </div>
 
-<script>
+<script @nonce>
 function ordenForm(servicios, lineasIniciales) {
     return {
         todosServicios: servicios,

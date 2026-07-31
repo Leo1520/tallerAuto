@@ -149,7 +149,7 @@
 
 {{-- Stripe.js --}}
 <script src="https://js.stripe.com/v3/"></script>
-<script>
+<script @nonce>
 function pagoForm(metodos, intentUrl, csrfToken) {
     return {
         metodoId:        '',
