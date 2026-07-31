@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConsultaRepuesto;
+use App\Models\InventarioSucursal;
 use App\Models\User;
 use App\Notifications\ConsultaAtendidaNotification;
 use App\Notifications\ConsultaPagoConfirmadoNotification;
@@ -91,11 +92,16 @@ class ConsultaAdminController extends Controller
             'pago_notas'  => $request->notas,
         ]);
 
-        // Notificar al cliente
+        // Descontar stock del inventario
         $consultaRepuesto->load('repuesto');
+        InventarioSucursal::where('repuesto_id', $consultaRepuesto->repuesto_id)
+            ->orderByDesc('stock')
+            ->first()
+            ?->decrement('stock', $consultaRepuesto->cantidad);
+
         $this->notificarPago($consultaRepuesto, 'confirmado');
 
-        return back()->with('success', 'Pago confirmado. Se notificó al cliente.');
+        return back()->with('success', 'Pago confirmado y stock actualizado. Se notificó al cliente.');
     }
 
     // ─── Admin rechaza pago del cliente ──────────────────────────────────
