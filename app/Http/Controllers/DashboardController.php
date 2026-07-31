@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\InventarioSucursal;
 use App\Models\Mecanico;
+use App\Models\MovimientoCaja;
 use App\Models\OrdenServicio;
 use App\Models\Pago;
 use App\Models\Vehiculo;
@@ -16,18 +17,35 @@ class DashboardController extends Controller
     public function index(): View
     {
         // ── KPIs principales ───────────────────────────────────────
+        $ingresoOrdenesMes = Pago::where('estado', 'Confirmado')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('monto');
+
+        $ingresoTiendaMes = MovimientoCaja::where('tipo', 'Ingreso')
+            ->where('referencia', 'like', 'consulta_%')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('monto');
+
         $stats = [
             'clientes'        => Cliente::count(),
             'vehiculos'       => Vehiculo::count(),
             'ordenes_activas' => OrdenServicio::whereNotIn('estado', ['Entregado', 'Cancelado'])->count(),
-            'ingresos_mes'    => Pago::where('estado', 'Confirmado')
-                                    ->whereMonth('created_at', now()->month)
-                                    ->whereYear('created_at', now()->year)
-                                    ->sum('monto'),
+            'ingresos_mes'    => $ingresoOrdenesMes + $ingresoTiendaMes,
         ];
 
         // ── Ingresos últimos 30 días (para gráfica de línea) ───────
         $ingresosPorDia = Pago::where('estado', 'Confirmado')
+            ->where('created_at', '>=', now()->subDays(29)->startOfDay())
+            ->selectRaw('DATE(created_at) as fecha, SUM(monto) as total')
+            ->groupBy('fecha')
+            ->orderBy('fecha')
+            ->pluck('total', 'fecha');
+
+        // Sumar ventas de tienda a la gráfica diaria
+        $tiendaPorDia = MovimientoCaja::where('tipo', 'Ingreso')
+            ->where('referencia', 'like', 'consulta_%')
             ->where('created_at', '>=', now()->subDays(29)->startOfDay())
             ->selectRaw('DATE(created_at) as fecha, SUM(monto) as total')
             ->groupBy('fecha')
@@ -39,7 +57,7 @@ class DashboardController extends Controller
         for ($i = 29; $i >= 0; $i--) {
             $d = now()->subDays($i)->format('Y-m-d');
             $labels30->push(now()->subDays($i)->format('d/m'));
-            $data30->push((float) ($ingresosPorDia[$d] ?? 0));
+            $data30->push((float) ($ingresosPorDia[$d] ?? 0) + (float) ($tiendaPorDia[$d] ?? 0));
         }
 
         // ── Órdenes por estado (donut) ─────────────────────────────

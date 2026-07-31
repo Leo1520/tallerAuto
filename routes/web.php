@@ -23,6 +23,7 @@ use App\Http\Controllers\Cliente\ConsultaController;
 use App\Http\Controllers\Cliente\ConsultaPagoController;
 use App\Http\Controllers\Cliente\PortalController;
 use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
@@ -155,6 +156,9 @@ Route::middleware([
     // Usuarios
     Route::resource('usuarios', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     Route::patch('/usuarios/{usuario}/password', [UserController::class, 'cambiarPassword'])->name('usuarios.password');
+
+    // Roles
+    Route::resource('roles', RoleController::class)->except(['show']);
 
     // Servicios
     Route::resource('servicios', ServicioController::class)->except(['show']);

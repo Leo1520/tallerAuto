@@ -68,6 +68,7 @@
                 ['route' => 'mecanicos.index',  'label' => 'Mecanicos',  'icon' => 'bi-wrench-adjustable', 'pattern' => 'mecanicos*'],
                 ['route' => 'sucursales.index', 'label' => 'Sucursales', 'icon' => 'bi-geo-alt',           'pattern' => 'sucursales*'],
                 ['route' => 'usuarios.index',   'label' => 'Usuarios',   'icon' => 'bi-shield-person',     'pattern' => 'usuarios*'],
+                ['route' => 'roles.index',      'label' => 'Roles',      'icon' => 'bi-shield-lock',       'pattern' => 'roles*'],
             ],
         ];
         @endphp

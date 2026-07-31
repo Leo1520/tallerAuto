@@ -12,14 +12,20 @@ class ConsultaRepuesto extends Model
 
     protected $fillable = [
         'repuesto_id', 'cliente_id', 'nombre', 'telefono',
-        'email', 'cantidad', 'notas', 'estado',
+        'email', 'cantidad', 'monto', 'notas', 'estado',
         'token', 'qr_path', 'comprobante_path', 'pago_estado', 'pago_notas',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'cantidad'   => 'integer',
+        'monto'      => 'decimal:2',
     ];
+
+    public function montoTotal(): float
+    {
+        return (float) ($this->monto ?? ($this->cantidad * ($this->repuesto->precio_venta ?? 0)));
+    }
 
     public function repuesto(): BelongsTo
     {

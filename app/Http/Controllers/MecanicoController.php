@@ -93,8 +93,8 @@ class MecanicoController extends Controller
                     'password'   => $request->user_password,
                 ]);
 
-                if ($request->rol_id) {
-                    $user->roles()->sync([$request->rol_id]);
+                if ($request->filled('roles')) {
+                    $user->roles()->sync($request->input('roles', []));
                 }
             }
 

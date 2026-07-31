@@ -151,14 +151,26 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
-                    <select name="rol_id"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Sin rol</option>
-                        @foreach($roles as $rol)
-                            <option value="{{ $rol->id }}" @selected(old('rol_id') == $rol->id)>{{ $rol->nombre }}</option>
-                        @endforeach
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Roles del sistema</label>
+                    @if($roles->isEmpty())
+                        <p class="text-xs text-gray-500">No hay roles disponibles.</p>
+                    @else
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach($roles as $rol)
+                            <label class="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 cursor-pointer hover:border-blue-400 transition-colors">
+                                <input type="checkbox" name="roles[]" value="{{ $rol->id }}"
+                                       class="w-4 h-4 rounded text-blue-600 border-gray-400 bg-gray-100 dark:bg-gray-600 focus:ring-blue-500"
+                                       {{ in_array($rol->id, old('roles', [])) ? 'checked' : '' }}>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ $rol->nombre }}</p>
+                                    @if($rol->descripcion)
+                                    <p class="text-xs text-gray-500">{{ $rol->descripcion }}</p>
+                                    @endif
+                                </div>
+                            </label>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

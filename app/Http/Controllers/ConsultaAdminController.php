@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConsultaRepuesto;
 use App\Models\InventarioSucursal;
+use App\Models\MovimientoCaja;
 use App\Models\User;
 use App\Notifications\ConsultaAtendidaNotification;
 use App\Notifications\ConsultaPagoConfirmadoNotification;
@@ -87,17 +88,32 @@ class ConsultaAdminController extends Controller
         );
         abort_unless($consultaRepuesto->pago_estado === 'En revisión', 422, 'No hay comprobante pendiente.');
 
+        $consultaRepuesto->load('repuesto');
+
+        // Calcular monto: precio_venta × cantidad
+        $monto = round($consultaRepuesto->cantidad * ($consultaRepuesto->repuesto->precio_venta ?? 0), 2);
+
         $consultaRepuesto->update([
             'pago_estado' => 'Confirmado',
             'pago_notas'  => $request->notas,
+            'monto'       => $monto,
         ]);
 
         // Descontar stock del inventario
-        $consultaRepuesto->load('repuesto');
         InventarioSucursal::where('repuesto_id', $consultaRepuesto->repuesto_id)
             ->orderByDesc('stock')
             ->first()
             ?->decrement('stock', $consultaRepuesto->cantidad);
+
+        // Registrar ingreso en caja
+        MovimientoCaja::create([
+            'pago_id'   => null,
+            'user_id'   => auth()->id(),
+            'tipo'      => 'Ingreso',
+            'concepto'  => "Venta tienda: {$consultaRepuesto->repuesto->nombre} × {$consultaRepuesto->cantidad} (Consulta #{$consultaRepuesto->id})",
+            'monto'     => $monto,
+            'referencia'=> "consulta_{$consultaRepuesto->id}",
+        ]);
 
         $this->notificarPago($consultaRepuesto, 'confirmado');
 
