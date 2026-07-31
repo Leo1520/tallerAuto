@@ -262,7 +262,7 @@
     </div>
 </div>
 
-<script>
+<script @nonce>
 (function () {
     var pendingForm = null;
 
@@ -327,7 +327,7 @@
 {{-- Bootstrap 5 JS (modals, dropdowns, tooltips) --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
+<script @nonce>
 (function () {
     const badge    = document.getElementById('notifBadge');
     const list     = document.getElementById('notifList');

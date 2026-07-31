@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
 
+        // Security headers (X-Frame-Options, CSP, etc.) en todas las rutas web.
+        $middleware->web(append: \App\Http\Middleware\SecurityHeaders::class);
+
         // Sin excepciones CSRF — Stripe eliminado (PAYMENT_DRIVER=manual_qr)
     })
     ->withExceptions(function (Exceptions $exceptions): void {

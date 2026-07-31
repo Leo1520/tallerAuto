@@ -232,7 +232,7 @@
 
 </div>
 
-<script>
+<script @nonce>
     function checkPanel() {
         var el = document.getElementById('auth-left-panel');
         if (!el) return;

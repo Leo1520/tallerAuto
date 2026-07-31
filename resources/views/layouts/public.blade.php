@@ -168,7 +168,7 @@
     @yield('content')
 </div>
 
-<script>
+<script @nonce>
 function toggleMobMenu() {
     var m = document.getElementById('mobMenu');
     var open = m.style.display === 'block';
