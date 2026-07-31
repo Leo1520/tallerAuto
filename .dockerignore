@@ -1,0 +1,29 @@
+# Control de versiones
+.git
+.gitattributes
+.gitignore
+
+# Variables de entorno (nunca al imagen)
+.env
+.env.local
+.env.*.local
+
+# Dependencias generadas localmente (se instalan en el build)
+vendor/
+node_modules/
+
+# Assets compilados localmente (se compilan en el build)
+public/build/
+public/hot
+public/storage
+
+# Archivos de desarrollo
+.phpunit.result.cache
+phpunit.xml
+*.log
+storage/logs/
+
+# Editor y herramientas
+.editorconfig
+.claude/
+README.md

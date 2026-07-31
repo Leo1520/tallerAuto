@@ -1,0 +1,52 @@
+services:
+
+  # ─── Aplicación (PHP-FPM + Nginx) ─────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: leo1520/taller-pro:latest
+    container_name: taller_app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    env_file:
+      - .env.docker
+    volumes:
+      - storage_public:/var/www/html/storage/app/public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - taller_net
+
+  # ─── Base de datos MySQL ───────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: taller_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE:      db_taller
+      MYSQL_USER:          taller
+      MYSQL_PASSWORD:      "${DB_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - taller_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db_data:
+  storage_public:
+
+networks:
+  taller_net:
+    driver: bridge
