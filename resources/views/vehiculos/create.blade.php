@@ -29,8 +29,16 @@
                     class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 {{ $errors->has('cliente_id') ? 'border-red-500' : 'border-gray-600' }}">
                 <option value="">Seleccionar cliente...</option>
                 @foreach ($clientes as $c)
+                    @php
+                        $cTipo = $c->tipo_documento ?? '';
+                        $cNum  = $c->numero_documento ?? '';
+                        if ($cTipo && $cNum && preg_match('/^' . preg_quote($cTipo, '/') . '-?/i', $cNum)) {
+                            $cNum = preg_replace('/^' . preg_quote($cTipo, '/') . '-?/i', '', $cNum);
+                        }
+                        $cDoc = $cNum ? ' — ' . ($cTipo ? "{$cTipo}-{$cNum}" : $cNum) : '';
+                    @endphp
                     <option value="{{ $c->id }}" {{ old('cliente_id', $clienteSeleccionado?->id) == $c->id ? 'selected' : '' }}>
-                        {{ $c->persona->nombre }}{{ $c->numero_documento ? ' — ' . $c->numero_documento : '' }}
+                        {{ $c->persona->nombre }}{{ $cDoc }}
                     </option>
                 @endforeach
             </select>
@@ -83,7 +91,7 @@
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Color</label>
                 <input type="text" name="color" value="{{ old('color') }}"
                        placeholder="Ej: Blanco, Negro..."
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             </div>
 
             <div>
@@ -101,7 +109,7 @@
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Placa <span class="text-red-400">*</span></label>
                 <input type="text" name="placa" value="{{ old('placa') }}" required
                        placeholder="ABC-1234"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono uppercase rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('placa') ? 'border-red-500' : 'border-gray-600' }}">
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono uppercase rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('placa') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('placa') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
 
@@ -113,12 +121,12 @@
 
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">
-                    VIN <span class="text-red-400">*</span>
-                    <span class="text-xs font-normal text-gray-500 ml-1">(17 caracteres)</span>
+                    VIN
+                    <span class="text-xs font-normal text-gray-500 ml-1">(17 caracteres — opcional si no está disponible)</span>
                 </label>
-                <input type="text" name="vin" value="{{ old('vin') }}" required maxlength="17" minlength="17"
+                <input type="text" name="vin" value="{{ old('vin') }}" maxlength="17"
                        placeholder="1HGBH41JXMN109186"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono uppercase rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('vin') ? 'border-red-500' : 'border-gray-600' }}">
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono uppercase rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('vin') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('vin') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
 

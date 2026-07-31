@@ -11,13 +11,22 @@ class StoreVehiculoRequest extends FormRequest
         return $this->user()->can('create', \App\Models\Vehiculo::class);
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'placa' => strtoupper(trim($this->placa ?? '')),
+            'vin'   => strtoupper(trim($this->vin ?? '')) ?: null,
+            'color' => $this->color ? ucfirst(mb_strtolower(trim($this->color))) : null,
+        ]);
+    }
+
     public function rules(): array
     {
         return [
             'cliente_id'  => ['required', 'exists:clientes,id'],
             'modelo_id'   => ['required', 'exists:modelos,id'],
             'placa'       => ['required', 'string', 'max:10', 'unique:vehiculos,placa'],
-            'vin'         => ['required', 'string', 'size:17', 'unique:vehiculos,vin'],
+            'vin'         => ['nullable', 'string', 'size:17', 'unique:vehiculos,vin'],
             'ano'         => ['required', 'integer', 'min:1900', 'max:' . (date('Y') + 1)],
             'color'       => ['nullable', 'string', 'max:30'],
             'combustible' => ['nullable', 'in:Gasolina,Diesel,Gas Natural,Eléctrico,Híbrido'],
@@ -28,16 +37,15 @@ class StoreVehiculoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'cliente_id.required'  => 'Selecciona un cliente.',
-            'cliente_id.exists'    => 'El cliente seleccionado no existe.',
-            'modelo_id.required'   => 'Selecciona un modelo.',
-            'placa.required'       => 'La placa es obligatoria.',
-            'placa.unique'         => 'Ya existe un vehículo con esa placa.',
-            'vin.required'         => 'El VIN es obligatorio.',
-            'vin.size'             => 'El VIN debe tener exactamente 17 caracteres.',
-            'vin.unique'           => 'Ya existe un vehículo con ese VIN.',
-            'ano.required'         => 'El año es obligatorio.',
-            'ano.min'              => 'El año no puede ser anterior a 1900.',
+            'cliente_id.required' => 'Selecciona un cliente.',
+            'cliente_id.exists'   => 'El cliente seleccionado no existe.',
+            'modelo_id.required'  => 'Selecciona un modelo.',
+            'placa.required'      => 'La placa es obligatoria.',
+            'placa.unique'        => 'Ya existe un vehículo con esa placa.',
+            'vin.size'            => 'El VIN debe tener exactamente 17 caracteres.',
+            'vin.unique'          => 'Ya existe un vehículo con ese VIN.',
+            'ano.required'        => 'El año es obligatorio.',
+            'ano.min'             => 'El año no puede ser anterior a 1900.',
         ];
     }
 }

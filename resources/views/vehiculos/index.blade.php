@@ -25,7 +25,7 @@
             <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" style="font-size:13px; pointer-events:none;"></i>
             <input id="searchInput" type="text" name="search" value="{{ request('search') }}"
                    placeholder="Placa, VIN o nombre del cliente..." autocomplete="off"
-                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             <span id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
                 <svg class="animate-spin w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -96,15 +96,26 @@
                     <tr class="hover:bg-gray-700/30 transition-colors">
                         <td class="px-6 py-3.5">
                             <p class="text-sm font-semibold text-gray-100">{{ $vehiculo->modelo->marca->nombre }} {{ $vehiculo->modelo->nombre }}</p>
-                            <p class="text-xs text-gray-500">{{ $vehiculo->ano }} · {{ $vehiculo->color ?? 'Sin color' }}</p>
+                            <p class="text-xs text-gray-500 capitalize">{{ $vehiculo->ano }}{{ $vehiculo->color ? ' · ' . $vehiculo->color : '' }}</p>
                         </td>
                         <td class="px-6 py-3.5">
                             <p class="text-sm font-mono font-semibold text-gray-100">{{ $vehiculo->placa }}</p>
-                            <p class="text-xs text-gray-500 font-mono">{{ substr($vehiculo->vin, 0, 8) }}...</p>
+                            @if($vehiculo->vin)
+                            <div class="flex items-center gap-1.5 mt-0.5">
+                                <p class="text-xs text-gray-500 font-mono">{{ $vehiculo->vin }}</p>
+                                <button type="button" title="Copiar VIN"
+                                        onclick="copiarVin(this, '{{ $vehiculo->vin }}')"
+                                        class="text-gray-600 hover:text-blue-400 transition-colors flex-shrink-0">
+                                    <i class="bi bi-clipboard" style="font-size:11px;"></i>
+                                </button>
+                            </div>
+                            @else
+                            <p class="text-xs text-gray-600 italic mt-0.5">Sin VIN</p>
+                            @endif
                         </td>
                         <td class="px-6 py-3.5">
                             <a href="{{ route('clientes.show', $vehiculo->cliente) }}"
-                               class="text-sm font-medium hover:underline" style="color:#D71920;">
+                               class="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors">
                                 {{ $vehiculo->cliente->persona->nombre }}
                             </a>
                         </td>
@@ -128,6 +139,16 @@
                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg transition-colors border border-blue-800/50">
                                     <i class="bi bi-pencil" style="font-size:11px;"></i> Editar
                                 </a>
+                                @endcan
+                                @can('delete', $vehiculo)
+                                <form method="POST" action="{{ route('vehiculos.destroy', $vehiculo) }}"
+                                      data-confirm="¿Eliminar el vehículo {{ $vehiculo->placa }}? Esta acción no se puede deshacer.">
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
+                                        <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
+                                    </button>
+                                </form>
                                 @endcan
                             </div>
                         </td>
@@ -177,5 +198,17 @@
     input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(buscar, 250); });
     selects.forEach(s => s.addEventListener('change', buscar));
 })();
+
+window.copiarVin = function(btn, vin) {
+    navigator.clipboard.writeText(vin).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'bi bi-clipboard-check';
+        btn.classList.add('text-green-400');
+        setTimeout(() => {
+            icon.className = 'bi bi-clipboard';
+            btn.classList.remove('text-green-400');
+        }, 1500);
+    });
+};
 </script>
 @endpush

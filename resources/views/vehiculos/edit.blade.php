@@ -79,7 +79,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Color</label>
                 <input type="text" name="color" value="{{ old('color', $vehiculo->color) }}"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             </div>
 
             <div>
@@ -108,10 +108,10 @@
 
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">
-                    VIN <span class="text-red-400">*</span>
-                    <span class="text-xs font-normal text-gray-500 ml-1">(17 caracteres)</span>
+                    VIN
+                    <span class="text-xs font-normal text-gray-500 ml-1">(17 caracteres — opcional si no está disponible)</span>
                 </label>
-                <input type="text" name="vin" value="{{ old('vin', $vehiculo->vin) }}" required maxlength="17" minlength="17"
+                <input type="text" name="vin" value="{{ old('vin', $vehiculo->vin) }}" maxlength="17"
                        class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono uppercase rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 {{ $errors->has('vin') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('vin') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
