@@ -10,6 +10,13 @@
     </a>
 @endsection
 
+@php
+$ciudadesBO = [
+    'Santa Cruz de la Sierra', 'La Paz', 'Cochabamba', 'Sucre',
+    'Oruro', 'Potosí', 'Tarija', 'Trinidad', 'Cobija',
+];
+@endphp
+
 @section('content')
 
 <div class="max-w-2xl mx-auto">
@@ -27,18 +34,20 @@
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Nombre completo <span class="text-red-400">*</span></label>
                 <input type="text" name="nombre" value="{{ old('nombre', $cliente->persona->nombre) }}" required
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('nombre') ? 'border-red-500' : 'border-gray-600' }}">
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('nombre') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('nombre') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Teléfono</label>
                 <input type="text" name="telefono" value="{{ old('telefono', $cliente->persona->telefono) }}"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       placeholder="Ej: 78901234"
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Correo electrónico</label>
                 <input type="email" name="email" value="{{ old('email', $cliente->persona->email) }}"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('email') ? 'border-red-500' : 'border-gray-600' }}">
+                       placeholder="cliente@email.com"
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('email') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
         </div>
@@ -56,7 +65,7 @@
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de documento</label>
                 <select name="tipo_documento"
                         class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
-                    <option value="">Seleccionar...</option>
+                    <option value="">Sin documento</option>
                     @foreach (['CI' => 'Cédula de identidad (CI)', 'NIT' => 'NIT', 'Pasaporte' => 'Pasaporte', 'Otro' => 'Otro'] as $val => $label)
                         <option value="{{ $val }}" {{ old('tipo_documento', $cliente->tipo_documento) === $val ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
@@ -65,7 +74,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Número de documento</label>
                 <input type="text" name="numero_documento" value="{{ old('numero_documento', $cliente->numero_documento) }}"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('numero_documento') ? 'border-red-500' : 'border-gray-600' }}">
+                       placeholder="Ej: 1234567"
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('numero_documento') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('numero_documento') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
         </div>
@@ -82,12 +92,21 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Ciudad</label>
                 <input type="text" name="ciudad" value="{{ old('ciudad', $cliente->ciudad) }}"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       placeholder="Ej: Santa Cruz de la Sierra"
+                       list="ciudades-bo"
+                       autocomplete="off"
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
+                <datalist id="ciudades-bo">
+                    @foreach($ciudadesBO as $c)
+                        <option value="{{ $c }}">
+                    @endforeach
+                </datalist>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Dirección</label>
                 <input type="text" name="direccion" value="{{ old('direccion', $cliente->direccion) }}"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       placeholder="Av. Principal N.º 123"
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             </div>
         </div>
     </div>

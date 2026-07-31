@@ -54,13 +54,14 @@ $badgeEstado = [
         <div>
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ordenes activas</p>
             <p class="text-3xl font-bold text-gray-900 leading-tight">{{ number_format($stats['ordenes_activas']) }}</p>
+            <p class="text-xs text-gray-400 mt-0.5">Excluye entregadas y canceladas</p>
         </div>
     </div>
 
     <div class="kpi-card bg-white rounded-xl p-5 border border-gray-200 flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
              style="background:rgba(16,185,129,.1);">
-            <i class="bi bi-cash-stack" style="font-size:22px; color:#34d399;"></i>
+            <i class="bi bi-wallet-fill" style="font-size:22px; color:#34d399;"></i>
         </div>
         <div>
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ingresos este mes</p>
@@ -228,21 +229,46 @@ document.addEventListener('DOMContentLoaded', function () {
                 borderWidth: 2,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 2,
-                pointHoverRadius: 5,
+                pointRadius: 3,
+                pointHoverRadius: 6,
                 pointBackgroundColor: '#D71920',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#D71920',
+                pointHoverBorderWidth: 2,
             }],
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#94a3b8',
+                    bodyColor: '#f1f5f9',
+                    borderColor: '#334155',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        title: ctx => ctx[0].label,
+                        label: ctx => ctx.parsed.y > 0
+                            ? ' Bs ' + ctx.parsed.y.toLocaleString('es-BO', { minimumFractionDigits: 2 })
+                            : ' Sin ingresos',
+                    },
+                },
+            },
             scales: {
-                x: { grid: { color: '#1e3352' }, ticks: { maxTicksLimit: 8, font: { size: 11 } } },
+                x: {
+                    grid: { color: '#1e3352' },
+                    ticks: { maxTicksLimit: 8, font: { size: 11 }, color: '#94a3b8' },
+                },
                 y: {
                     grid: { color: '#1e3352' },
+                    beginAtZero: true,
                     ticks: {
                         font: { size: 11 },
+                        color: '#94a3b8',
                         callback: v => 'Bs ' + v.toLocaleString(),
                     },
                 },

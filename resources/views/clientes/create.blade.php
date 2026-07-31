@@ -10,6 +10,13 @@
     </a>
 @endsection
 
+@php
+$ciudadesBO = [
+    'Santa Cruz de la Sierra', 'La Paz', 'Cochabamba', 'Sucre',
+    'Oruro', 'Potosí', 'Tarija', 'Trinidad', 'Cobija',
+];
+@endphp
+
 @section('content')
 
 <div class="max-w-2xl mx-auto">
@@ -28,20 +35,21 @@
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Nombre completo <span class="text-red-400">*</span></label>
                 <input type="text" name="nombre" value="{{ old('nombre') }}" required
                        placeholder="Ej: Juan Carlos Pérez"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('nombre') ? 'border-red-500' : 'border-gray-600' }}">
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('nombre') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('nombre') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1.5">Teléfono</label>
-                <input type="text" name="telefono" value="{{ old('telefono') }}"
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Teléfono <span class="text-red-400">*</span></label>
+                <input type="text" name="telefono" value="{{ old('telefono') }}" required
                        placeholder="Ej: 78901234"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('telefono') ? 'border-red-500' : 'border-gray-600' }}">
+                @error('telefono') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Correo electrónico</label>
                 <input type="email" name="email" value="{{ old('email') }}"
                        placeholder="cliente@email.com"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('email') ? 'border-red-500' : 'border-gray-600' }}">
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('email') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
         </div>
@@ -56,21 +64,21 @@
         </div>
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de documento</label>
-                <select name="tipo_documento"
-                        class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
-                    <option value="">Seleccionar...</option>
-                    <option value="CI"        {{ old('tipo_documento') === 'CI'        ? 'selected' : '' }}>Cédula de identidad (CI)</option>
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de documento <span class="text-red-400">*</span></label>
+                <select name="tipo_documento" required
+                        class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 {{ $errors->has('tipo_documento') ? 'border-red-500' : 'border-gray-600' }}">
+                    <option value="CI"        {{ old('tipo_documento', 'CI') === 'CI'        ? 'selected' : '' }}>Cédula de identidad (CI)</option>
                     <option value="NIT"       {{ old('tipo_documento') === 'NIT'       ? 'selected' : '' }}>NIT</option>
                     <option value="Pasaporte" {{ old('tipo_documento') === 'Pasaporte' ? 'selected' : '' }}>Pasaporte</option>
                     <option value="Otro"      {{ old('tipo_documento') === 'Otro'      ? 'selected' : '' }}>Otro</option>
                 </select>
+                @error('tipo_documento') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1.5">Número de documento</label>
-                <input type="text" name="numero_documento" value="{{ old('numero_documento') }}"
-                       placeholder="Ej: CI-1234567"
-                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 {{ $errors->has('numero_documento') ? 'border-red-500' : 'border-gray-600' }}">
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Número de documento <span class="text-red-400">*</span></label>
+                <input type="text" name="numero_documento" value="{{ old('numero_documento') }}" required
+                       placeholder="Ej: 1234567"
+                       class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 font-mono rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('numero_documento') ? 'border-red-500' : 'border-gray-600' }}">
                 @error('numero_documento') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
         </div>
@@ -87,14 +95,21 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Ciudad</label>
                 <input type="text" name="ciudad" value="{{ old('ciudad') }}"
-                       placeholder="Ej: Cochabamba"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       placeholder="Ej: Santa Cruz de la Sierra"
+                       list="ciudades-bo"
+                       autocomplete="off"
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
+                <datalist id="ciudades-bo">
+                    @foreach($ciudadesBO as $c)
+                        <option value="{{ $c }}">
+                    @endforeach
+                </datalist>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Dirección</label>
                 <input type="text" name="direccion" value="{{ old('direccion') }}"
                        placeholder="Av. Principal N.º 123"
-                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                       class="w-full px-3 py-2.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             </div>
         </div>
     </div>
