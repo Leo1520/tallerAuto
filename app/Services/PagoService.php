@@ -55,7 +55,11 @@ class PagoService
 
     public function confirmarPago(Pago $pago, User $cajero): void
     {
-        DB::transaction(function () use ($pago, $cajero) {
+        // Capturar IP antes de la transacción (el objeto Request no cambia dentro del closure,
+        // pero capturarlo aquí hace explícito que es un dato del request HTTP, no de la DB).
+        $ip = request()->ip();
+
+        DB::transaction(function () use ($pago, $cajero, $ip) {
             // Releer con bloqueo exclusivo para prevenir doble confirmación concurrente.
             $pago = Pago::lockForUpdate()->findOrFail($pago->id);
 
@@ -68,12 +72,12 @@ class PagoService
                 'fecha_confirmacion'   => now(),
                 'user_id'              => $cajero->id,
                 'confirmado_por_id'    => $cajero->id,
-                'confirmado_ip'        => request()->ip(),
+                'confirmado_ip'        => $ip,
                 'metodo_confirmacion'  => $this->resolverMetodoConfirmacion($pago),
             ]);
 
             $pago->loadMissing(['orden', 'metodoPago']);
-            $this->efectosConfirmacion($pago, $cajero);
+            $this->efectosConfirmacion($pago, $cajero, $ip);
         });
 
         EnviarConfirmacionPagoJob::dispatch($pago->id);
@@ -102,8 +106,9 @@ class PagoService
         User          $cajero
     ): Pago {
         $pago = null;
+        $ip   = request()->ip();
 
-        DB::transaction(function () use ($orden, $metodo, $monto, $montoRecibido, $cajero, &$pago) {
+        DB::transaction(function () use ($orden, $metodo, $monto, $montoRecibido, $cajero, $ip, &$pago) {
             $cambio = round($montoRecibido - $monto, 2);
 
             $pago = Pago::create([
@@ -115,7 +120,7 @@ class PagoService
                 'estado'               => 'Confirmado',
                 'fecha_confirmacion'   => now(),
                 'confirmado_por_id'    => $cajero->id,
-                'confirmado_ip'        => request()->ip(),
+                'confirmado_ip'        => $ip,
                 'metodo_confirmacion'  => 'Efectivo',
                 'observaciones'        => "Efectivo recibido: Bs " . number_format($montoRecibido, 2)
                                         . " | Cambio entregado: Bs " . number_format($cambio, 2),
@@ -124,7 +129,7 @@ class PagoService
             $pago->loadMissing(['metodoPago']);
             $pago->setRelation('orden', $orden);
 
-            $this->efectosConfirmacion($pago, $cajero);
+            $this->efectosConfirmacion($pago, $cajero, $ip);
         });
 
         EnviarConfirmacionPagoJob::dispatch($pago->id);
@@ -133,7 +138,7 @@ class PagoService
 
     // ─── Efectos post-confirmación ────────────────────────────────────────
 
-    private function efectosConfirmacion(Pago $pago, User $cajero): void
+    private function efectosConfirmacion(Pago $pago, User $cajero, string $ip): void
     {
         // 1. Movimiento de caja
         MovimientoCaja::create([
@@ -162,7 +167,7 @@ class PagoService
             }
         }
 
-        // 3. Auditoría
+        // 3. Auditoría — cambios ya saneados (sin campos sensibles) por el trait
         Auditoria::create([
             'user_id'        => $cajero->id,
             'tipo_operacion' => 'confirmar_pago',
@@ -173,7 +178,7 @@ class PagoService
                 'monto'  => $pago->monto,
                 'metodo' => $pago->metodoPago->nombre,
             ],
-            'ip'         => request()->ip(),
+            'ip'         => $ip,
             'user_agent' => request()->userAgent(),
         ]);
     }

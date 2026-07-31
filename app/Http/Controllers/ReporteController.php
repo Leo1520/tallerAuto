@@ -16,13 +16,22 @@ use Illuminate\View\View;
 
 class ReporteController extends Controller
 {
-    // Skill: laravel-security — verificar permiso antes de cada reporte
     private function autorizarReportes(): void
     {
         abort_unless(
             auth()->user()->hasPermission('reportes.ver') || auth()->user()->isAdmin(),
             403,
             'No tienes permiso para ver reportes.'
+        );
+    }
+
+    // Caja y auditoría: solo Admin y roles financieros/supervisores.
+    private function autorizarAuditoria(): void
+    {
+        abort_unless(
+            auth()->user()->isAdmin() || auth()->user()->hasRole(['Supervisor', 'Contador']),
+            403,
+            'Acceso restringido a Administradores y Supervisores.'
         );
     }
 
@@ -104,7 +113,7 @@ class ReporteController extends Controller
     // ─── Reporte: Libro de caja ──────────────────────────────────────────
     public function caja(Request $request): View
     {
-        $this->autorizarReportes();
+        $this->autorizarAuditoria();
 
         $desde = $request->fecha_desde ?? now()->startOfMonth()->format('Y-m-d');
         $hasta = $request->fecha_hasta ?? now()->format('Y-m-d');
@@ -137,7 +146,7 @@ class ReporteController extends Controller
     // ─── Reporte: Historial de auditoría de pagos ────────────────────────
     public function auditoria(Request $request): View
     {
-        $this->autorizarReportes();
+        $this->autorizarAuditoria();
 
         $desde      = $request->fecha_desde ?? now()->startOfMonth()->format('Y-m-d');
         $hasta      = $request->fecha_hasta ?? now()->format('Y-m-d');

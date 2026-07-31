@@ -32,10 +32,29 @@ trait Auditable
                 'tipo_operacion' => $tipo,
                 'tabla'          => $model->getTable(),
                 'registro_id'    => $model->getKey(),
-                'cambios'        => $cambios,
+                'cambios'        => static::sanitizarCambios($cambios),
                 'ip'             => request()->ip(),
                 'user_agent'     => request()->userAgent(),
             ]);
         }
+    }
+
+    // Elimina claves sensibles antes de persistir el JSON de cambios.
+    private static function sanitizarCambios(array $cambios): array
+    {
+        static $sensibles = [
+            'password', 'remember_token', 'token', 'api_key', 'secret',
+            '_token', 'hash', 'api_secret', 'private_key',
+        ];
+
+        foreach ($cambios as $key => $valor) {
+            if (in_array(strtolower((string) $key), $sensibles, true)) {
+                unset($cambios[$key]);
+            } elseif (is_array($valor)) {
+                $cambios[$key] = static::sanitizarCambios($valor);
+            }
+        }
+
+        return $cambios;
     }
 }
