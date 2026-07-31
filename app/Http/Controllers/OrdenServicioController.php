@@ -50,7 +50,10 @@ class OrdenServicioController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $mecanicos = Mecanico::with('persona')->where('activo', true)->get();
+        $mecanicos = Mecanico::with('persona')
+            ->where(fn($q) => $q->where('activo', true)->orWhereHas('ordenes'))
+            ->orderBy('id')
+            ->get();
 
         return view('ordenes.index', compact('ordenes', 'mecanicos'));
     }

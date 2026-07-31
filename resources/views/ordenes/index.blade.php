@@ -38,7 +38,7 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
             <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" style="font-size:13px; pointer-events:none;"></i>
             <input id="searchInput" type="text" name="search" value="{{ request('search') }}"
                    placeholder="N° orden, placa o cliente..." autocomplete="off"
-                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             <span id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
                 <svg class="animate-spin w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
             </span>
@@ -97,7 +97,7 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
     <div class="px-6 py-4 border-b border-gray-700">
         <p id="listCount" class="text-sm text-gray-400">
             <span class="font-semibold text-gray-200">{{ $ordenes->total() }}</span>
-            {{ Str::plural('orden', $ordenes->total()) }} encontradas
+            {{ $ordenes->total() == 1 ? 'orden' : 'órdenes' }} encontradas
         </p>
     </div>
 
@@ -127,7 +127,7 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
                         <td class="px-6 py-3.5 font-mono text-sm font-semibold text-gray-100">{{ $orden->numero }}</td>
                         <td class="px-6 py-3.5">
                             <p class="text-sm font-semibold text-gray-100">{{ $orden->vehiculo->placa }}</p>
-                            <p class="text-xs text-gray-500">{{ $orden->vehiculo->cliente->persona->nombre }}</p>
+                            <p class="text-xs text-gray-300">{{ $orden->vehiculo->cliente->persona->nombre }}</p>
                         </td>
                         <td class="px-6 py-3.5 text-sm text-gray-300">{{ $orden->mecanico?->persona->nombre ?? '—' }}</td>
                         <td class="px-6 py-3.5 text-center">
@@ -140,7 +140,9 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
                                 {{ $orden->prioridad }}
                             </span>
                         </td>
-                        <td class="px-6 py-3.5 text-right text-sm font-semibold text-gray-100">Bs {{ number_format($orden->total, 2) }}</td>
+                        <td class="px-6 py-3.5 text-right text-sm font-semibold {{ $orden->estado === 'Cancelado' ? 'text-gray-500 line-through' : 'text-gray-100' }}">
+                            Bs {{ number_format($orden->total, 2) }}
+                        </td>
                         <td class="px-6 py-3.5 text-sm text-gray-400">{{ $orden->fecha_ingreso->format('d/m/Y') }}</td>
                         <td class="px-6 py-3.5">
                             <div class="flex items-center justify-end gap-1.5">
@@ -148,6 +150,14 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors border border-gray-600">
                                     <i class="bi bi-eye" style="font-size:11px;"></i> Ver
                                 </a>
+                                @can('update', $orden)
+                                    @unless(in_array($orden->estado, ['Entregado', 'Cancelado']))
+                                        <a href="{{ route('ordenes.edit', $orden) }}"
+                                           class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-300 bg-blue-900/30 hover:bg-blue-900/50 rounded-lg transition-colors border border-blue-800">
+                                            <i class="bi bi-pencil" style="font-size:11px;"></i> Editar
+                                        </a>
+                                    @endunless
+                                @endcan
                             </div>
                         </td>
                     </tr>
