@@ -12,6 +12,14 @@
 
 @section('content')
 
+@php
+$vehiculosData = $vehiculos->map(fn($v) => [
+    'id'    => $v->id,
+    'label' => $v->placa . ' — ' . $v->cliente->persona->nombre
+             . ' (' . $v->modelo->marca->nombre . ' ' . $v->modelo->nombre . ' ' . $v->ano . ')',
+])->values();
+@endphp
+
 <div x-data="ordenForm({{ $servicios->toJson() }}, {{ old('servicios') ? json_encode(old('servicios')) : '[]' }})">
 
     <form method="POST" action="{{ route('ordenes.store') }}" class="space-y-5">
@@ -23,25 +31,54 @@
             <div class="lg:col-span-2 space-y-5">
 
                 {{-- Vehículo --}}
-                <div class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-                    <div class="px-6 py-3 border-b border-gray-700 bg-gray-900/30">
+                <div class="bg-gray-800 border border-gray-700 rounded-xl">
+                    <div class="px-6 py-3 border-b border-gray-700 bg-gray-900/30 rounded-t-xl">
                         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
                             <i class="bi bi-car-front" style="color:#D71920;"></i> Vehículo
                         </p>
                     </div>
                     <div class="p-6">
                         <label class="block text-sm font-medium text-gray-300 mb-1.5">Seleccionar vehículo <span class="text-red-400">*</span></label>
-                        <select name="vehiculo_id" required
-                                class="w-full px-3 py-2.5 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 {{ $errors->has('vehiculo_id') ? 'border-red-500' : 'border-gray-600' }}">
-                            <option value="" style="background:#111827;">Buscar por placa o cliente...</option>
-                            @foreach ($vehiculos as $v)
-                                <option value="{{ $v->id }}"
-                                        style="background:#111827;"
-                                        {{ old('vehiculo_id', $vehiculoSeleccionado?->id) == $v->id ? 'selected' : '' }}>
-                                    {{ $v->placa }} — {{ $v->cliente->persona->nombre }} ({{ $v->modelo->marca->nombre }} {{ $v->modelo->nombre }} {{ $v->ano }})
-                                </option>
-                            @endforeach
-                        </select>
+
+                        <div x-data="vehiculoBuscador({{ $vehiculosData->toJson() }}, '{{ old('vehiculo_id', $vehiculoSeleccionado?->id ?? '') }}')"
+                             class="relative" @click.outside="open = false">
+                            <div class="relative">
+                                <input type="text"
+                                       x-model="busqueda"
+                                       @focus="open = true"
+                                       @input="open = true; vehiculoId = ''"
+                                       @keydown.escape="open = false"
+                                       placeholder="Buscar por placa o cliente..."
+                                       autocomplete="off"
+                                       class="w-full px-3 py-2.5 pr-8 bg-gray-900 border text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400 {{ $errors->has('vehiculo_id') ? 'border-red-500' : 'border-gray-600' }}">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                                    <i class="bi bi-search" style="font-size:12px;"></i>
+                                </span>
+                            </div>
+
+                            <input type="hidden" name="vehiculo_id" :value="vehiculoId">
+
+                            <div x-show="open"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="opacity-0 -translate-y-1"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="absolute z-50 w-full mt-1 bg-gray-900 border border-gray-600 rounded-lg shadow-xl overflow-hidden"
+                                 style="max-height:240px;overflow-y:auto;">
+
+                                <template x-if="filtrados.length === 0">
+                                    <div class="px-4 py-3 text-sm text-gray-500 text-center">Sin resultados</div>
+                                </template>
+
+                                <template x-for="v in filtrados" :key="v.id">
+                                    <div @click="vehiculoId = v.id; busqueda = v.label; open = false"
+                                         :class="vehiculoId == v.id ? 'bg-red-900/30 text-red-300' : 'text-gray-200 hover:bg-gray-700'"
+                                         class="px-3 py-2.5 text-sm cursor-pointer border-b border-gray-700/50 last:border-0 transition-colors">
+                                        <span x-text="v.label"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
                         @error('vehiculo_id') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -62,35 +99,32 @@
 
                         <div class="space-y-3">
                             <template x-for="(item, index) in lineas" :key="index">
-                                <div class="grid grid-cols-12 gap-2 items-end p-3 bg-gray-900/50 rounded-lg border border-gray-700">
-                                    <div class="col-span-5">
+                                <div class="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700">
+
+                                    {{-- Servicio (ocupa todo el espacio disponible) --}}
+                                    <div class="flex-1 min-w-0">
                                         <label class="block text-xs text-gray-500 mb-1">Servicio</label>
                                         <select :name="`servicios[${index}][servicio_id]`" x-model="item.servicio_id"
                                                 @change="onServicioChange(index)"
                                                 class="w-full px-2 py-1.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
-                                            <option value="" style="background:#111827;">Seleccionar...</option>
+                                            <option value="" style="background:#111827;">Seleccionar servicio...</option>
                                             <template x-for="s in todosServicios" :key="s.id">
                                                 <option :value="s.id" x-text="s.nombre" :selected="s.id == item.servicio_id" style="background:#111827;"></option>
                                             </template>
                                         </select>
                                     </div>
-                                    <div class="col-span-2">
-                                        <label class="block text-xs text-gray-500 mb-1">Cant.</label>
-                                        <input type="number" :name="`servicios[${index}][cantidad]`"
-                                               x-model.number="item.cantidad" @input="calcularTotales()"
-                                               min="1" class="w-full px-2 py-1.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
+
+                                    {{-- Precio (ancho fijo, solo lectura) --}}
+                                    <div class="w-32 shrink-0 text-right">
+                                        <label class="block text-xs text-gray-500 mb-1">Precio</label>
+                                        <p class="text-sm font-semibold text-gray-200 py-1.5"
+                                           x-text="item.precio_unitario > 0 ? 'Bs ' + item.precio_unitario.toFixed(2) : '—'"></p>
+                                        <input type="hidden" :name="`servicios[${index}][cantidad]`" value="1">
+                                        <input type="hidden" :name="`servicios[${index}][precio_unitario]`" :value="item.precio_unitario">
                                     </div>
-                                    <div class="col-span-3">
-                                        <label class="block text-xs text-gray-500 mb-1">Precio unitario</label>
-                                        <input type="number" :name="`servicios[${index}][precio_unitario]`"
-                                               x-model.number="item.precio_unitario" @input="calcularTotales()"
-                                               step="0.01" min="0" class="w-full px-2 py-1.5 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
-                                    </div>
-                                    <div class="col-span-1 text-right">
-                                        <label class="block text-xs text-gray-500 mb-1">Subtotal</label>
-                                        <p class="text-sm font-semibold text-gray-100 py-1.5" x-text="'Bs ' + (item.cantidad * item.precio_unitario).toFixed(2)"></p>
-                                    </div>
-                                    <div class="col-span-1 text-center">
+
+                                    {{-- Eliminar --}}
+                                    <div class="shrink-0">
                                         <button type="button" @click="eliminarLinea(index)"
                                                 class="mt-5 text-red-500 hover:text-red-400 transition-colors">
                                             <i class="bi bi-x-lg" style="font-size:15px;"></i>
@@ -200,9 +234,9 @@
                     </div>
                 </div>
 
-                <button type="submit"
+                <button type="submit" id="btnCrearOrden"
                         class="w-full px-6 py-3 text-white font-semibold rounded-lg transition-colors"
-                        style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                        style="background:#D71920;">
                     <i class="bi bi-clipboard2-check me-2"></i> Crear orden de servicio
                 </button>
                 <a href="{{ route('ordenes.index') }}"
@@ -215,6 +249,31 @@
 </div>
 
 <script @nonce>
+function vehiculoBuscador(vehiculos, seleccionadoId) {
+    return {
+        vehiculoId: seleccionadoId,
+        busqueda: '',
+        open: false,
+        vehiculos: vehiculos,
+        filtrados: [],
+        init() {
+            this.filtrados = this.vehiculos;
+            if (this.vehiculoId) {
+                const v = this.vehiculos.find(v => String(v.id) === String(this.vehiculoId));
+                if (v) this.busqueda = v.label;
+            }
+            this.$watch('busqueda', (val) => {
+                if (!val) {
+                    this.filtrados = this.vehiculos;
+                } else {
+                    const q = val.toLowerCase();
+                    this.filtrados = this.vehiculos.filter(v => v.label.toLowerCase().includes(q));
+                }
+            });
+        }
+    };
+}
+
 function ordenForm(servicios, lineasIniciales) {
     return {
         todosServicios: servicios,
@@ -243,10 +302,18 @@ function ordenForm(servicios, lineasIniciales) {
         },
 
         calcularTotales() {
-            this.subtotal = this.lineas.reduce((sum, l) => sum + (l.cantidad * l.precio_unitario), 0);
+            this.subtotal = this.lineas.reduce((sum, l) => sum + ((l.cantidad || 0) * (l.precio_unitario || 0)), 0);
             const base = Math.max(0, this.subtotal - this.descuento);
             this.iva   = Math.round(base * 0.13 * 100) / 100;
             this.total = Math.round((base + this.iva) * 100) / 100;
+        },
+
+        init() {
+            const btn = document.getElementById('btnCrearOrden');
+            if (btn) {
+                btn.addEventListener('mouseover', function () { this.style.background = '#b81218'; });
+                btn.addEventListener('mouseout',  function () { this.style.background = '#D71920'; });
+            }
         }
     };
 }

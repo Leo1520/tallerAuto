@@ -139,7 +139,7 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                                       data-confirm-ok="Sí, quitar"
                                       data-confirm-type="warning">
                                     @csrf @method('DELETE')
-                                    <button type="button" onclick="tpOpen(this.form)"
+                                    <button type="button" data-confirm-open
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
                                         <i class="bi bi-x-lg"></i> Quitar
                                     </button>
@@ -203,9 +203,8 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
 
                     <div class="sm:col-span-4 flex justify-end">
                         <button type="submit"
-                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-                                style="background:#D71920;" :disabled="!repuestoId"
-                                onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors btn-taller-red"
+                                :disabled="!repuestoId">
                             <i class="bi bi-plus-lg"></i> Agregar y descontar stock
                         </button>
                     </div>
@@ -316,9 +315,7 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                 </h3>
                 @can('update', $orden)
                 <button type="button" @click="uploading = !uploading"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
-                        style="background:#D71920; color:white;"
-                        onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white rounded-lg transition-colors btn-taller-red">
                     <i class="bi bi-cloud-upload" style="font-size:13px;"></i>
                     Subir archivo
                 </button>
@@ -344,9 +341,7 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                     </div>
                     <div class="flex gap-2 flex-shrink-0">
                         <button type="submit"
-                                class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white rounded-lg transition-colors"
-                                style="background:#D71920;"
-                                onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                                class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white rounded-lg transition-colors btn-taller-red">
                             <i class="bi bi-upload"></i> Adjuntar
                         </button>
                         <button type="button" @click="uploading = false"
@@ -395,7 +390,7 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                         <form method="POST" action="{{ route('adjuntos.destroy', $adj) }}"
                               data-confirm="¿Eliminar el adjunto «{{ $adj->nombre }}»?">
                             @csrf @method('DELETE')
-                            <button type="button" onclick="tpOpen(this.form)"
+                            <button type="button" data-confirm-open
                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                                     title="Eliminar">
                                 <i class="bi bi-trash" style="font-size:14px;"></i>
@@ -484,22 +479,22 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                 <form method="POST" action="{{ route('ordenes.estado', $orden) }}" class="space-y-3">
                     @csrf @method('PATCH')
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Nuevo estado</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Nuevo estado</label>
                         <select name="estado" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600">
                             @foreach ($estados as $e)
-                                <option value="{{ $e }}" {{ $orden->estado === $e ? 'selected' : '' }}>{{ $e }}</option>
+                                <option value="{{ $e }}" {{ $orden->estado === $e ? 'selected' : '' }} style="background:#111827;">{{ $e }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Nota (opcional)</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Nota (opcional)</label>
                         <textarea name="observaciones" rows="2"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  class="w-full px-3 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 resize-none"
                                   placeholder="Motivo del cambio..."></textarea>
                     </div>
                     <button type="submit"
-                            class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            class="w-full py-2 text-white text-sm font-medium rounded-lg transition-colors btn-taller-red">
                         Actualizar estado
                     </button>
                 </form>
@@ -513,3 +508,19 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
 </div>
 
 @endsection
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
+@endpush
+
+@push('scripts')
+<script @nonce>
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-confirm-open]');
+    if (btn) {
+        e.preventDefault();
+        tpOpen(btn.closest('form'));
+    }
+});
+</script>
+@endpush

@@ -4,9 +4,9 @@
 
 @section('header-actions')
     @can('create', App\Models\OrdenServicio::class)
-        <a href="{{ route('ordenes.create') }}"
+        <a href="{{ route('ordenes.create') }}" id="btnNuevaOrden"
            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-           style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+           style="background:#D71920;">
             <span class="relative inline-flex items-center" style="font-size:15px;">
                 <i class="bi bi-clipboard2-fill"></i>
                 <i class="bi bi-plus-lg" style="font-size:9px; font-weight:900; position:absolute; top:-4px; right:-5px;"></i>
@@ -205,6 +205,12 @@ $prioridadColor = ['Baja' => 'text-gray-400', 'Media' => 'text-blue-400', 'Alta'
 
     input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(buscar, 250); });
     document.querySelectorAll('#filtroForm select').forEach(s => s.addEventListener('change', buscar));
+
+    const btnNuevaOrden = document.getElementById('btnNuevaOrden');
+    if (btnNuevaOrden) {
+        btnNuevaOrden.addEventListener('mouseover', function () { this.style.background = '#b81218'; });
+        btnNuevaOrden.addEventListener('mouseout',  function () { this.style.background = '#D71920'; });
+    }
 })();
 </script>
 @endpush

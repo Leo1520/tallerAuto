@@ -137,9 +137,9 @@
            class="px-5 py-2.5 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
             Cancelar
         </a>
-        <button type="submit"
+        <button type="submit" id="btnGuardarVehiculo"
                 class="px-6 py-2.5 text-sm font-semibold text-white rounded-lg transition-colors"
-                style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+                style="background:#D71920;">
             <i class="bi bi-check-lg me-1"></i> Guardar cambios
         </button>
     </div>
@@ -160,6 +160,11 @@ function vehiculoForm(marcas, marcaInicial, modeloInicial) {
         },
         init() {
             this.filtrarModelos();
+            const btn = document.getElementById('btnGuardarVehiculo');
+            if (btn) {
+                btn.addEventListener('mouseover', function () { this.style.background = '#b81218'; });
+                btn.addEventListener('mouseout',  function () { this.style.background = '#D71920'; });
+            }
         }
     };
 }
