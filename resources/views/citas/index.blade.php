@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- Stats --}}
-<div class="grid grid-cols-3 gap-3 mb-5">
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">
     <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 flex items-center gap-3">
         <div class="w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.2);">
             <i class="bi bi-hourglass-split" style="color:#facc15;font-size:16px;"></i>
