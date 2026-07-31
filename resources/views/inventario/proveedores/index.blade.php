@@ -4,8 +4,7 @@
 
 @section('header-actions')
     <a href="{{ route('proveedores.create') }}"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
-       style="background:#D71920;" onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors btn-taller-red">
         <i class="bi bi-building-add" style="font-size:15px;"></i> Nuevo proveedor
     </a>
 @endsection
@@ -108,7 +107,7 @@
                                 <form method="POST" action="{{ route('proveedores.destroy', $proveedor) }}"
                                       data-confirm="¿Eliminar el proveedor {{ $proveedor->nombre }}?">
                                     @csrf @method('DELETE')
-                                    <button type="button" onclick="tpOpen(this.form)"
+                                    <button type="button" data-confirm-open
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
                                         <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
                                     </button>
@@ -161,6 +160,15 @@
 
     input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(buscar, 250); });
     document.querySelectorAll('#filtroForm select').forEach(s => s.addEventListener('change', buscar));
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-confirm-open]');
+        if (btn) { e.preventDefault(); tpOpen(btn.closest('form')); }
+    });
 })();
 </script>
+@endpush
+
+@push('styles')
+<style>.btn-taller-red{background:#D71920}.btn-taller-red:hover{background:#b81218}</style>
 @endpush
