@@ -18,9 +18,17 @@ class UpdateRepuestoRequest extends FormRequest
             'codigo'        => ['required', 'string', 'max:50', Rule::unique('repuestos', 'codigo')->ignore($repuesto->id)],
             'descripcion'   => ['nullable', 'string', 'max:1000'],
             'imagen'        => ['nullable', 'image', 'max:2048'],
-            'precio_compra' => ['nullable', 'numeric', 'min:0'],
-            'precio_venta'  => ['required', 'numeric', 'min:0'],
+            'precio_compra' => ['required', 'numeric', 'min:0'],
+            'precio_venta'  => ['required', 'numeric', 'min:0', 'gte:precio_compra'],
             'activo'        => ['boolean'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'precio_compra.required' => 'El precio de compra es obligatorio.',
+            'precio_venta.gte'       => 'El precio de venta debe ser mayor o igual al precio de compra.',
         ];
     }
 }

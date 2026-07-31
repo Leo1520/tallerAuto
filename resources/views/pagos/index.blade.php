@@ -164,7 +164,7 @@
                                       data-confirm-title="Confirmar pago"
                                       data-confirm-ok="Sí, confirmar">
                                     @csrf
-                                    <button type="submit"
+                                    <button type="button" onclick="tpOpen(this.form)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-green-300 bg-green-900/30 hover:bg-green-900/50 rounded-lg transition-colors border border-green-800/50">
                                         <i class="bi bi-check-lg" style="font-size:11px;"></i> Confirmar
                                     </button>
@@ -172,7 +172,7 @@
                                 <form method="POST" action="{{ route('pagos.anular', $pago) }}"
                                       data-confirm="¿Anular el pago #{{ $pago->id }}? Esta acción no se puede deshacer.">
                                     @csrf
-                                    <button type="submit"
+                                    <button type="button" onclick="tpOpen(this.form)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-orange-300 bg-orange-900/20 hover:bg-orange-900/40 rounded-lg transition-colors border border-orange-900/50">
                                         <i class="bi bi-x-circle" style="font-size:11px;"></i> Anular
                                     </button>

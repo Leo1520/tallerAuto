@@ -94,7 +94,7 @@
                   data-confirm-title="Eliminar sucursal"
                   data-confirm-ok="Sí, eliminar">
                 @csrf @method('DELETE')
-                <button type="submit"
+                <button type="button" onclick="tpOpen(this.form)"
                         class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-full transition-colors border border-red-900/50">
                     <i class="bi bi-trash" style="font-size:11px;"></i>
                     Eliminar

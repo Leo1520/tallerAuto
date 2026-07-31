@@ -235,115 +235,77 @@
 {{-- ═══════════════════════════════════════════════════════ --}}
 {{--  MODAL DE CONFIRMACIÓN GLOBAL                          --}}
 {{-- ═══════════════════════════════════════════════════════ --}}
-<div id="tpConfirmModal"
-     class="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-4"
-     style="display:none!important;">
-
-    {{-- Overlay --}}
-    <div id="tpConfirmOverlay"
-         class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-200 opacity-0"></div>
-
-    {{-- Panel --}}
-    <div id="tpConfirmPanel"
-         class="relative bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm
-                transition-all duration-200 opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-
-        <div class="p-6 flex flex-col items-center text-center gap-4">
-
-            {{-- Ícono --}}
-            <div id="tpConfirmIcon"
-                 class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
-                 style="background:rgba(215,25,32,.15);">
-                <i id="tpConfirmIconEl" class="bi bi-trash3" style="color:#D71920; font-size:28px;"></i>
+<div id="tpConfirmModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.6);">
+    <div id="tpConfirmPanel" style="background:#1E293B;border:1px solid #334155;border-radius:1rem;width:100%;max-width:400px;box-shadow:0 25px 50px rgba(0,0,0,.5);">
+        <div style="padding:1.5rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1rem;">
+            <div id="tpConfirmIcon" style="width:64px;height:64px;border-radius:1rem;display:flex;align-items:center;justify-content:center;background:rgba(215,25,32,.15);">
+                <i id="tpConfirmIconEl" class="bi bi-trash3" style="color:#D71920;font-size:28px;"></i>
             </div>
-
-            {{-- Texto --}}
             <div>
-                <p id="tpConfirmTitle" class="text-base font-bold text-gray-100 mb-1">Confirmar eliminación</p>
-                <p id="tpConfirmMsg" class="text-sm text-gray-400 leading-relaxed"></p>
+                <p id="tpConfirmTitle" style="font-size:1rem;font-weight:700;color:#F1F5F9;margin:0 0 .25rem;">Confirmar eliminación</p>
+                <p id="tpConfirmMsg"   style="font-size:.875rem;color:#94a3b8;margin:0;line-height:1.5;"></p>
             </div>
-
         </div>
-
-        {{-- Botones --}}
-        <div class="px-6 pb-6 flex gap-3">
+        <div style="padding:0 1.5rem 1.5rem;display:flex;gap:.75rem;">
             <button id="tpConfirmCancel"
-                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-200 bg-gray-700 hover:bg-gray-600 rounded-xl transition-colors">
+                    style="flex:1;padding:.625rem 1rem;font-size:.875rem;font-weight:600;color:#e2e8f0;background:#334155;border:none;border-radius:.75rem;cursor:pointer;"
+                    onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'">
                 Cancelar
             </button>
             <button id="tpConfirmOk"
-                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition-colors"
-                    style="background:#D71920;"
+                    style="flex:1;padding:.625rem 1rem;font-size:.875rem;font-weight:600;color:#fff;background:#D71920;border:none;border-radius:.75rem;cursor:pointer;"
                     onmouseover="this.style.background='#b81218'" onmouseout="this.style.background='#D71920'">
                 Eliminar
             </button>
         </div>
-
     </div>
 </div>
 
 <script>
 (function () {
-    let pendingForm = null;
+    var pendingForm = null;
 
-    const modal   = document.getElementById('tpConfirmModal');
-    const overlay = document.getElementById('tpConfirmOverlay');
-    const panel   = document.getElementById('tpConfirmPanel');
-    const msgEl   = document.getElementById('tpConfirmMsg');
-    const titleEl = document.getElementById('tpConfirmTitle');
-    const iconEl  = document.getElementById('tpConfirmIconEl');
-    const btnOk   = document.getElementById('tpConfirmOk');
-    const btnCancel = document.getElementById('tpConfirmCancel');
+    var modal   = document.getElementById('tpConfirmModal');
+    var msgEl   = document.getElementById('tpConfirmMsg');
+    var titleEl = document.getElementById('tpConfirmTitle');
+    var iconEl  = document.getElementById('tpConfirmIconEl');
+    var iconBox = document.getElementById('tpConfirmIcon');
+    var btnOk   = document.getElementById('tpConfirmOk');
+    var btnCancel = document.getElementById('tpConfirmCancel');
 
-    function openModal(msg, form) {
+    function openModal(form) {
+        if (!modal || !form) return;
         pendingForm = form;
-        msgEl.textContent  = msg;
 
-        const type  = form.dataset.confirmType || 'delete';
-        const title = form.dataset.confirmTitle || 'Confirmar eliminación';
-        titleEl.textContent = title;
+        msgEl.textContent   = form.dataset.confirm || '';
+        titleEl.textContent = form.dataset.confirmTitle || 'Confirmar eliminación';
 
+        var type = form.dataset.confirmType || 'delete';
         if (type === 'warning') {
-            iconEl.className = 'bi bi-exclamation-triangle';
-            iconEl.style.color = '#F97316';
-            iconEl.parentElement.style.background = 'rgba(249,115,22,.12)';
-            btnOk.style.background = '#F97316';
-            btnOk.onmouseover = () => btnOk.style.background = '#ea6c0a';
-            btnOk.onmouseout  = () => btnOk.style.background = '#F97316';
+            iconEl.className           = 'bi bi-exclamation-triangle';
+            iconEl.style.color         = '#F97316';
+            iconBox.style.background   = 'rgba(249,115,22,.15)';
+            btnOk.style.background     = '#F97316';
+            btnOk.onmouseover = function() { btnOk.style.background = '#ea580c'; };
+            btnOk.onmouseout  = function() { btnOk.style.background = '#F97316'; };
             btnOk.textContent = form.dataset.confirmOk || 'Confirmar';
         } else {
-            iconEl.className = 'bi bi-trash3';
-            iconEl.style.color = '#D71920';
-            iconEl.parentElement.style.background = 'rgba(215,25,32,.15)';
-            btnOk.style.background = '#D71920';
-            btnOk.onmouseover = () => btnOk.style.background = '#b81218';
-            btnOk.onmouseout  = () => btnOk.style.background = '#D71920';
+            iconEl.className           = 'bi bi-trash3';
+            iconEl.style.color         = '#D71920';
+            iconBox.style.background   = 'rgba(215,25,32,.15)';
+            btnOk.style.background     = '#D71920';
+            btnOk.onmouseover = function() { btnOk.style.background = '#b81218'; };
+            btnOk.onmouseout  = function() { btnOk.style.background = '#D71920'; };
             btnOk.textContent = form.dataset.confirmOk || 'Eliminar';
         }
 
-        modal.style.removeProperty('display');
-        requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
-            panel.style.opacity   = '1';
-            panel.style.transform = 'translateY(0) scale(1)';
-        });
+        modal.style.display = 'flex';
     }
 
     function closeModal() {
-        overlay.style.opacity = '0';
-        panel.style.opacity   = '0';
-        panel.style.transform = 'translateY(16px) scale(0.97)';
-        setTimeout(() => { modal.style.display = 'none'; pendingForm = null; }, 200);
+        modal.style.display = 'none';
+        pendingForm = null;
     }
-
-    // Interceptar forms con data-confirm
-    document.addEventListener('submit', function (e) {
-        const form = e.target;
-        if (form.dataset.confirm) {
-            e.preventDefault();
-            openModal(form.dataset.confirm, form);
-        }
-    });
 
     btnOk.addEventListener('click', function () {
         if (pendingForm) {
@@ -354,8 +316,11 @@
     });
 
     btnCancel.addEventListener('click', closeModal);
-    overlay.addEventListener('click', closeModal);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+    window.tpOpen = function (form) { openModal(form); };
+    window.tpInit = function () {};
 })();
 </script>
 {{-- Bootstrap 5 JS (modals, dropdowns, tooltips) --}}
@@ -432,7 +397,5 @@
     setInterval(fetchNotifs, 60000);
 })();
 </script>
-
-@stack('scripts')
 </body>
 </html>

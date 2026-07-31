@@ -139,7 +139,7 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                                       data-confirm-ok="Sí, quitar"
                                       data-confirm-type="warning">
                                     @csrf @method('DELETE')
-                                    <button type="submit"
+                                    <button type="button" onclick="tpOpen(this.form)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
                                         <i class="bi bi-x-lg"></i> Quitar
                                     </button>
@@ -393,9 +393,9 @@ $estados = App\Http\Controllers\OrdenServicioController::ESTADOS;
                         </a>
                         @can('update', $orden)
                         <form method="POST" action="{{ route('adjuntos.destroy', $adj) }}"
-                              data-confirm="¿Eliminar el adjunto «{{ addslashes($adj->nombre) }}»?">
+                              data-confirm="¿Eliminar el adjunto «{{ $adj->nombre }}»?">
                             @csrf @method('DELETE')
-                            <button type="submit"
+                            <button type="button" onclick="tpOpen(this.form)"
                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                                     title="Eliminar">
                                 <i class="bi bi-trash" style="font-size:14px;"></i>

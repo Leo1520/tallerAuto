@@ -23,7 +23,7 @@
             <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" style="font-size:13px; pointer-events:none;"></i>
             <input id="searchInput" type="text" name="search" value="{{ request('search') }}"
                    placeholder="Nombre, código o referencia..." autocomplete="off"
-                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500">
+                   class="w-full pl-9 pr-8 py-2 bg-gray-900 border border-gray-600 text-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-400">
             <span id="searchSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
                 <svg class="animate-spin w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
             </span>
@@ -101,7 +101,7 @@
                     @endphp
                     <tr class="hover:bg-gray-700/30 transition-colors">
                         <td class="px-6 py-3.5">
-                            <p class="text-sm font-semibold text-gray-100">{{ $repuesto->nombre }}</p>
+                            <p class="text-sm font-semibold text-gray-100 truncate" style="max-width:220px;" title="{{ $repuesto->nombre }}">{{ $repuesto->nombre }}</p>
                             @if($repuesto->codigo)
                             <p class="text-xs font-mono text-gray-500">{{ $repuesto->codigo }}</p>
                             @endif
@@ -135,9 +135,9 @@
                                     <i class="bi bi-pencil" style="font-size:11px;"></i> Editar
                                 </a>
                                 <form method="POST" action="{{ route('repuestos.destroy', $repuesto) }}"
-                                      data-confirm="¿Eliminar el repuesto {{ addslashes($repuesto->nombre) }}?">
+                                      data-confirm="¿Eliminar el repuesto {{ $repuesto->nombre }}? Solo es posible si no tiene stock disponible.">
                                     @csrf @method('DELETE')
-                                    <button type="submit"
+                                    <button type="button" onclick="tpOpen(this.form)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
                                         <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
                                     </button>

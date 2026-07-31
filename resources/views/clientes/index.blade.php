@@ -165,9 +165,9 @@
                                 @endcan
                                 @can('delete', $cliente)
                                 <form method="POST" action="{{ route('clientes.destroy', $cliente) }}"
-                                      data-confirm="¿Eliminar al cliente {{ addslashes($cliente->persona->nombre) }}? Esta acción no se puede deshacer.">
+                                      data-confirm="¿Eliminar al cliente {{ $cliente->persona->nombre }}? Esta acción no se puede deshacer.">
                                     @csrf @method('DELETE')
-                                    <button type="submit"
+                                    <button type="button" onclick="tpOpen(this.form)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
                                         <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
                                     </button>
@@ -228,7 +228,7 @@
             // Reemplazar tbody
             const newTbody = doc.querySelector('tbody');
             const curTbody = document.querySelector('tbody');
-            if (newTbody && curTbody) curTbody.innerHTML = newTbody.innerHTML;
+            if (newTbody && curTbody) { curTbody.innerHTML = newTbody.innerHTML; if (window.tpInit) window.tpInit(curTbody); }
 
             // Reemplazar contador
             const newCount = doc.getElementById('clienteCount');

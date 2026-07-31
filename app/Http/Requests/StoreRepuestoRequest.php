@@ -16,8 +16,8 @@ class StoreRepuestoRequest extends FormRequest
             'codigo'        => ['required', 'string', 'max:50', 'unique:repuestos,codigo'],
             'descripcion'   => ['nullable', 'string', 'max:1000'],
             'imagen'        => ['nullable', 'image', 'max:2048'],
-            'precio_compra' => ['nullable', 'numeric', 'min:0'],
-            'precio_venta'  => ['required', 'numeric', 'min:0'],
+            'precio_compra' => ['required', 'numeric', 'min:0'],
+            'precio_venta'  => ['required', 'numeric', 'min:0', 'gte:precio_compra'],
             // Stock inicial por sucursal
             'stock_inicial'         => ['nullable', 'integer', 'min:0'],
             'sucursal_id_inicial'   => ['nullable', 'exists:sucursales,id'],
@@ -28,10 +28,12 @@ class StoreRepuestoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nombre.required'        => 'El nombre es obligatorio.',
-            'codigo.required'        => 'El código es obligatorio.',
-            'codigo.unique'          => 'Ya existe un repuesto con ese código.',
-            'precio_venta.required'  => 'El precio de venta es obligatorio.',
+            'nombre.required'         => 'El nombre es obligatorio.',
+            'codigo.required'         => 'El código es obligatorio.',
+            'codigo.unique'           => 'Ya existe un repuesto con ese código.',
+            'precio_compra.required'  => 'El precio de compra es obligatorio.',
+            'precio_venta.required'   => 'El precio de venta es obligatorio.',
+            'precio_venta.gte'        => 'El precio de venta debe ser mayor o igual al precio de compra.',
         ];
     }
 }

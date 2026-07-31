@@ -131,9 +131,9 @@
                                     <i class="bi bi-pencil" style="font-size:11px;"></i> Editar
                                 </a>
                                 <form method="POST" action="{{ route('servicios.destroy', $srv) }}"
-                                      data-confirm="¿Eliminar el servicio {{ addslashes($srv->nombre) }}?">
+                                      data-confirm="¿Eliminar el servicio {{ $srv->nombre }}?">
                                     @csrf @method('DELETE')
-                                    <button type="submit"
+                                    <button type="button" onclick="tpOpen(this.form)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-red-400 bg-red-900/20 hover:bg-red-900/40 rounded-lg transition-colors border border-red-900/50">
                                         <i class="bi bi-trash" style="font-size:11px;"></i> Eliminar
                                     </button>
@@ -177,7 +177,10 @@
             const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
             ['tbody', '#listCount', '#listPag'].forEach(sel => {
                 const n = doc.querySelector(sel), c = document.querySelector(sel);
-                if (n && c) c.innerHTML = n.innerHTML;
+                if (n && c) {
+                    c.innerHTML = n.innerHTML;
+                    if (sel === 'tbody' && window.tpInit) window.tpInit(c);
+                }
             });
             history.replaceState(null, '', baseUrl + (params.toString() ? '?' + params : ''));
         } catch(e) { if (e.name !== 'AbortError') console.error(e); }
